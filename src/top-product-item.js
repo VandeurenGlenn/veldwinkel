@@ -49,8 +49,7 @@ export default define(class TopProductItem extends ElementBase {
   }
 
   get template() {
-    return html`
-<style>
+    return html`<style>
   :host {
     display: flex;
     flex-direction: row;
@@ -71,7 +70,6 @@ export default define(class TopProductItem extends ElementBase {
 <span class="flex"></span>
 <p>${'stock'}</p>
 <span class="flex"></span>
-<p>${'inBox'}</p>
-    `;
+<p>${'inBox'}</p>`;
   }
 })

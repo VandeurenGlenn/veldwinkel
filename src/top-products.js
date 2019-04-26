@@ -7,7 +7,6 @@ export default define(class TopProducts extends ElementBase {
   }
   connectedCallback() {
     super.connectedCallback();
-    console.log('connectedCallback');
     (async () => {
       const snap = await firebase.database().ref('products').once('value');
       window.products = snap.val();
@@ -18,14 +17,12 @@ export default define(class TopProducts extends ElementBase {
   stamp() {
     let index = 0;
     for (const product of products) {
-      console.log(product);
       let item = this.querySelector('index[index]');
       if (!item) {
         item = document.createElement('top-product-item');
         this.appendChild(item);
       }
       item.value = product;
-      // console.log(item);
       // index++;
     }
   }

@@ -6,14 +6,58 @@ export default define(class TopOrder extends ElementBase {
   constructor() {
     super();
     this._onSelected = this._onSelected.bind(this);
+    this._submit = this._submit.bind(this);
   }
 
   connectedCallback() {
     super.connectedCallback();
+    this.shadowRoot.querySelector('custom-svg-icon[icon="done"]').addEventListener('click', this._submit)
     this.selectors = this.shadowRoot.querySelectorAll('custom-selector');
     for (const selector of this.selectors) {
       selector.addEventListener('selected', this._onSelected);
     }
+  }
+
+  async _submit() {
+    const set = [{referentie: this.shadowRoot.querySelector('input[name="reference"]').value}];
+    let selected = [];
+    for (const selector of this.selectors) {
+      if (Array.isArray(selector.selected)) {
+        selected = [...selected, ...selector.selected];
+      }
+    }
+    for (const query of selected) {
+      if (typeof query === 'string') {
+        let price = this.shadowRoot.querySelector(`top-price[name="${query}"]`).innerHTML;
+        const pieces = this.shadowRoot.querySelector(`input[name="${query}"]`).value;
+        set.push({
+          product: query,
+          aantal: Number(pieces)
+        });
+      }
+    }
+    if (set.length > 1) {
+      const snap = await firebase.database().ref(`users/${user.uid}/orders`).push(set);
+      // document.dispatchEvent(new CustomEvent('order-placed', { detail: snap.key }));
+      const answer = await Notification.requestPermission();
+      if (answer) new Notification('Guldentop Veldwinkel', {
+        body: `order geplaatst\n
+  U kan deze afhalen met\n
+  order nummer:\n
+  ${snap.key}\n
+  Tot snel!`});
+
+      this._clear();
+    }
+
+
+
+  }
+
+  _clear() {
+    requestAnimationFrame(() => {
+      location.reload()
+    })
   }
 
   _onSelected(event) {
@@ -25,9 +69,7 @@ export default define(class TopOrder extends ElementBase {
       }
 
     }
-    console.log(selected);
     for (const query of selected) {
-      console.log(query);
       if (typeof query === 'string') {
         let price = this.shadowRoot.querySelector(`top-price[name="${query}"]`).innerHTML
         if (query === 'eggs') price = price / 6;
@@ -43,7 +85,6 @@ export default define(class TopOrder extends ElementBase {
     }, 0);
 
     this.shadowRoot.querySelector('.total').innerHTML = String(price);
-    console.log(event);
   }
 
   get template() {
@@ -114,6 +155,12 @@ export default define(class TopOrder extends ElementBase {
     border: none;
     background: transparent;
   }
+  input[name="reference"] {
+    height: 48px;
+    width: 100%;
+    border-top: 1px solid #0000004f;
+    padding: 12px 24px;
+  }
   @media (min-width: 640px) {
     :host {
       align-items: center;
@@ -128,7 +175,6 @@ export default define(class TopOrder extends ElementBase {
   apply(--css-flex)
 </style>
 <span class="container">
-  <h2>bestelling</h2>
   <h3>groentepakketten</h3>
   <custom-selector attr-for-selected="data-name" multi="true" selected="">
     <span class="selection" data-name="big">
@@ -178,6 +224,9 @@ export default define(class TopOrder extends ElementBase {
       <top-price name="honey">7</top-price>
     </span>
   </custom-selector>
+
+  <input name="reference" type="text" placeholder="referentie of opmerking"></input>
+
   <span class="row toolbar">
     <custom-svg-icon icon="close"></custom-svg-icon>
     <span class="flex"></span>

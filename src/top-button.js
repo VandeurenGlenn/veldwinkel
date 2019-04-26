@@ -46,7 +46,6 @@ export default define(class TopButton extends ElementBase {
 
     <button>
       <slot></slot>
-    </button>
-    `;
+    </button>`;
   }
 })

@@ -7,7 +7,7 @@ export default define(class TranslatedString extends ElementBase {
   }
   set value(value) {
     this.setAttribute('value', value);
-    this.innerHTML = this.translate(this.value);
+    this.shadowRoot.innerHTML = this.translate(this.value);
   }
   get value() {
     return this.getAttribute('value');
@@ -24,4 +24,4 @@ export default define(class TranslatedString extends ElementBase {
   translate(string) {
     return translations['nl'][string];
   }
-})
+});

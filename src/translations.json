@@ -1,6 +1,8 @@
 {
   "nl": {
     "order": "bestel",
-    "fieldstock": "veldoverzicht"
+    "stock": "veldoverzicht",
+    "info": "info",
+    "orders": "bestellingen"
   }
 }

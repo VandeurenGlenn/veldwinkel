@@ -131,17 +131,32 @@
         <span class="row toolbar">
           <custom-svg-icon icon="menu"></custom-svg-icon>
           <span class="flex"></span>
+          <button name="orders">orders</button>
+
+          <button name="products">products</button>
         </span>
       </header>
-      <custom-pages>
+      <custom-pages attr-for-selected="route">
+        <top-products route="products"></top-products>
+        <top-orders route="orders"></top-orders>
         <input-fields fields='["name", "test"]'></input-fields>
-        <top-products></top-products>
       </custom-pages>
     </app-shell>
     <script type="module">
       (async () => {
         await import('./../iconset.js');
         await import('./admin-shell.js');
+        const pages = document.querySelector('custom-pages');
+        const btn = document.querySelector('button[name="orders"]');
+        const btntwo = document.querySelector('button[name="products"]');
+
+        btn.addEventListener('click', () => {
+          pages.select('orders');
+        });
+
+        btntwo.addEventListener('click', () => {
+          pages.select('products');
+        });
       })();
     </script>
   </body>

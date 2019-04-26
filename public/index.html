@@ -101,7 +101,7 @@
         background-size: cover;
       }
       .button-container {
-        padding: 58px 0 0;
+        padding: 58px 0 58px;
         box-sizing: border-box;
         width: 100%;
         align-items: center;
@@ -109,14 +109,15 @@
       }
       .logo {
         display: block;
-        height: 50%;
-        width: 50%;
+        height: 80%;
+        width: 80%;
         background-image: url('assets/veldwinkel-top-dark.webp');
         background-position: center;
         background-clip: border-box;
         background-repeat: no-repeat;
         background-size: contain;
-        opacity: 0.4;
+        opacity: 1;
+        z-index: 100;
       }
       .toolbar {
         height: var(--toolbar-height);
@@ -204,9 +205,14 @@
         justify-content: center;
         padding: 24px 24px 78px 24px;
         box-sizing: border-box;
-        background-color: #0000008a;
+        background-color: #463028;
         background-image: linear-gradient(to bottom,#77b45a8a,#2f6c12a8);
         color: #fff;
+        position: relative;
+        box-shadow: -1px 0px 5px 0px #000;
+      }
+      footer .overlay {
+        background: linear-gradient(to bottom,#2f6c12,#458729);
       }
       .features {
         display: flex;
@@ -244,7 +250,7 @@
       <section class="welcome">
         <span class="overlay"></span>
         <span class="logo"></span>
-        <h3 class="welcome-title">lekker, gezond lokaal</h3>
+        <h3 class="welcome-title">lekker vers lokaal</h3>
       </section>
       <!-- <span> -->
         <!-- <h3 class="title">Wat we doen</h3> -->
@@ -253,12 +259,13 @@
       <!-- </span> -->
       <span class="about-us">
         <h3>Wie we zijn</h3>
-        <p>Een jong kleinschalig en dynamisch landbouwbedrijf ten grenzen Baal, Werchter en Betekom,</p>
-        <p>Gespecialiseerd in het telen van seizoensgebonden groenten en fruit.</p>
+        <p>Een jong kleinschalig en dynamisch landbouwbedrijf op het knooppunt van Baal, Werchter en Betekom,</p>
+        <p>gespecialiseerd in het telen van seizoensgebonden groenten en fruit.</p>
         <!-- <p>Bio.</p> -->
         <h3>wat we te bieden hebben</h3>
-        <p>Wekelijks stellen we voor jou een groentenbak samen dat je kan aanpassen naar behoefte en smaak.</p>
+        <p>Wekelijks stellen we voor jou een groentenbak samen dat je kan aanpassen naar behoefte en smaak,</p>
         <p>deze kan je komen ophalen aan ons veld op vrijdag tussen 17.00 en 18.00 u.</p>
+        <br></br>
         <p>Uiteraard kunnen ook restaurants genieten van onze verse lokale producten!</p>
         <!-- <p></p> -->
 
@@ -270,6 +277,7 @@
       <!-- <span class="actions">
       </span> -->
       <footer>
+        <span class="overlay"></span>
         <ul class="about">
           <!-- <li><custom-svg-icon icon="bike" class="fas fa-bicycle"></custom-svg-icon>delivery at home</li> -->
           <span class="features row">

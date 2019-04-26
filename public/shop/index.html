@@ -18,11 +18,6 @@
         }
       })();
     </script>
-    <script>
-      if (window.location.hash === '#stock') {
-        // window.location.href = `${window.location.origin}/shop#!/stock`;
-      }
-    </script>
 
     <script defer src="/__/firebase/5.10.0/firebase-app.js"></script>
     <script defer src="/__/firebase/5.10.0/firebase-auth.js"></script>
@@ -37,8 +32,10 @@
         right: 0;
         margin: 0;
 
+        font-family: sans-serif;
         position: absolute;
         --toolbar-height: 48px;
+        --custom-drawer-width: 256px;
       }
       header {
         height: 56px;
@@ -87,13 +84,31 @@
         align-items: center;
         --top-button-border: none;
       }
+      header custom-svg-icon {
+        margin-right: 8px;
+        pointer-events: auto;
+        cursor: pointer;
+      }
+      translated-string {
+        text-transform: uppercase;
+      }
+      .firebaseui-auth-container {
+        z-index: 100;
+      }
+      @media (min-width: 720px) {
+        [drawer-opened] header custom-svg-icon {
+          opacity: 0;
+          pointer-events: none;
+          margin-right: 0;
+        }
+      }
     </style>
   </head>
   <script>
     const onload = () => {
       const loginButton = document.querySelector('.login-button');
 
-      firebase.auth().onAuthStateChanged(user => {
+      firebase.auth().onAuthStateChanged(async user => {
         if (user) {
           window.ref = firebase.database().ref(`${user.uid}`);
           window.user = user;
@@ -103,6 +118,7 @@
           // else localDevices = ['light'];
         } else {
           loginButton.innerHTML = `<img style="margin-right: 8px;"></img>login`;
+
           loginButton.addEventListener('click', async () => {
             const link = document.createElement('link');
             link.href = 'https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css';
@@ -145,7 +161,7 @@
     <app-shell>
       <header class="row toolbar">
         <custom-svg-icon icon="menu"></custom-svg-icon>
-        <translated-string class="selected" value="order"></stranslated-string></span>
+        <translated-string class="selected" value="order"></translated-string>
         <span class="flex"></span>
         <top-button class="login-button"></top-button>
       </header>
@@ -154,6 +170,12 @@
       (async () => {
         await import('./../iconset.js');
         await import('./app-shell.js');
+
+        const shell = document.querySelector('app-shell');
+
+        document.addEventListener('mouseup', () => {
+          if (matchMedia('(max-width: 641px)').matches && shell.drawerOpened) shell.drawerOpened = false;
+        });
       })();
     </script>
   </body>
