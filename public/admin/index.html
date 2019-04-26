@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Veldwinkel</title>
+
+    <script>
+    (async () => {
+      try {
+        window.registration = await navigator.serviceWorker.register('/service-worker.js');
+        registration.onupdatefound = () => {
+          // notifyUpdate();
+        };
+        console.log('Registration successful, scope is:', registration.scope);
+      } catch (error) {
+        console.log('Service worker registration failed, error:', error);
+      }
+    })();
+    </script>
+
+    <script defer src="/__/firebase/5.10.0/firebase-app.js"></script>
+    <script defer src="/__/firebase/5.10.0/firebase-auth.js"></script>
+    <script defer src="/__/firebase/5.10.0/firebase-database.js"></script>
+    <script defer src="/__/firebase/init.js"></script>
+
+    <style media="screen">
+      body {
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        margin: 0;
+
+        position: absolute;
+        --toolbar-height: 48px;
+      }
+      section {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        align-items: center;
+        justify-content: center;
+      }
+      .column {
+        display: flex;
+        flex-direction: column;
+      }
+      .row {
+        display: flex;
+        flex-direction: row;
+      }
+      .flex {
+        flex: 1;
+      }
+      .firebaseui-auth-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+      }
+      app-shell {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+        width: 100%;
+      }
+      custom-pages {
+        position: relative;
+        height: 100%;
+        width: 100%;
+      }
+      header {
+        width: 100%;
+      }
+    </style>
+  </head>
+  <script>
+    const onload = () => {
+      const loginButton = document.querySelector('.login-button');
+      const login = async () => {
+        const link = document.createElement('link');
+        link.href = 'https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css';
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+        const script =  document.createElement('script')
+        script.onload = () => {
+          const ui = new firebaseui.auth.AuthUI(firebase.auth());
+          const uiconfig = {
+            callbacks: {
+              signInSuccessWithAuthResult: (authResult, redirectUrl) => {
+                document.querySelector('.firebaseui-auth-container').classList.add('hidden');
+                return false;
+              },
+              uiShown: () => {
+                document.querySelector('.firebaseui-auth-container').classList.remove('hidden');
+              }
+            },
+            signInFlow: 'popup',
+            signInOptions: [
+              firebase.auth.EmailAuthProvider.PROVIDER_ID,
+            ]
+          };
+          ui.start('.firebaseui-auth-container', uiconfig);
+        }
+        script.src = 'https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js';
+        document.head.appendChild(script);
+        // firebase.auth()
+
+      };
+      firebase.auth().onAuthStateChanged(user => {
+        if (user) {
+          window.ref = firebase.database().ref(`${user.uid}`);
+          window.user = user;
+          // else localDevices = ['light'];
+        } else {
+          login();
+        }
+      });
+    }
+  </script>
+  <body onload="onload()">
+    <span class="firebaseui-auth-container"></span>
+    <top-iconset></top-iconset>
+
+    <app-shell>
+      <header>
+        <span class="row toolbar">
+          <custom-svg-icon icon="menu"></custom-svg-icon>
+          <span class="flex"></span>
+        </span>
+      </header>
+      <custom-pages>
+        <input-fields fields='["name", "test"]'></input-fields>
+        <top-products></top-products>
+      </custom-pages>
+    </app-shell>
+    <script type="module">
+      (async () => {
+        await import('./../iconset.js');
+        await import('./admin-shell.js');
+      })();
+    </script>
+  </body>
+</html>
