@@ -100,15 +100,7 @@ export default define(class AppShell extends ElementBase {
     opacity: 1;
     transform: translateX(0);
   }
-  :host([drawer-opened]) custom-pages {
-    opacity: 1;
-    left: var(--custom-drawer-width);
-    width: calc(100% - 256px);
-  }
-  :host([drawer-opened]) ::slotted(header) {
-    left: var(--custom-drawer-width);
-    width: calc(100% - 256px) !important;
-  }
+
   header h3 {
     margin: 0;
     color: #616161;
@@ -130,6 +122,10 @@ export default define(class AppShell extends ElementBase {
   custom-drawer custom-svg-icon {
     pointer-events: none;
   }
+  custom-drawer {
+    position: fixed;
+    z-index: 100;
+  }
   .flex {
     flex: 1;
   }
@@ -146,13 +142,24 @@ export default define(class AppShell extends ElementBase {
     flex-direction: column;
     width: 100%;
   }
-  @media (min-width: 640px) {
+  @media (min-width: 720px) {
     section {
       align-items: center;
       justify-content: center;
     }
     .container {
       max-width: 640px;
+    }
+    custom-drawer {
+      position: absolute;
+    }
+    :host([drawer-opened]) custom-pages {
+      left: var(--custom-drawer-width);
+      width: calc(100% - 256px);
+    }
+    :host([drawer-opened]) ::slotted(header) {
+      left: var(--custom-drawer-width);
+      width: calc(100% - 256px) !important;
     }
   }
 </style>

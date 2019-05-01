@@ -98,6 +98,7 @@ export default define(class TopOrder extends ElementBase {
     max-width: 620px;
     width: 100%;
     box-shadow: 0px 1px 3px 0px #333;
+    overflow-y: auto;
   }
   .custom-selected {
     background: #1b5e20a6;
@@ -226,7 +227,7 @@ export default define(class TopOrder extends ElementBase {
   </custom-selector>
 
   <input name="reference" type="text" placeholder="referentie of opmerking"></input>
-
+  <span class="flex"></span>
   <span class="row toolbar">
     <custom-svg-icon icon="close"></custom-svg-icon>
     <span class="flex"></span>
