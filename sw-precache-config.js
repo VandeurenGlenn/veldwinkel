@@ -3,7 +3,7 @@ module.exports = {
     '!public/admin/**',
     'public/assets/**',
     '!public/service-worker.js',
-    '!public/shop/**',
+    'public/shop/**',
     'public/*.js',
     'public/*.html'
   ],

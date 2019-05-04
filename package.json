@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "c": "rollup -c",
     "watch": "rollup -c -w",
-    "precache": "sw-precache --config=sw-precache-config.js && sw-precache --config=shop-sw-precache-config.js && sw-precache --config=admin-sw-precache-config.js",
+    "precache": "sw-precache --config=sw-precache-config.js",
     "build": "npm run c && npm run precache"
   },
   "repository": {
