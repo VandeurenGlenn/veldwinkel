@@ -10,7 +10,7 @@ import './translated-tab.js';
 import './translated-string.js';
 import './item-list.js';
 import './order-list.js';
-import './top-order.js';
+import './top-client-order.js';
 
 export default define(class AppShell extends ElementBase {
   get pages() {
@@ -163,6 +163,7 @@ export default define(class AppShell extends ElementBase {
     }
   }
 </style>
+
 <slot></slot>
 <custom-drawer>
   <header slot="header">
@@ -200,7 +201,7 @@ export default define(class AppShell extends ElementBase {
   </custom-selector>
 </custom-drawer>
 <custom-pages attr-for-selected="route" selected="order">
-  <top-order route="order"></top-order>
+  <top-client-order route="order"></top-client-order>
   <item-list route="stock" type="stock"></item-list>
   <order-list route="orders" type="orders"></order-list>
   <section route="info">
@@ -210,22 +211,6 @@ export default define(class AppShell extends ElementBase {
 
     </span>
   </section>
-  <!-- <section route="" class="subscribe">
-    <h4>seizoensgebonden groentepakketten op maat</h4>
-
-    <custom-tabs attr-for-selected="data-route">
-      <translated-tab data-route="big">groot</translated-tab>
-      <translated-tab data-route="small">klein</translated-tab>
-      <translated-tab data-route="hurry-hap">hurry hap</translated-tab>
-    </custom-tabs>
-
-    <custom-pages attr-for-selected="value">
-      <top-box value="big"></top-box>
-      <top-box value="small"></top-box>
-      <top-box value="hurry-hap"></top-box>
-    </custom-pages>
-
-  </section> -->
 </custom-pages>`;
   }
 })

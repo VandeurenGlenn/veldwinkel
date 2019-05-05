@@ -5,6 +5,14 @@
     "products": {
       ".read": "true",
       ".write": "false"
+    },
+    "offers": {
+      ".read": "true",
+      ".write": "false"
+    },
+    "catalog": {
+      ".read": "true",
+      ".write": "false"
     }
   }
 }

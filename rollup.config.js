@@ -28,7 +28,10 @@ export default [{
     terser({keep_classnames: true})
   ]
 }, {
-  input: ['src/admin-shell.js'],
+  input: [
+    'src/admin-shell.js', 'src/top-product.js', 'src/top-products.js',
+    'src/top-sheet.js', 'src/top-offers.js', 'src/top-offer.js'
+  ],
   output: {
     dir: 'public/admin',
     format: 'es'
