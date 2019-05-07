@@ -9,7 +9,7 @@ import './../node_modules/custom-drawer/custom-drawer.js';
 import './top-orders.js';
 import './input-fields.js';
 
-export default define(class AppShell extends ElementBase {
+export default define(class AdminShell extends ElementBase {
   get pages() {
     return this.querySelector('custom-pages');
   }
@@ -57,7 +57,6 @@ export default define(class AppShell extends ElementBase {
       if (selected === 'products') await import('./top-products.js');
       if (selected === 'sheet') await import('./top-sheet.js');
       if (selected === 'offers') await import('./top-offers.js');
-      console.log('ok');
       // this.translatedTitle.value = selected;
       this.pages.select(selected);
     }
@@ -85,7 +84,7 @@ export default define(class AppShell extends ElementBase {
         right: 0;
         bottom: 0;
         top: 0;
-        /* top: 56px; */
+        top: 56px;
         left: 0;
       }
       header {
