@@ -9,7 +9,9 @@ try {
 }
 
 export default [{
-  input: ['src/iconset.js', 'src/top-icon-button.js', 'src/top-button.js', 'src/home-imports.js'],
+  input: ['src/iconset.js', 'src/top-icon-button.js', 'src/top-button.js',
+          'src/home-imports.js', 'src/item-list.js', 'src/order-list.js',
+          'src/top-client-order.js'],
   output: {
     dir: 'public',
     format: 'es'

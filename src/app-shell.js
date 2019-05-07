@@ -8,9 +8,6 @@ import './top-icon-button.js';
 import './top-button.js';
 import './translated-tab.js';
 import './translated-string.js';
-import './item-list.js';
-import './order-list.js';
-import './top-client-order.js';
 
 export default define(class AppShell extends ElementBase {
   get pages() {
@@ -40,13 +37,13 @@ export default define(class AppShell extends ElementBase {
   }
   connectedCallback() {
     super.connectedCallback();
+    this.selector.addEventListener('selected', this._selectorChange);
     if (window.location.hash === '#stock') {
       this.selector.select('stock');
       // window.location.href = `${window.location.origin}/shop#!/stock`;
     }
     this.translatedTitle.value = this.selector.selected;
     this.pages.select(this.selector.selected);
-    this.selector.addEventListener('selected', this._selectorChange);
     this.querySelector('custom-svg-icon[icon="menu"]').addEventListener('click', this._menuClick);
   }
 
@@ -54,10 +51,13 @@ export default define(class AppShell extends ElementBase {
     this.drawerOpened = !this.drawerOpened;
   }
 
-  _selectorChange() {
+  async _selectorChange() {
     const selected = this.selector.selected;
     if (selected) {
       this.translatedTitle.value = selected;
+      if (selected === 'order') await import('./top-client-order');
+      if (selected === 'stock') await import('./item-list');
+      if (selected === 'orders') await import('./order-list');
       this.pages.select(selected);
     }
   }
