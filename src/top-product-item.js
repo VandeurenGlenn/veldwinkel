@@ -82,7 +82,7 @@ export default define(class TopProductItem extends ElementBase {
     pointer-events: auto;
     cursor: pointer;
   }
-  
+
   .flex {
     flex: 1;
   }
@@ -92,6 +92,7 @@ export default define(class TopProductItem extends ElementBase {
   }
   input {
     width: 100px;
+    pointer-events: auto;
   }
   h4, p, span {
     pointer-events: none;

@@ -1,5 +1,5 @@
 import { define, ElementBase } from './base.js';
-import './../node_modules/custom-input/src/custom-input.js';
+import './../node_modules/custom-input/custom-input.js';
 
 export default define(class InputFields extends ElementBase {
   static get observedAttributes() {
@@ -20,7 +20,7 @@ export default define(class InputFields extends ElementBase {
           const input = document.createElement('custom-input');
           this.appendChild(input);
           input.setAttribute('name', field[0]);
-          if (field[1]) input.setAttribute('placeholder', field[1]);
+          if (field[1]) input.setAttribute('value', field[1]);
         }
       }
     }

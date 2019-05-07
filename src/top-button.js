@@ -5,10 +5,6 @@ export default define(class TopButton extends ElementBase {
     super();
   }
 
-  connectedCallback() {
-    if (super.connectedCallback) super.connectedCallback();
-  }
-
   get template() {
     return html`
     <style>
@@ -32,14 +28,17 @@ export default define(class TopButton extends ElementBase {
         outline: none;
         cursor: pointer;
         border: var(--top-button-border, inherit);
+        pointer-events: none;
       }
       custom-svg-icon {
         padding-right: 10px;
         width: calc(var(--top-button-height) - 28px);
         height: calc(var(--top-button-height) - 28px);
+        pointer-events: none;
       }
       slot {
         font-size: 18px;
+        pointer-events: none;
       }
     </style>
 

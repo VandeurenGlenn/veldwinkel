@@ -4,7 +4,19 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Veldwinkel</title>
-
+    <script>
+      (async () => {
+        try {
+          window.registration = await navigator.serviceWorker.register('/service-worker.js');
+          registration.onupdatefound = () => {
+            // notifyUpdate();
+          };
+          console.log('Registration successful, scope is:', registration.scope);
+        } catch (error) {
+          console.log('Service worker registration failed, error:', error);
+        }
+      })();
+    </script>
     <script defer src="/__/firebase/5.10.0/firebase-app.js"></script>
     <script defer src="/__/firebase/5.10.0/firebase-auth.js"></script>
     <script defer src="/__/firebase/5.10.0/firebase-database.js"></script>
@@ -61,6 +73,23 @@
       custom-svg-icon[icon="menu"] {
         pointer-events: auto;
       }
+
+      .selection {
+        display: flex;
+        flex-direction: row;
+        padding: 24px;
+        box-sizing: border-box;
+        min-height: 82px;
+        height: fit-content;
+        cursor: pointer;
+        pointer-events: auto;
+      }
+
+      custom-selector .custom-selected {
+        background: #1b5e20a6;
+        color: #fff;
+        --svg-icon-color: #fff;
+      }
     </style>
   </head>
   <script>
@@ -116,6 +145,7 @@
         <top-products route="products"></top-products>
         <top-product route="product"></top-product>
         <top-orders route="orders"></top-orders>
+        <top-order route="order"></top-order>
         <top-offers route="offers"></top-offers>
         <top-offer route="offer"></top-offer>
         <top-sheet route="sheet"></top-sheet>
@@ -143,6 +173,10 @@
           await import('./top-offer.js');
           const offer = document.querySelector('top-offer');
           offer.value = selection;
+        } else if (selection && view === 'order') {
+          await import('./top-order.js');
+          const order = document.querySelector('top-order');
+          order.value = selection;
         }
           pages.select(view);
         }

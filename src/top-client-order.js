@@ -49,7 +49,12 @@ export default define(class TopClientOrder extends ElementBase {
   }
 
   async _submit() {
-    const set = [{referentie: this.shadowRoot.querySelector('input[name="reference"]').value}];
+    const set = [{
+      referentie: this.shadowRoot.querySelector('input[name="reference"]').value,
+      displayName: user.displayName,
+      email: user.email,
+      phoneNumber: user.phoneNumber
+    }];
     let selected = [];
     if (!window.user) {
       await window.signin();
@@ -64,9 +69,6 @@ export default define(class TopClientOrder extends ElementBase {
         let price = this.shadowRoot.querySelector(`top-price[name="${query}"]`).innerHTML;
         const pieces = this.shadowRoot.querySelector(`input[name="${query}"]`).value;
         set.push({
-          displayName: user.displayName,
-          email: user.email,
-          phoneNumber: user.phoneNumber,
           product: query,
           aantal: Number(pieces)
         });
@@ -85,18 +87,7 @@ export default define(class TopClientOrder extends ElementBase {
     Tot snel!`});
     this._clear();
       });
-  //     if (answer) new Notification('Guldentop Veldwinkel', {
-  //       body: `order geplaatst\n
-  // U kan deze afhalen met\n
-  // order nummer:\n
-  // ${snap.key}\n
-  // Tot snel!`});
-
-
     }
-
-
-
   }
 
   _clear() {

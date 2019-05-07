@@ -1,9 +1,11 @@
 import { define, ElementBase } from './base.js';
+import './top-order-item.js';
 
 export default define(class TopOrders extends ElementBase {
   constructor() {
     super();
     this._stampOrders = this._stampOrders.bind(this);
+    this._onClick = this._onClick.bind(this);
   }
   connectedCallback() {
     super.connectedCallback();
@@ -15,9 +17,16 @@ export default define(class TopOrders extends ElementBase {
           console.log(snap);
           window.users = snap.val();
           console.log({users});
-          for (const uid of Object.keys(users)) {
+          if (users) for (const uid of Object.keys(users)) {
             const snap = await firebase.database().ref(`users/${uid}/orders`).once('value');
-            orders = { ...orders, ...snap.val() }
+            let order = snap.val();
+            console.log(order);
+            Object.keys(order).map(o => {
+              console.log(order[o][0]);
+              order[o][0].user = uid;
+                console.log(order[o][0]);
+            });
+            orders = { ...orders, ...order }
           }
 
           window.orders = orders;
@@ -28,14 +37,28 @@ export default define(class TopOrders extends ElementBase {
         }
       });
     })();
+    this.addEventListener('click', this._onClick)
   }
+  _onClick(e) {
+    // this.selected =
+    const target = e.path[0];
+    if (target.localName === 'top-order-item') this.selected = target.getAttribute('data-route')
+    if (this.selected !== this.previousSelected) {
+      if (this.previousSelected) this.querySelector(`[data-route="${this.previousSelected}"]`).classList.remove('custom-selected')
+      target.classList.add('custom-selected');
+      this.previousSelected = this.selected;
+      window.adminGo('order', {uid: this.selected, user: target.user});
+    }
+
+  }
+
   _stampOrders() {
     this.innerHTML = '';
     if (orders) {
       for (const order of Object.keys(orders)) {
-        const item = document.createElement('span');
-        item.innerHTML = `<span style="display: flex;">${orders[order][0].referentie}<span style="flex"></span>${order}<span style="flex: 1;"></span>producten: ${orders[order].length - 1}</span>`;
+        const item = document.createElement('top-order-item');
         this.appendChild(item);
+        item.value = {key: order, order: orders[order]};
       }
     }
   }
