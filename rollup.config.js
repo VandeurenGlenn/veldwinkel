@@ -3,7 +3,19 @@ import json from 'rollup-plugin-json';
 import { execSync } from 'child_process';
 
 try {
-  execSync('rm public/chunk-**');
+  execSync('rm public/chunk-*.js');
+} catch (e) {
+
+}
+
+try {
+  execSync('rm public/admin/chunk-*.js');
+} catch (e) {
+
+}
+
+try {
+  execSync('rm public/shop/chunk-*.js');
 } catch (e) {
 
 }

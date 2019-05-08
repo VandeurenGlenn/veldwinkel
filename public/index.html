@@ -3,8 +3,9 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" value="#23ac56">
-    <title>Veldwinkel</title>
+    <meta name="theme-color" content="#23ac56">
+    <meta name="description" content="Een jong kleinschalig en dynamisch landbouwbedrijf op het knooppunt van Baal, Werchter en Betekom, gespecialiseerd in het telen van seizoensgebonden groenten en fruit.">
+    <title>Guldentop Veldwinkel</title>
     <link rel="manifest" href="manifest.json">
     <script>
       (async () => {
@@ -85,7 +86,7 @@
       .flex {
         flex: 1;
       }
-      .welcome {
+      .welcome, .about-img, .who-img {
         box-shadow: 0px 3px 9px 0px #000;
         position: relative;
         display: flex;
@@ -94,14 +95,24 @@
         align-items: center;
         height: 720px;
         width: 100%;
-        background-image: url('assets/top.webp');
         background-position: center;
         background-clip: border-box;
         background-repeat: no-repeat;
         background-size: cover;
       }
+      .welcome {
+
+        background-image: url('assets/top.webp');
+      }
+      .about-img {
+        background-image: url('assets/veld.webp');
+      }
+      .who-img {
+        background-image: url('assets/crops2.webp');
+      }
       .button-container {
-        padding: 58px 0 58px;
+        max-width: 1300px;
+        padding: 124px;
         box-sizing: border-box;
         width: 100%;
         align-items: center;
@@ -219,6 +230,24 @@
         flex-direction: column;
         align-items: center;
       }
+      summary-panel {
+        padding: 124px 0;
+        box-sizing: border-box;
+      }
+      summary-panel-mirror {
+        padding: 124px 0;
+        box-sizing: border-box;
+      }
+      .who-img, .about-img {
+        height: 100%;
+        width: 60%;
+        min-height: 320px;
+      }
+      .pickup-moments {
+        width: 100%;
+        max-width: 1200px;
+        text-align: center;
+      }
       @media (min-width: 540px) {
         .actions {
           max-width: 740px;
@@ -237,9 +266,53 @@
           flex-direction: row;
         }
       }
+
+      summary-panel .text {
+        padding: 0 48px 0 0;
+        box-sizing: border-box;
+      }
+      summary-panel-mirror .text2 {
+        padding: 0 0 0 48px;
+        box-sizing: border-box;
+      }
+      /* @media (max-width: 1330px) {
+        .about-img, .who-img {
+          width: 100%;
+        }
+        summary-panel-mirror .text2, summary-panel .text {
+          padding: 24px 0;
+          box-sizing: border-box;
+        }
+        summary-panel-mirror, summary-panel {
+          padding: 10px;
+          box-sizing: border-box;
+        }
+      } */
+      @media (max-width: 1200px) {
+        .about-img, .who-img {
+          width: 100%;
+        }
+        summary-panel-mirror .text2, summary-panel .text {
+          padding: 72px 0 48px 0;
+        }
+        summary-panel-mirror, summary-panel {
+          padding: 10px;
+          box-sizing: border-box;
+        }
+      }
       @media (max-width: 720px) {
-        .welcome {
+        .welcome, .about-img, .who-img {
           height: calc(var(--welcome-image-height) - 100px);
+        }
+        .about-img, .who-img {
+          width: 100%;
+        }
+        .button-container {
+          flex-direction: column;
+          padding: 48px;
+        }
+        summary-panel-mirror .text2, summary-panel .text {
+          padding: 0 0 48px 2px;
         }
       }
     </style>
@@ -257,23 +330,48 @@
 
       <top-icon-button name="order" title="go checkout our goods in the shop" icon="shopping-cart">ontdek onze producten</top-icon-button>
       <!-- </span> -->
-      <span class="about-us">
-        <h3>Wie we zijn</h3>
-        <p>Een jong kleinschalig en dynamisch landbouwbedrijf op het knooppunt van Baal, Werchter en Betekom,</p>
-        <p>gespecialiseerd in het telen van seizoensgebonden groenten en fruit.</p>
+
+
+      <summary-panel>
+        <span slot="left" class="text">
+          <h3>Wie we zijn</h3>
+          <p>Een jong kleinschalig en dynamisch landbouwbedrijf op het knooppunt van Baal, Werchter en Betekom,</p>
+          <p>gespecialiseerd in het telen van seizoensgebonden groenten en fruit.</p>
+        </span>
+        <span slot="right" class="about-img"></span>
+      </summary-panel>
+      <summary-panel-mirror style="padding-top: 0;">
+
+        <span slot="left" class="who-img"></span>
+        <span slot="right" class="text2">
+          <h3>wat we te bieden hebben</h3>
+          <p>Wekelijks stellen we voor jou een groentenbak samen dat je kan aanpassen naar behoefte en smaak,</p>
+          <p>deze kan je komen ophalen aan ons veld op vrijdag tussen 17.00 en 18.00 u.</p>
+          <br></br>
+          <p>Uiteraard kunnen ook restaurants genieten van onze verse lokale producten!</p>
+        </span>
+      </summary-panel-mirror>
         <!-- <p>Bio.</p> -->
-        <h3>wat we te bieden hebben</h3>
+
+
+        <!-- <h3>wat we te bieden hebben</h3>
         <p>Wekelijks stellen we voor jou een groentenbak samen dat je kan aanpassen naar behoefte en smaak,</p>
         <p>deze kan je komen ophalen aan ons veld op vrijdag tussen 17.00 en 18.00 u.</p>
         <br></br>
-        <p>Uiteraard kunnen ook restaurants genieten van onze verse lokale producten!</p>
+        <p>Uiteraard kunnen ook restaurants genieten van onze verse lokale producten!</p> -->
         <!-- <p></p> -->
+
+          <section class="pickup-moments">
+            <h3>afhaalmomenten</h3>
+            <p>vrijdag van 17.00 tot 18.00</p>
+            <p>dinsdag van 16.00 tot 16.30 (alleen met kaartje)</p>
+          </section>
 
         <span class="row button-container">
           <top-icon-button name="check-stock" title="click to learn more about veldwinkel" icon="info">veld overzicht</top-icon-button>
           <!-- <top-icon-button name="go-shop" title="klik hier voor meer informatie" icon="info">meer info</top-icon-button> -->
         </span>
-      </span>
+      <!-- </span> -->
       <!-- <span class="actions">
       </span> -->
       <footer>

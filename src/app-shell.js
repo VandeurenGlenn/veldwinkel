@@ -40,7 +40,10 @@ export default define(class AppShell extends ElementBase {
     this.selector.addEventListener('selected', this._selectorChange);
     if (window.location.hash === '#stock') {
       this.selector.select('stock');
-      // window.location.href = `${window.location.origin}/shop#!/stock`;
+      this._selectorChange();
+    } else {
+      this.selector.select('order');
+      this._selectorChange();
     }
     this.translatedTitle.value = this.selector.selected;
     this.pages.select(this.selector.selected);
@@ -200,7 +203,7 @@ export default define(class AppShell extends ElementBase {
 
   </custom-selector>
 </custom-drawer>
-<custom-pages attr-for-selected="route" selected="order">
+<custom-pages attr-for-selected="route">
   <top-client-order route="order"></top-client-order>
   <item-list route="stock" type="stock"></item-list>
   <order-list route="orders" type="orders"></order-list>
