@@ -7,6 +7,8 @@
     <meta name="description" content="Een jong kleinschalig en dynamisch landbouwbedrijf op het knooppunt van Baal, Werchter en Betekom, gespecialiseerd in het telen van seizoensgebonden groenten en fruit.">
     <title>Guldentop Veldwinkel</title>
     <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/brands.css" integrity="sha384-i2PyM6FMpVnxjRPi0KW/xIS7hkeSznkllv+Hx/MtYDaHA5VcF0yL3KVlvzp8bWjQ" crossorigin="anonymous" defer>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/fontawesome.css" integrity="sha384-sri+NftO+0hcisDKgr287Y/1LVnInHJ1l+XC7+FOabmTTIK0HnE2ID+xxvJ21c5J" crossorigin="anonymous" defer>
     <script>
       (async () => {
         try {
@@ -164,12 +166,19 @@
       custom-tabs {
         height: var(--toolbar-height);
       }
-      li {
+      .link {
         margin: 0;
         padding: 12px;
         font-size: 16px;
         align-items: center;
         display: flex;
+      }
+      .link a {
+        text-decoration: none;
+        color: white;
+        text-transform: uppercase;
+        cursor: pointer;
+        pointer-events: auto;
       }
       .fas {
         padding-right: 8px;
@@ -224,10 +233,10 @@
       }
       footer .overlay {
         background: linear-gradient(to bottom,#2f6c12,#458729);
+        pointer-events: none;
       }
       .features {
         display: flex;
-        flex-direction: column;
         align-items: center;
       }
       summary-panel {
@@ -248,6 +257,14 @@
         max-width: 1200px;
         text-align: center;
       }
+      .info {
+        padding-bottom: 16px;
+      }
+
+      .fab {
+        font-size: 24px;
+        height: 24px;
+      }
       @media (min-width: 540px) {
         .actions {
           max-width: 740px;
@@ -262,9 +279,7 @@
         /* .about {
           max-width: calc(var(--welcome-image-height) + 100px);
         } */
-        .features {
-          flex-direction: row;
-        }
+
       }
 
       summary-panel .text {
@@ -364,7 +379,7 @@
           <section class="pickup-moments">
             <h3>afhaalmomenten</h3>
             <p>vrijdag van 17.00 tot 18.00</p>
-            <p>dinsdag van 16.00 tot 16.30 (alleen met kaartje)</p>
+            <p>dinsdag van 16.00 tot 16.30</p>
           </section>
 
         <span class="row button-container">
@@ -378,12 +393,26 @@
         <span class="overlay"></span>
         <ul class="about">
           <!-- <li><custom-svg-icon icon="bike" class="fas fa-bicycle"></custom-svg-icon>delivery at home</li> -->
+          <span class="features column">
+            <span class="flex"></span>
+            <span class="info"><custom-svg-icon icon="email" class="fas"></custom-svg-icon>veltwinkel@gmail.com</span>
+            <span class="info"><custom-svg-icon icon="phone" class="fas"></custom-svg-icon>0495124115</span>
+          </span>
           <span class="features row">
             <span class="flex"></span>
-            <li><custom-svg-icon icon="seedling" class="fas fa-seedling"></custom-svg-icon>vers</li>
-            <li><custom-svg-icon icon="home" class="fas fa-home"></custom-svg-icon>lokaal</li>
-            <li><custom-svg-icon icon="box" class="fas fa-box"></custom-svg-icon>organisch</li>
-            <li><custom-svg-icon icon="heart" class="fas fa-heart"></custom-svg-icon>met liefde geteeld</li>
+            <!-- <span class="link"><custom-svg-icon icon="seedling" class="fas fa-seedling"></custom-svg-icon>vers</span>
+            <span class="link"><custom-svg-icon icon="home" class="fas fa-home"></custom-svg-icon>lokaal</span>
+            <span class="link"><custom-svg-icon icon="box" class="fas fa-box"></custom-svg-icon>organisch</span>
+            <span class="link"><custom-svg-icon icon="heart" class="fas fa-heart"></custom-svg-icon>met liefde geteeld</span> -->
+            <span class="link"><a href="https://www.facebook.com/GuldentopVeldwinkel/"><i class="fab fa-facebook-square"></i></a></span>
+            <span class="link"><a href="https://www.instagram.com/p/Bu-0zwLl8rj/"><i class="fab fa-instagram"></i></a></span>
+            <span class="link"><a href="https://www.youtube.com/watch?v=lB0squgHS6E"><i class="fab fa-youtube"></i></a></span>
+            <span class="flex"></span>
+          </span>
+          <span class="features column">
+            <span class="flex"></span>
+            <span class="link"><a href="shop.guldentopveldwinkel.be">Shop</a></span>
+            <span class="link"><a href="shop.guldentopveldwinkel.be#stock">stock</a></span>
             <span class="flex"></span>
           </span>
         </ul>
@@ -433,11 +462,11 @@
         import('./home-imports.js');
 
         goShop.addEventListener('click', () => {
-          go('shop');
+          go('shop.guldentopveldwinkel.be');
         });
 
         checkStock.addEventListener('click', () => {
-          go('shop#stock');
+          go('shop.guldentopveldwinkel.be#stock');
         });
 
         // document.body.addEventListener('scroll',event => {
