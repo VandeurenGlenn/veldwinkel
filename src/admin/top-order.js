@@ -1,4 +1,4 @@
-import { define, ElementBase } from './base.js';
+import { define, ElementBase } from './../base.js';
 
 export default define(class TopOrder extends ElementBase {
 
@@ -77,6 +77,7 @@ export default define(class TopOrder extends ElementBase {
     position: relative;
     width: 100%;
     height: 100%;
+    text-align: center;
   }
   ::slotted(*) {
     user-select: none;
@@ -117,6 +118,7 @@ export default define(class TopOrder extends ElementBase {
 </style>
 
 <span class="container">
+  <slot name="info"></slot>
   <span class="wrapper">
     <slot style="pointer-events: none;"></slot>
 

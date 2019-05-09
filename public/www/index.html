@@ -401,10 +401,6 @@
         a.click();
       }
 
-      if (window.matchMedia('(display-mode: standalone)').matches) {
-        go('shop');
-      }
-
       const goShop = query('top-icon-button[name="order"]');
       const checkStock = query('top-icon-button[name="check-stock"]');
 
@@ -425,7 +421,7 @@
             await e.prompt();
             const { outcome } = await e.userChoice;
             if (outcome === 'accepted') {
-              go('shop');
+              go('shop.guldentopveldwinkel.be#install');
             }
           });
         }

@@ -1,7 +1,7 @@
-import { ElementBase, define } from './base.js';
-import './top-offer-item.js';
+import { ElementBase, define } from './../base.js';
+import './top-product-item.js';
 
-export default define(class TopOffers extends ElementBase {
+export default define(class TopCatalog extends ElementBase {
   constructor() {
     super();
     this._onClick = this._onClick.bind(this);
@@ -10,9 +10,8 @@ export default define(class TopOffers extends ElementBase {
   connectedCallback() {
     super.connectedCallback();
     (async () => {
-      const snap = await firebase.database().ref('offers').once('value');
-      window.offers = snap.val();
-      await import('./top-offer-item.js')
+      const snap = await firebase.database().ref('products').once('value');
+      window.products = snap.val();
       this.stamp();
       this.addEventListener('click', this._onClick);
       this.shadowRoot.querySelector('.fab').addEventListener('click', this._onFabClick);
@@ -22,12 +21,12 @@ export default define(class TopOffers extends ElementBase {
   _onClick(e) {
     // this.selected =
     const target = e.path[0];
-    if (target.localName === 'top-offer-item') this.selected = target.getAttribute('data-route')
+    if (target.localName === 'top-product-item') this.selected = target.getAttribute('data-route')
     if (this.selected !== this.previousSelected) {
       if (this.previousSelected) this.querySelector(`[data-route="${this.selected}"]`).classList.remove('custom-selected')
       target.classList.add('custom-selected');
       this.previousSelected = this.selected;
-      window.adminGo('offer', this.selected);
+      window.adminGo('product', this.selected);
     }
 
   }
@@ -39,10 +38,10 @@ export default define(class TopOffers extends ElementBase {
 
   stamp() {
     let index = 0;
-    for (const product of offers) {
+    for (const product of products) {
       let item = this.querySelector('index[index]');
       if (!item) {
-        item = document.createElement('top-offer-item');
+        item = document.createElement('top-product-item');
         this.appendChild(item);
       }
       item.value = product;

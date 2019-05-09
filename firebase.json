@@ -2,12 +2,29 @@
   "database": {
     "rules": "database.rules.json"
   },
-  "hosting": {
-    "public": "public",
+  "hosting": [{
+    "target": "default",
+    "public": "public/www",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ]
-  }
+  }, {
+    "target": "admin",
+    "public": "public/admin",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }, {
+    "target": "shop",
+    "public": "public/shop",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }]
 }

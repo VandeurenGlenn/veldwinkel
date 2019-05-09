@@ -38,16 +38,38 @@ export default define(class AppShell extends ElementBase {
   connectedCallback() {
     super.connectedCallback();
     this.selector.addEventListener('selected', this._selectorChange);
-    if (window.location.hash === '#stock') {
-      this.selector.select('stock');
-      this._selectorChange();
-    } else {
-      this.selector.select('order');
-      this._selectorChange();
-    }
-    this.translatedTitle.value = this.selector.selected;
-    this.pages.select(this.selector.selected);
     this.querySelector('custom-svg-icon[icon="menu"]').addEventListener('click', this._menuClick);
+    (async () => {
+      if (window.location.hash === '#stock') {
+        this.selector.select('stock');
+        this._selectorChange();
+      } else {
+        this.selector.select('order');
+        this._selectorChange();
+      }
+      this.translatedTitle.value = this.selector.selected;
+      this.pages.select(this.selector.selected);
+      const loginButton = this.querySelector('.login-button');
+
+      firebase.auth().onAuthStateChanged(async user => {
+        if (user) {
+          window.ref = firebase.database().ref(`${user.uid}`);
+          window.user = user;
+          if (user.photoURL) {
+            loginButton.innerHTML = `<img src="${user.photoURL}"></img>`;
+          }
+          // else localDevices = ['light'];
+        } else {
+          loginButton.innerHTML = `<img style="margin-right: 8px;"></img>login`;
+
+          loginButton.addEventListener('click', async () => {
+            window.signin()
+              // firebase.auth()
+
+          });
+        }
+      });
+    })()
   }
 
   _menuClick() {

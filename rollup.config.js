@@ -1,9 +1,9 @@
 import { terser } from 'rollup-plugin-terser';
 import json from 'rollup-plugin-json';
 import { execSync } from 'child_process';
-
+import { mkdirSync } from 'fs';
 try {
-  execSync('rm public/chunk-*.js');
+  execSync('rm public/www/chunk-*.js');
 } catch (e) {
 
 }
@@ -11,7 +11,6 @@ try {
 try {
   execSync('rm public/admin/chunk-*.js');
 } catch (e) {
-
 }
 
 try {
@@ -20,19 +19,39 @@ try {
 
 }
 
+try {
+  execSync('cp public/assets/icons public/admin/assets -r');
+} catch (e) {
+  mkdirSync('public/admin/assets');
+  execSync('cp public/assets/icons public/admin/assets -r');
+}
+
+try {
+  execSync('cp public/assets/icons public/shop/assets -r');
+} catch (e) {
+  mkdirSync('public/shop/assets');
+  execSync('cp public/assets/icons public/shop/assets -r');
+}
+
+try {
+  execSync('cp public/assets public/www -r')
+} catch (e) {
+  console.log(e);
+}
+
 export default [{
   input: ['src/iconset.js', 'src/top-icon-button.js', 'src/top-button.js',
           'src/home-imports.js', 'src/item-list.js', 'src/order-list.js',
           'src/top-client-order.js'],
   output: {
-    dir: 'public',
+    dir: 'public/www',
     format: 'es'
   },
   plugins: [
     terser({keep_classnames: true})
   ]
 }, {
-  input: ['src/app-shell.js'],
+  input: ['src/iconset.js', 'src/app-shell.js'],
   output: {
     dir: 'public/shop',
     format: 'es'
@@ -43,9 +62,9 @@ export default [{
   ]
 }, {
   input: [
-    'src/admin-shell.js', 'src/top-product.js', 'src/top-products.js',
-    'src/top-sheet.js', 'src/top-offers.js', 'src/top-offer.js',
-    'src/top-order.js'
+    'src/admin/shell.js', 'src/top-button.js', 'src/iconset.js', 'src/admin/top-product.js', 'src/admin/top-products.js',
+    'src/admin/top-sheet.js', 'src/admin/top-offers.js', 'src/admin/top-offer.js',
+    'src/admin/top-order.js'
   ],
   output: {
     dir: 'public/admin',

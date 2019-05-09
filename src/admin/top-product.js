@@ -1,5 +1,4 @@
-import { ElementBase, define } from './base.js';
-import './top-product-item.js';
+import { ElementBase, define } from './../base.js';
 
 export default define(class TopProduct extends ElementBase {
 

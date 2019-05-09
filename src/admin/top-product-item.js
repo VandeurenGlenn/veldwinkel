@@ -1,4 +1,4 @@
-import { ElementBase, define } from './base.js';
+import { ElementBase, define } from './../base.js';
 export default define(class TopProductItem extends ElementBase {
   set value(value) {
     this.name = value['groentenEnVarieteit'] || 'missing name';

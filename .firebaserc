@@ -1,5 +1,20 @@
 {
   "projects": {
     "stable": "topveldwinkel"
+  },
+  "targets": {
+    "topveldwinkel": {
+      "hosting": {
+        "admin": [
+          "guldentopveldwinkel-admin"
+        ],
+        "default": [
+          "guldentopveldwinkel"
+        ],
+        "shop": [
+          "guldentopveldwinkel-shop"
+        ]
+      }
+    }
   }
 }

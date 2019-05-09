@@ -1,4 +1,4 @@
-import { ElementBase, define } from './base.js';
+import { ElementBase, define } from './../base.js';
 export default define(class TopOfferItem extends ElementBase {
   set value(value) {
     console.log(value);

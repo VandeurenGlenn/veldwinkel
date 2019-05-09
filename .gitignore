@@ -65,6 +65,9 @@ node_modules/
 .env
 
 # build
-public/*.js
+public/www/*.js
 public/shop/*.js
 public/admin/*.js
+public/www/assets/**
+public/admin/assets/icons/**
+public/shop/assets/icons/**

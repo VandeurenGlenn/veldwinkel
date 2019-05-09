@@ -188,26 +188,26 @@
       document.head.appendChild(script);
     })
     const onload = () => {
-      const loginButton = document.querySelector('.login-button');
-
-      firebase.auth().onAuthStateChanged(async user => {
-        if (user) {
-          window.ref = firebase.database().ref(`${user.uid}`);
-          window.user = user;
-          if (user.photoURL) {
-            loginButton.innerHTML = `<img src="${user.photoURL}"></img>`;
-          }
-          // else localDevices = ['light'];
-        } else {
-          loginButton.innerHTML = `<img style="margin-right: 8px;"></img>login`;
-
-          loginButton.addEventListener('click', async () => {
-            window.signin()
-              // firebase.auth()
-
-          });
-        }
-      });
+      // const loginButton = document.querySelector('.login-button');
+      //
+      // firebase.auth().onAuthStateChanged(async user => {
+      //   if (user) {
+      //     window.ref = firebase.database().ref(`${user.uid}`);
+      //     window.user = user;
+      //     if (user.photoURL) {
+      //       loginButton.innerHTML = `<img src="${user.photoURL}"></img>`;
+      //     }
+      //     // else localDevices = ['light'];
+      //   } else {
+      //     loginButton.innerHTML = `<img style="margin-right: 8px;"></img>login`;
+      //
+      //     loginButton.addEventListener('click', async () => {
+      //       window.signin()
+      //         // firebase.auth()
+      //
+      //     });
+      //   }
+      // });
     }
   </script>
   <body onload="onload()">

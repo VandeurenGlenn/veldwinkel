@@ -49,6 +49,9 @@ export default define(class TopClientOrder extends ElementBase {
   }
 
   async _submit() {
+    if (!window.user) {
+      await window.signin();
+    }
     const set = [{
       referentie: this.shadowRoot.querySelector('input[name="reference"]').value,
       displayName: user.displayName,
@@ -56,9 +59,6 @@ export default define(class TopClientOrder extends ElementBase {
       phoneNumber: user.phoneNumber
     }];
     let selected = [];
-    if (!window.user) {
-      await window.signin();
-    }
     for (const selector of this.selectors) {
       if (Array.isArray(selector.selected)) {
         selected = [...selected, ...selector.selected];

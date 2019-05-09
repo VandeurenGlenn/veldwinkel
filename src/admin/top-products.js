@@ -1,7 +1,7 @@
-import { ElementBase, define } from './base.js';
+import { ElementBase, define } from './../base.js';
 import './top-product-item.js';
 
-export default define(class TopCatalog extends ElementBase {
+export default define(class TopProducts extends ElementBase {
   constructor() {
     super();
     this._onClick = this._onClick.bind(this);

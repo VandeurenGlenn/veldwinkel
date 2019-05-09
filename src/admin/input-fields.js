@@ -1,5 +1,5 @@
-import { define, ElementBase } from './base.js';
-import './../node_modules/custom-input/custom-input.js';
+import { define, ElementBase } from './../base.js';
+import './../../node_modules/custom-input/custom-input.js';
 
 export default define(class InputFields extends ElementBase {
   static get observedAttributes() {

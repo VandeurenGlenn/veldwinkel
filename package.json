@@ -7,7 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "c": "rollup -c",
     "watch": "rollup -c -w",
-    "precache": "sw-precache --config=sw-precache-config.js",
+    "precache": "sw-precache --config=sw-precache-config.js && npm run precache-admin && npm run precache-shop",
+    "precache-admin": "sw-precache --config=sw-precache-config-admin.js",
+    "precache-shop": "sw-precache --config=sw-precache-config-shop.js",
     "build": "npm run c && npm run precache"
   },
   "repository": {
@@ -35,7 +37,6 @@
     "custom-svg-iconset": "^0.9.2",
     "custom-tabs": "^0.11.0",
     "custom-template-if": "^1.0.0",
-    "firebase": "^5.10.1",
     "typed.js": "^2.0.10"
   },
   "devDependencies": {
