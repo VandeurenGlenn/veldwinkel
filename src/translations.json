@@ -3,6 +3,8 @@
     "order": "bestel",
     "stock": "veldoverzicht",
     "info": "info",
-    "orders": "bestellingen"
+    "orders": "bestellingen",
+    "collections": "afhalingen",
+    "collection": "afhaling"
   }
 }

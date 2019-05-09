@@ -1,10 +1,10 @@
 import { define, ElementBase } from './../base.js';
+import './../../node_modules/custom-input/custom-input.js';
 import './../top-button.js';
 import './../custom-container.js';
 import './../device-api.js';
 
 export default define(class AddOffer extends ElementBase {
-  // #camButton = this.shadowRoot.querySelector('top-icon-button[icon="photo-camera"]');
   get _camButton() {
     return this.shadowRoot.querySelector('top-button.camera');
   }
@@ -38,7 +38,7 @@ export default define(class AddOffer extends ElementBase {
   }
 
   submit() {
-    firebase.database().ref('products')
+    firebase.database().ref('products');
     // { photo, description, pieces, price, type, name }
   }
 
@@ -108,4 +108,4 @@ export default define(class AddOffer extends ElementBase {
 </custom-container>
     `;
   }
-})
+});

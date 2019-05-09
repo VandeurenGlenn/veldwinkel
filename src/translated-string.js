@@ -7,7 +7,7 @@ export default define(class TranslatedString extends ElementBase {
   }
   set value(value) {
     this.setAttribute('value', value);
-    this.shadowRoot.innerHTML = this.translate(this.value);
+    this.innerHTML = this.translate(this.value);
   }
   get value() {
     return this.getAttribute('value');
@@ -20,8 +20,11 @@ export default define(class TranslatedString extends ElementBase {
   }
   connectedCallback() {
     super.connectedCallback();
+    if (!this.value && this.innerHTML) this.value = this.innerHTML;
   }
   translate(string) {
-    return translations['nl'][string];
+    const translation = translations['nl'][string];
+    if (!translation) return this.value;
+    return translation;
   }
 });

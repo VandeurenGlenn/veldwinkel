@@ -9,6 +9,12 @@ try {
 }
 
 try {
+  execSync('rm public/www/chunk-*.js');
+} catch (e) {
+
+}
+
+try {
   execSync('rm public/admin/chunk-*.js');
 } catch (e) {
 }
@@ -34,21 +40,22 @@ try {
 }
 
 try {
-  execSync('cp public/assets public/www -r')
+  execSync('cp public/assets public/www -r');
 } catch (e) {
   console.log(e);
 }
 
 export default [{
   input: ['src/iconset.js', 'src/top-icon-button.js', 'src/top-button.js',
-          'src/home-imports.js', 'src/item-list.js', 'src/order-list.js',
-          'src/top-client-order.js'],
+    'src/home-imports.js', 'src/item-list.js', 'src/order-list.js',
+    'src/top-client-order.js'],
   output: {
     dir: 'public/www',
     format: 'es'
   },
   plugins: [
-    terser({keep_classnames: true})
+    json(),
+    terser({ keep_classnames: true })
   ]
 }, {
   input: ['src/iconset.js', 'src/app-shell.js'],
@@ -58,20 +65,24 @@ export default [{
   },
   plugins: [
     json(),
-    terser({keep_classnames: true})
+    terser({ keep_classnames: true })
   ]
 }, {
   input: [
     'src/admin/shell.js', 'src/admin/add-product.js', 'src/admin/add-offer.js',
     'src/top-button.js', 'src/iconset.js', 'src/admin/top-product.js',
     'src/admin/top-products.js', 'src/admin/top-sheet.js',
-    'src/admin/top-offers.js', 'src/admin/top-offer.js', 'src/admin/top-order.js'
+    'src/admin/top-offers.js', 'src/admin/top-offer.js',
+    'src/admin/top-order.js', 'src/admin/top-orders.js',
+    'src/admin/top-collections.js', 'src/admin/top-collection.js',
+    'src/admin/top-collection-item.js'
   ],
   output: {
     dir: 'public/admin',
     format: 'es'
   },
   plugins: [
-    terser({keep_classnames: true})
+    json(),
+    terser({ keep_classnames: true })
   ]
-}]
+}];

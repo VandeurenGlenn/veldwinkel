@@ -1,52 +1,59 @@
-
-/**
- *
- */
 export default (() => {
   class DeviceApi {
     constructor() {
       window.deviceApi = this;
     }
-
-    async _createCameraStream() {
+    /**
+     * @param {string} facingMode ['environment'|'user'] -
+     * the desired camera to use
+     */
+    async _createCameraStream(facingMode = 'environment') {
       if (!this._cameraStream) {
-        const gotMedia = mediaStream => {
+        const gotMedia = (mediaStream) => {
           this._cameraStream = mediaStream;
           const mediaStreamTrack = mediaStream.getVideoTracks()[0];
           this._imageCapture = new ImageCapture(mediaStreamTrack);
-        }
+        };
 
-        const stream = await navigator.mediaDevices.getUserMedia({video: true});
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode }
+        });
         return gotMedia(stream);
       }
     }
-
-    async _previewCamera(el) {
-      if (!el) throw 'No target HTMLElement defined';
-      if (!this._cameraStream) await this._createCameraStream();
+    /**
+     * @param {HTMLElement} el
+     * @param {string} facingMode ['environment'|'user'] -
+     * the desired camera to use
+     */
+    async _previewCamera(el, facingMode) {
+      if (!el) throw Error('No target HTMLElement defined');
+      if (!this._cameraStream) await this._createCameraStream(facingMode);
       el.srcObject = this._cameraStream;
     }
 
     /**
-     * @param {string} el - camera methods
+     * @return {object} { preview(), takePhoto() } - camera methods
      *
      */
     get camera() {
       return {
-        preview: el => this._previewCamera(el),
-        takePhoto: async (img) => {
-          if (!this._cameraStream) await this._createCameraStream();
+        preview: (el, facingMode) => this._previewCamera(el, facingMode),
+        takePhoto: async (img, facingMode) => {
+          if (!this._cameraStream) await this._createCameraStream(facingMode);
           const blob = await this._imageCapture.takePhoto();
           const url = URL.createObjectURL(blob);
           if (img) {
             img.src = url;
-            img.onload = () => { URL.revokeObjectURL(img.src) };
+            img.onload = () => {
+              URL.revokeObjectURL(img.src);
+            };
             return;
           }
           this._cameraStream = null;
           return url;
         }
-      }
+      };
     }
   }
   new DeviceApi();

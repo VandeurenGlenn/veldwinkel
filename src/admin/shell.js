@@ -5,9 +5,10 @@ import './../../node_modules/custom-tabs/src/custom-tabs.js';
 import './../../node_modules/custom-tabs/src/custom-tab.js';
 import './../../node_modules/custom-selector/src/index.js';
 import './../../node_modules/custom-drawer/custom-drawer.js';
+import './../translated-string.js';
 // import './top-products.js';
-import './top-orders.js';
-import './input-fields.js';
+// import './top-orders.js';
+// import './input-fields.js';
 
 export default define(class AdminShell extends ElementBase {
   get pages() {
@@ -20,7 +21,7 @@ export default define(class AdminShell extends ElementBase {
     return this.shadowRoot.querySelector('custom-drawer');
   }
   get translatedTitle() {
-    return this.querySelector('translated-string');
+    return this.shadowRoot.querySelector('translated-string[name="title"]');
   }
   set drawerOpened(value) {
     if (value) this.setAttribute('drawer-opened', '');
@@ -37,13 +38,10 @@ export default define(class AdminShell extends ElementBase {
   }
   connectedCallback() {
     super.connectedCallback();
-    if (window.location.hash === '#stock') {
-      this.selector.select('stock');
-      // window.location.href = `${window.location.origin}/shop#!/stock`;
-    }
-    // this.translatedTitle.value = this.selector.selected;
-    this.pages.select(this.selector.selected);
+    this.translatedTitle.value = this.selector.selected;
     this.selector.addEventListener('selected', this._selectorChange);
+    this.selector.selected = 'orders';
+    this._selectorChange();
     this.shadowRoot.querySelector('custom-svg-icon[icon="menu"]').addEventListener('click', this._menuClick);
   }
 
@@ -57,7 +55,9 @@ export default define(class AdminShell extends ElementBase {
       if (selected === 'products') await import('./top-products.js');
       if (selected === 'sheet') await import('./top-sheet.js');
       if (selected === 'offers') await import('./top-offers.js');
-      // this.translatedTitle.value = selected;
+      if (selected === 'orders') await import('./top-orders.js');
+      if (selected === 'collections') await import('./top-collections.js');
+      this.translatedTitle.value = selected;
       this.pages.select(selected);
     }
   }
@@ -90,13 +90,15 @@ export default define(class AdminShell extends ElementBase {
       header {
         display: flex;
         align-items: center;
-        justify-content: center;
         height: 56px;
         background: transparent;
-      }
-      ::slotted(header) {
         position: absolute;
         right: 0;
+        width: 100%;
+      }
+      custom-drawer header {
+        position: relative;
+        justify-content: center;
       }
       :host([drawer-opened]) custom-drawer {
         opacity: 1;
@@ -143,12 +145,6 @@ export default define(class AdminShell extends ElementBase {
         flex-direction: column;
         width: 100%;
       }
-      custom-svg-icon[icon="menu"].menu {
-        position: fixed;
-        top: 12px;
-        left: 12px;
-        z-index: 100;
-      }
       @media (min-width: 720px) {
         section {
           align-items: center;
@@ -164,26 +160,35 @@ export default define(class AdminShell extends ElementBase {
           left: var(--custom-drawer-width);
           width: calc(100% - 256px);
         }
-        :host([drawer-opened]) ::slotted(header) {
+        :host([drawer-opened]) .main {
           left: var(--custom-drawer-width);
           width: calc(100% - 256px) !important;
         }
       }
     </style>
 
-    <custom-svg-icon icon="menu" class="menu"></custom-svg-icon>
+    <header class="main">
+
+      <custom-svg-icon icon="menu" class="menu"></custom-svg-icon>
+      <translated-string name="title"></translated-string>
+    </header>
 
     <custom-drawer>
       <header slot="header">
         <h3>Guldentop veldwinkel</h3>
       </header>
-
-      <custom-selector slot="content" attr-for-selected="data-route" selected="orders">
+      <custom-selector slot="content" attr-for-selected="data-route" selected="">
 
         <span class="row selection" data-route="orders" >
           <custom-svg-icon icon="menu"></custom-svg-icon>
           <span class="flex"></span>
           bestellingen
+        </span>
+
+        <span class="row selection" data-route="collections" >
+          <custom-svg-icon icon="menu"></custom-svg-icon>
+          <span class="flex"></span>
+          <translated-string>collections</translated-string>
         </span>
 
         <span class="row selection" data-route="offers" >

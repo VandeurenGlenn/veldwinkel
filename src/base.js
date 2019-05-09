@@ -19,7 +19,7 @@ const mixin = (mix = HTMLElement) => class Mixin extends mix {
   get template() {
     return html`<slot></slot>`;
   }
-}
+};
 class ElementBase extends CSS(Renderer(HTMLElement)) {
   constructor() {
     super();
@@ -35,8 +35,9 @@ class ElementBase extends CSS(Renderer(HTMLElement)) {
   }
 
   get template() {
-    return html`<slot></slot>`;
+    return html`<style>:host { pointer-events: none; }</style><slot></slot>`;
   }
 }
-
-export { define, ElementBase }
+window.ElementBase = ElementBase;
+window.define = define;
+export { define, ElementBase };

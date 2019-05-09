@@ -20,11 +20,8 @@ export default define(class TopOrders extends ElementBase {
           if (users) for (const uid of Object.keys(users)) {
             const snap = await firebase.database().ref(`users/${uid}/orders`).once('value');
             let order = snap.val();
-            console.log(order);
             Object.keys(order).map(o => {
-              console.log(order[o][0]);
               order[o][0].user = uid;
-                console.log(order[o][0]);
             });
             orders = { ...orders, ...order }
           }
@@ -56,9 +53,11 @@ export default define(class TopOrders extends ElementBase {
     this.innerHTML = '';
     if (orders) {
       for (const order of Object.keys(orders)) {
-        const item = document.createElement('top-order-item');
-        this.appendChild(item);
-        item.value = {key: order, order: orders[order]};
+        if (!orders[order][0].ready) {
+          const item = document.createElement('top-order-item');
+          this.appendChild(item);
+          item.value = {key: order, order: orders[order]};
+        }
       }
     }
   }

@@ -111,7 +111,7 @@
         link.href = 'https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css';
         link.rel = 'stylesheet';
         document.head.appendChild(link);
-        const script =  document.createElement('script')
+        const script = document.createElement('script');
         script.onload = () => {
           const ui = new firebaseui.auth.AuthUI(firebase.auth());
           const uiconfig = {
@@ -126,17 +126,16 @@
             },
             signInFlow: 'popup',
             signInOptions: [
-              firebase.auth.EmailAuthProvider.PROVIDER_ID,
+              firebase.auth.EmailAuthProvider.PROVIDER_ID
             ]
           };
           ui.start('.firebaseui-auth-container', uiconfig);
-        }
+        };
         script.src = 'https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js';
         document.head.appendChild(script);
         // firebase.auth()
-
       };
-      firebase.auth().onAuthStateChanged(user => {
+      firebase.auth().onAuthStateChanged((user) => {
         if (user) {
           window.ref = firebase.database().ref(`${user.uid}`);
           window.user = user;
@@ -145,7 +144,7 @@
           login();
         }
       });
-    }
+    };
   </script>
   <body onload="onload()">
     <span class="firebaseui-auth-container"></span>
@@ -160,6 +159,8 @@
         <top-offers route="offers"></top-offers>
         <top-offer route="offer"></top-offer>
         <top-sheet route="sheet"></top-sheet>
+        <top-collections route="collections"></top-collections>
+        <top-collection route="collection"></top-collection>
         <add-product route="add-product"></add-product>
         <add-offer route="add-offer"></add-offer>
       </custom-pages>
@@ -191,6 +192,10 @@
           order.value = selection;
         } else if (view === 'add-product' || view === 'add-offer') {
           await import(`./${view}.js`);
+        } else if (view === 'collection') {
+          await import('./top-collection.js');
+          const collection = document.querySelector('top-collection');
+          collection.value = selection;
         }
           pages.select(view);
         }
