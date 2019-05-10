@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "acorn-class-fields": "^0.3.1",
-    "rollup": "^1.10.1",
+    "rollup": "^1.11.3",
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-terser": "^4.0.4",
     "sw-precache": "^5.2.1"

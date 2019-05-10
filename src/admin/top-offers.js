@@ -34,7 +34,7 @@ export default define(class TopOffers extends ElementBase {
 
   _onFabClick() {
     console.log('e');
-    window.adminGo('add');
+    window.adminGo('add-offer');
   }
 
   stamp() {

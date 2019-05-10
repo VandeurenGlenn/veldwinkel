@@ -62,9 +62,10 @@ export default [{
   ]
 }, {
   input: [
-    'src/admin/shell.js', 'src/top-button.js', 'src/iconset.js', 'src/admin/top-product.js', 'src/admin/top-products.js',
-    'src/admin/top-sheet.js', 'src/admin/top-offers.js', 'src/admin/top-offer.js',
-    'src/admin/top-order.js'
+    'src/admin/shell.js', 'src/admin/add-product.js', 'src/admin/add-offer.js',
+    'src/top-button.js', 'src/iconset.js', 'src/admin/top-product.js',
+    'src/admin/top-products.js', 'src/admin/top-sheet.js',
+    'src/admin/top-offers.js', 'src/admin/top-offer.js', 'src/admin/top-order.js'
   ],
   output: {
     dir: 'public/admin',

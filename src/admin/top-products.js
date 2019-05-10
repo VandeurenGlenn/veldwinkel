@@ -33,7 +33,7 @@ export default define(class TopProducts extends ElementBase {
 
   _onFabClick() {
     console.log('e');
-    window.adminGo('add');
+    window.adminGo('add-product');
   }
 
   stamp() {
