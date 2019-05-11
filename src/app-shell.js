@@ -33,6 +33,7 @@ export default define(class AppShell extends ElementBase {
     super();
     this._selectorChange = this._selectorChange.bind(this);
     this._menuClick = this._menuClick.bind(this);
+    this._onPopstate = this._onPopstate.bind(this);
     this.drawerOpened = false;
   }
   connectedCallback() {
@@ -40,13 +41,11 @@ export default define(class AppShell extends ElementBase {
     this.selector.addEventListener('selected', this._selectorChange);
     this.querySelector('custom-svg-icon[icon="menu"]').addEventListener('click', this._menuClick);
     (async () => {
-      if (window.location.hash === '#stock') {
-        this.selector.select('stock');
-        this._selectorChange();
-      } else {
-        this.selector.select('order');
+      if (window.location.hash) {
+        this.selector.select(window.location.hash.replace('#', ''));
         this._selectorChange();
       }
+      window.onpopstate = this._onPopstate;
       this.translatedTitle.value = this.selector.selected;
       this.pages.select(this.selector.selected);
       const loginButton = this.querySelector('.login-button');
@@ -69,7 +68,12 @@ export default define(class AppShell extends ElementBase {
           });
         }
       });
-    })()
+    })();
+  }
+
+  _onPopstate() {
+    this.selector.selected = history.state.selected;
+    this._selectorChange();
   }
 
   _menuClick() {
@@ -84,6 +88,7 @@ export default define(class AppShell extends ElementBase {
       if (selected === 'stock') await import('./item-list');
       if (selected === 'orders') await import('./order-list');
       this.pages.select(selected);
+      history.pushState({selected}, selected, `#${selected}`);
     }
   }
   get template() {
