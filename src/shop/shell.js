@@ -1,13 +1,13 @@
-import { define, ElementBase } from './base.js';
-import './../node_modules/custom-pages/src/custom-pages.js';
-import './../node_modules/custom-selector/src/index.js';
-import './../node_modules/custom-svg-icon/src/custom-svg-icon.js';
-import './../node_modules/custom-tabs/src/custom-tabs.js';
-import './../node_modules/custom-drawer/custom-drawer.js';
-import './top-icon-button.js';
-import './top-button.js';
-import './translated-tab.js';
-import './translated-string.js';
+import { define, ElementBase } from './../base.js';
+import './../../node_modules/custom-pages/src/custom-pages.js';
+import './../../node_modules/custom-selector/src/index.js';
+import './../../node_modules/custom-svg-icon/src/custom-svg-icon.js';
+import './../../node_modules/custom-tabs/src/custom-tabs.js';
+import './../../node_modules/custom-drawer/custom-drawer.js';
+import './../top-icon-button.js';
+import './../top-button.js';
+import './../translated-tab.js';
+import './../translated-string.js';
 
 export default define(class AppShell extends ElementBase {
   get pages() {
@@ -43,6 +43,9 @@ export default define(class AppShell extends ElementBase {
     (async () => {
       if (window.location.hash) {
         this.selector.select(window.location.hash.replace('#', ''));
+        this._selectorChange();
+      } else {
+        this.selector.select('order');
         this._selectorChange();
       }
       window.onpopstate = this._onPopstate;

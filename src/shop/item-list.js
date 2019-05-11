@@ -1,5 +1,3 @@
-import { define, ElementBase } from './base.js';
-
 export default define(class ItemList extends ElementBase {
   constructor() {
     super();

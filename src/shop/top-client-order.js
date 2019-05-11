@@ -1,5 +1,4 @@
-import { define, ElementBase } from './base.js';
-import './top-price.js';
+import './../top-price.js';
 
 export default define(class TopClientOrder extends ElementBase {
   constructor() {
@@ -44,7 +43,7 @@ export default define(class TopClientOrder extends ElementBase {
         }
       }
 
-      import('./../node_modules/custom-selector/src/index.js');
+      import('./../../node_modules/custom-selector/src/index.js');
     })()
   }
 

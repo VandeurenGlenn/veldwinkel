@@ -47,8 +47,7 @@ try {
 
 export default [{
   input: ['src/iconset.js', 'src/top-icon-button.js', 'src/top-button.js',
-    'src/home-imports.js', 'src/item-list.js', 'src/order-list.js',
-    'src/top-client-order.js'],
+    'src/home-imports.js'],
   output: {
     dir: 'public/www',
     format: 'es'
@@ -58,7 +57,7 @@ export default [{
     terser({ keep_classnames: true })
   ]
 }, {
-  input: ['src/iconset.js', 'src/app-shell.js'],
+  input: ['src/iconset.js', 'src/shop/shell.js', 'src/shop/item-list.js', 'src/shop/order-list.js', 'src/shop/top-client-order.js'],
   output: {
     dir: 'public/shop',
     format: 'es'
