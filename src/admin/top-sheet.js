@@ -10,7 +10,7 @@ export default define(class TopSheet extends ElementBase {
   connectedCallback() {
     super.connectedCallback();
     (async () => {
-      const snap = await firebase.database().ref('products').once('value');
+      const snap = await firebase.database().ref('catalog').once('value');
       window.products = snap.val();
       this.stamp();
       this.addEventListener('click', this._onClick);

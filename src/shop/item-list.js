@@ -8,24 +8,19 @@ export default define(class ItemList extends ElementBase {
       const snap = await firebase.database().ref('products').once('value');
       window.products = snap.val();
       const inStock = [];
-      for (const product of products) {
-        let stock = product['aantal porties groenten in voorraad'];
-        const inPackets = product['aantal keren in pakket'];
-        let name = product['groentenEnVarieteit'];
-        const portion = product['portie'];
+      for (const product of Object.keys(products)) {
+        let { stockCount, packageCount, name, portion, image } = products[product];
         const title = name;
         if (name.length > 67) {
           name = name.slice(0, 67);
           name += '...';
         }
-        if (stock && stock > inPackets) {
-          stock = stock - inPackets
+        if (stockCount && stockCount > packageCount) {
+          stockCount = stockCount - packageCount;
           const item = document.createElement('span');
-          item.innerHTML = `<span style="display: flex;"><strong title="${title}">${name}</strong><span style="flex: 1;"></span><strong style="padding-right:8px;">aantal:</strong>${stock}</span><span style="flex: 1;"></span><strong>${portion}</strong>`;
+          item.innerHTML = `<span style="display: flex;"><strong title="${title}">${name}</strong><span style="flex: 1;"></span><strong style="padding-right:8px;">aantal:</strong>${stockCount}</span><span style="flex: 1;"></span><strong>${portion}</strong>`;
           this.appendChild(item);
         }
-
-
       }
     })();
   }
@@ -61,4 +56,4 @@ export default define(class ItemList extends ElementBase {
 </style>
 <span class="container"><slot></slot></span>`;
   }
-})
+});

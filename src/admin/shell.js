@@ -5,6 +5,7 @@ import './../../node_modules/custom-tabs/src/custom-tabs.js';
 import './../../node_modules/custom-tabs/src/custom-tab.js';
 import './../../node_modules/custom-selector/src/index.js';
 import './../../node_modules/custom-drawer/custom-drawer.js';
+import './../translator.js';
 import './../translated-string.js';
 // import './top-products.js';
 // import './top-orders.js';
@@ -30,6 +31,10 @@ export default define(class AdminShell extends ElementBase {
   get drawerOpened() {
     return this.hasAttribute('drawer-opened');
   }
+
+  get menuIcon() {
+    return this.shadowRoot.querySelector('.menu');
+  }
   constructor() {
     super();
     this._selectorChange = this._selectorChange.bind(this);
@@ -38,11 +43,31 @@ export default define(class AdminShell extends ElementBase {
   }
   connectedCallback() {
     super.connectedCallback();
+    if (matchMedia('(min-width: 720px)').matches) this.drawerOpened = true;
+    document.addEventListener('mouseup', () => {
+      if (matchMedia('(max-width: 641px)').matches && this.drawerOpened) this.drawerOpened = false;
+    });
     this.translatedTitle.value = this.selector.selected;
     this.selector.addEventListener('selected', this._selectorChange);
+    this.menuIcon.addEventListener('click', this._menuClick);
     this.selector.selected = 'orders';
     this._selectorChange();
-    this.shadowRoot.querySelector('custom-svg-icon[icon="menu"]').addEventListener('click', this._menuClick);
+    this._preload()
+  }
+
+  async _preload() {
+    console.log('loaded');
+    try {
+      // window.exports = {};
+      await importScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.1');
+      await importScript('https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@1.0.0');
+      window.model = await mobilenet.load()
+      // await window.model
+    } catch (e) {
+      console.log(e);
+    } finally {
+
+    }
   }
 
   _menuClick() {

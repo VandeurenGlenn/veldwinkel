@@ -33,25 +33,17 @@ export default (() => {
     }
 
     /**
-     * @return {object} { preview(), takePhoto() } - camera methods
+     * @return {object} { preview(), takePhoto(facingMode) } - camera methods
      *
      */
     get camera() {
       return {
         preview: (el, facingMode) => this._previewCamera(el, facingMode),
-        takePhoto: async (img, facingMode) => {
+        takePhoto: async facingMode => {
           if (!this._cameraStream) await this._createCameraStream(facingMode);
           const blob = await this._imageCapture.takePhoto();
-          const url = URL.createObjectURL(blob);
-          if (img) {
-            img.src = url;
-            img.onload = () => {
-              URL.revokeObjectURL(img.src);
-            };
-            return;
-          }
           this._cameraStream = null;
-          return url;
+          return blob;
         }
       };
     }

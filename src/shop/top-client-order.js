@@ -18,28 +18,31 @@ export default define(class TopClientOrder extends ElementBase {
     (async () => {
       const snap = await firebase.database().ref(`offers`).once('value');
       const products = snap.val();
-      for (const product of products) {
-        const { type } = product;
-        const el = document.createElement('span');
-        el.classList.add('selection');
-        el.setAttribute('data-name', type);
+      for (let product of Object.keys(products)) {
+        const pub = products[product].public;
+        const { type, omschrijving, prijs, name, per } = products[product];
+        if (pub) {
+          const el = document.createElement('span');
+          el.classList.add('selection');
+          el.setAttribute('data-name', type);
 
-        if (type === 'bloemen' || type === 'eieren' || type === 'wijn' || type === 'honing') {
-          this.selectors[1].appendChild(el);
+          if (type === 'bloemen' || type === 'eieren' || type === 'wijn' || type === 'honing') {
+            this.selectors[1].appendChild(el);
 
-          el.innerHTML = `<span class="row center"><input name="${type}" type="number" value="${product.per}"></input><h4>${product.product}</h4>
-            <span class="flex"></span>
-            <top-price name="${type}">${product.prijs}</top-price>
-          </span>
-          <summary>${product.omschrijving}</summary>`;
-        } else {
-          this.selectors[0].appendChild(el);
+            el.innerHTML = `<span class="row center"><input name="${type}" type="number" value="${per}"></input><h4>${name}</h4>
+              <span class="flex"></span>
+              <top-price name="${type}">${prijs}</top-price>
+            </span>
+            <summary>${omschrijving}</summary>`;
+          } else {
+            this.selectors[0].appendChild(el);
 
-          el.innerHTML = `<span class="row center"><input name="${type}" type="number" value="${product.per}"></input><h4>${product.product} - ${product.type}</h4>
-            <span class="flex"></span>
-            <top-price name="${type}">${product.prijs}</top-price>
-          </span>
-          <summary>${product.omschrijving}</summary>`;
+            el.innerHTML = `<span class="row center"><input name="${type}" type="number" value="${per}"></input><h4>${name} - ${type}</h4>
+              <span class="flex"></span>
+              <top-price name="${type}">${prijs}</top-price>
+            </span>
+            <summary>${omschrijving}</summary>`;
+          }
         }
       }
 

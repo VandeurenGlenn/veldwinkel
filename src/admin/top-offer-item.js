@@ -1,13 +1,18 @@
 import { ElementBase, define } from './../base.js';
 export default define(class TopOfferItem extends ElementBase {
+  get _publicIcon() {
+    return this.shadowRoot.querySelector('custom-svg-icon[icon="public"]')
+  }
+
   set value(value) {
     console.log(value);
-    this.name = value['product'] || 'missing name';
+    this.name = value.name || 'missing name';
     this.per = value['per'];
     this.description = value['omschrijving'];
     this.price = value['prijs'];
     this.image = value['foto'];
     this.type = value['type'];
+    if (value.public) this._publicIcon.setAttribute('public', '');
     const title = this.name;
     this.name = this.name.slice(0, 31);
     if (this.name.length < title.length) {
@@ -56,6 +61,10 @@ export default define(class TopOfferItem extends ElementBase {
     box-sizing: border-box;
   }
 
+  [public] {
+    --svg-icon-color: #4caf50;
+  }
+
   .flex {
     flex: 1;
   }
@@ -69,13 +78,17 @@ export default define(class TopOfferItem extends ElementBase {
   h4, p, span {
     pointer-events: none;
   }
+  .row {
+    width: 100%;
+  }
   apply(--css-row)
   apply(--css-center)
 </style>
 
-<span class="row">
+<span class="row center">
   <h4 class="name center">${'name'}</h4>
   <span class="flex"></span>
+  <custom-svg-icon icon="public"></custom-svg-icon>
 </span>
 `;
   }

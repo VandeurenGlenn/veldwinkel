@@ -172,10 +172,6 @@
         const pages = document.querySelector('custom-pages');
         const shell = document.querySelector('admin-shell');
 
-        document.addEventListener('mouseup', () => {
-          if (matchMedia('(max-width: 641px)').matches && shell.drawerOpened) shell.drawerOpened = false;
-        });
-
         window.adminGo = async (view, selection) => {
           console.log(view);
         if (selection && view === 'product') {

@@ -1,9 +1,9 @@
 import { ElementBase, define } from './../base.js';
 export default define(class TopProductItem extends ElementBase {
-  set value(value) {
-    this.name = value['groentenEnVarieteit'] || 'missing name';
-    this.stock = value['aantal porties groenten in voorraad'];
-    this.inBox = value['aantal keren in pakket'];
+  set value({ name, stockCount, packageCount }) {
+    this.name = name;
+    this.stock = stockCount;
+    this.inBox = packageCount;
     const title = this.name;
     this.name = this.name.slice(0, 31);
     if (this.name.length < title.length) {
@@ -47,7 +47,7 @@ export default define(class TopProductItem extends ElementBase {
   }
 
   _onValue() {
-    const stockRef = firebase.database().ref(`products/${this._key}/aantal porties groenten in voorraad`);
+    const stockRef = firebase.database().ref(`products/${this._key}/stockCount`);
     // const boxRef = firebase.database().ref(`products/${this._key}/aantal keren in pakket`);
     stockRef.set(this.stockEl.value);
     // boxRef.set(this.inBoxEl.value);

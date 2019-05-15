@@ -23,8 +23,6 @@ export default define(class TranslatedString extends ElementBase {
     if (!this.value && this.innerHTML) this.value = this.innerHTML;
   }
   translate(string) {
-    const translation = translations['nl'][string];
-    if (!translation) return this.value;
-    return translation;
+    return window.translate(string);
   }
 });

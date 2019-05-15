@@ -13,6 +13,16 @@ export default define(class TopProducts extends ElementBase {
       const snap = await firebase.database().ref('products').once('value');
       window.products = snap.val();
       this.stamp();
+      firebase.database().ref('products').on('child_changed', async () => {
+        const snap = await firebase.database().ref('products').once('value');
+        window.products = snap.val();
+        this.stamp();
+      });
+      firebase.database().ref('products').on('child_removed', async () => {
+        const snap = await firebase.database().ref('products').once('value');
+        window.products = snap.val();
+        this.stamp();
+      });
       this.addEventListener('click', this._onClick);
       this.shadowRoot.querySelector('.fab').addEventListener('click', this._onFabClick);
     })();
@@ -38,15 +48,15 @@ export default define(class TopProducts extends ElementBase {
 
   stamp() {
     let index = 0;
-    for (const product of products) {
+    for (const product of Object.keys(products)) {
       let item = this.querySelector('index[index]');
       if (!item) {
         item = document.createElement('top-product-item');
         this.appendChild(item);
       }
-      item.value = product;
-      item.key = index;
-      item.dataset.route = index;
+      item.value = products[product];
+      item.key = product;
+      item.dataset.route = product;
       ++index;
     }
   }
@@ -110,7 +120,6 @@ export default define(class TopProducts extends ElementBase {
     <span class="flex"></span>
     <custom-svg-icon icon="mode-edit"></custom-svg-icon>
     <custom-svg-icon icon="search"></custom-svg-icon>
-
 </header>
 <header>
   <h4 class="name">naam</h4>

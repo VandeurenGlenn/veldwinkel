@@ -1,6 +1,7 @@
 import define from './../node_modules/backed/src/utils/define.js';
 import Renderer from './../node_modules/custom-renderer-mixin/src/render-mixin.js';
 import CSS from './../node_modules/backed/src/mixins/css-mixin.js';
+import importScript from './../node_modules/backed/src/utils/load-script.js';
 
 const mixin = (mix = HTMLElement) => class Mixin extends mix {
   constructor() {
@@ -38,6 +39,18 @@ class ElementBase extends CSS(Renderer(HTMLElement)) {
     return html`<style>:host { pointer-events: none; }</style><slot></slot>`;
   }
 }
+/**
+ * @param {blob|file} input
+ */
+window.readAsDataURL = (input) => new Promise((resolve, reject) => {
+  console.log(input);
+  const reader = new FileReader();
+  reader.addEventListener('load', () => {
+    resolve(reader.result);
+  }, false);
+  reader.readAsDataURL(input);
+});
+window.importScript = importScript;
 window.ElementBase = ElementBase;
 window.define = define;
 export { define, ElementBase };

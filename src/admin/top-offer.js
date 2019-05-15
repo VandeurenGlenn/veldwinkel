@@ -31,6 +31,7 @@ export default define(class TopOffer extends ElementBase {
     overflow-y: auto;
   }
 </style>
+<custom-svg-icon icon="public"></custom-svg-icon>
 <slot></slot>`;
   }
 

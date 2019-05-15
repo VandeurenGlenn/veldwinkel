@@ -1,10 +1,17 @@
 {
   "nl": {
+    "description": "Omschrijving",
+    "products": "producten",
+    "name": "naam",
     "order": "bestel",
     "stock": "veldoverzicht",
+    "stockCount": "voorraad",
+    "packageCount": "in pakketten",
     "info": "info",
     "orders": "bestellingen",
     "collections": "afhalingen",
-    "collection": "afhaling"
+    "collection": "afhaling",
+    "portion": "portie",
+    "image": "afbeelding"
   }
 }

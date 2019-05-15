@@ -78,7 +78,8 @@ export default [{
   ],
   output: {
     dir: 'public/admin',
-    format: 'es'
+    format: 'es',
+    sourcemaps: true
   },
   plugins: [
     json(),

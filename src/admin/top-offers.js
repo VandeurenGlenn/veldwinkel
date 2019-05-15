@@ -39,13 +39,13 @@ export default define(class TopOffers extends ElementBase {
 
   stamp() {
     let index = 0;
-    for (const product of offers) {
+    for (const offer of Object.keys(offers)) {
       let item = this.querySelector('index[index]');
       if (!item) {
         item = document.createElement('top-offer-item');
         this.appendChild(item);
       }
-      item.value = product;
+      item.value = offers[offer];
       item.key = index;
       item.dataset.route = index;
       ++index;

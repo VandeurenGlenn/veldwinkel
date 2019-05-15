@@ -8,6 +8,7 @@ import './../top-icon-button.js';
 import './../top-button.js';
 import './../translated-tab.js';
 import './../translated-string.js';
+import './../translator.js';
 
 export default define(class AppShell extends ElementBase {
   get pages() {
