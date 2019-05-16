@@ -81,17 +81,8 @@ export default define(class AddProduct extends ElementBase {
     clone.onclick = ({ path }) => {
       this._previewPhotoEl.onload = async () => {
         // Classify the image.
-        const predictions = await model.classify(this._previewPhotoEl);
+        // let response = await fetch(`${predictImage}?image=${}`);
 
-
-        console.log('Predictions: ');
-        console.log(predictions);
-        for (const { className, probability } of predictions) {
-          const el = document.createElement('span');
-          el.classList.add('selectable');
-          el.innerHTML = className;
-          this.shadowRoot.querySelector('selectable-input[name="name"]').add(el);
-        }
       };
       this._previewPhotoEl.src = path[0].src;
       this.classList.add('has-close');
@@ -99,6 +90,21 @@ export default define(class AddProduct extends ElementBase {
     this.shadowRoot.querySelector('.image-previews').appendChild(clone);
     deviceApi.camera.preview(this._previewEl, this._facingMode);
     this._previewPhotoEl.src = '';
+
+    const url = new URL(`http://localhost:3000/predictImage`);
+    // params = {lat:35.696233, long:139.570431}
+    let response = await fetch(url, {method: 'POST', body: JSON.stringify({image: base64}), headers: {'Content-Type': 'application/json'}});
+    console.log(response);
+
+
+    // console.log('Predictions: ');
+    // console.log(predicti/ons);
+    // for (const { className, probability } of predictions) {
+    //   const el = document.createElement('span');
+    //   el.classList.add('selectable');
+    //   el.innerHTML = className;
+    //   this.shadowRoot.querySelector('selectable-input[name="name"]').add(el);
+    // }
   }
 
   async submit() {

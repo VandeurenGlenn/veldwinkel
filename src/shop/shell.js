@@ -209,17 +209,23 @@ export default define(class AppShell extends ElementBase {
     <span class="row selection" data-route="order" >
       <custom-svg-icon icon="shopping-cart"></custom-svg-icon>
       <span class="flex"></span>
-      bestel
+      snelle bestelling
+    </span>
+
+    <span class="row selection" data-route="products" >
+      <custom-svg-icon icon="shopping-basket"></custom-svg-icon>
+      <span class="flex"></span>
+      producten
     </span>
 
     <span class="row selection" data-route="stock" >
-      <custom-svg-icon icon="info"></custom-svg-icon>
+      <custom-svg-icon icon="dashboard"></custom-svg-icon>
       <span class="flex"></span>
       veld overzicht
     </span>
 
     <span class="row selection" data-route="orders" >
-      <custom-svg-icon icon="menu"></custom-svg-icon>
+      <custom-svg-icon icon="orders"></custom-svg-icon>
       <span class="flex"></span>
       bestellingen
     </span>

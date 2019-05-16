@@ -59,9 +59,10 @@ export default define(class AdminShell extends ElementBase {
     console.log('loaded');
     try {
       // window.exports = {};
-      await importScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.1');
-      await importScript('https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@1.0.0');
-      window.model = await mobilenet.load()
+      // await importScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.1');
+      // await importScript('https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@1.0.0');
+      // window.model = await mobilenet.load()
+
       // await window.model
     } catch (e) {
       console.log(e);
