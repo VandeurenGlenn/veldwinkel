@@ -6,6 +6,7 @@
     "order": "bestel",
     "stock": "veldoverzicht",
     "stockCount": "voorraad",
+    "price": "prijs",
     "packageCount": "in pakketten",
     "info": "info",
     "orders": "bestellingen",

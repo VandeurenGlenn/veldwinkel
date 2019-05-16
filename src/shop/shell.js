@@ -9,6 +9,7 @@ import './../top-button.js';
 import './../translated-tab.js';
 import './../translated-string.js';
 import './../translator.js';
+import OADBManager from './../oadb-manager.js';
 
 export default define(class AppShell extends ElementBase {
   get pages() {
@@ -36,6 +37,8 @@ export default define(class AppShell extends ElementBase {
     this._menuClick = this._menuClick.bind(this);
     this._onPopstate = this._onPopstate.bind(this);
     this.drawerOpened = false;
+    window.topstore = window.topstore || {};
+    window.topstore.databases = window.topstore.databases || new OADBManager();
   }
   connectedCallback() {
     super.connectedCallback();
@@ -91,6 +94,8 @@ export default define(class AppShell extends ElementBase {
       if (selected === 'order') await import('./top-client-order');
       if (selected === 'stock') await import('./item-list');
       if (selected === 'orders') await import('./order-list');
+      if (selected === 'products') await import('./client-products');
+      if (selected === 'product') await import('./client-product');
       this.pages.select(selected);
       history.pushState({selected}, selected, `#${selected}`);
     }
@@ -242,6 +247,8 @@ export default define(class AppShell extends ElementBase {
 </custom-drawer>
 <custom-pages attr-for-selected="route">
   <top-client-order route="order"></top-client-order>
+  <client-products route="products"></client-products>
+  <client-product route="product"></client-product>
   <item-list route="stock" type="stock"></item-list>
   <order-list route="orders" type="orders"></order-list>
   <section route="info">

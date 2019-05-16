@@ -2,6 +2,36 @@ import { ElementBase, define } from './../base.js';
 import './top-offer-item.js';
 
 export default define(class TopOffers extends ElementBase {
+  get offerDisplay() {
+    return {
+      get: () => new Promise((resolve, reject) => {
+        const value = localStorage.getItem('offerDisplay');
+        resolve(JSON.parse(value));
+      }),
+      set: (value) => {
+        return new Promise((resolve, reject) => {
+          localStorage.setItem('offerDisplay', JSON.stringify(value));
+          resolve();
+        });
+      }
+    };
+  }
+
+  get offers() {
+    return {
+      get: () => new Promise((resolve, reject) => {
+        const value = localStorage.getItem('offers');
+        resolve(JSON.parse(value));
+      }),
+      set: (value) => {
+        return new Promise((resolve, reject) => {
+          localStorage.setItem('offers', JSON.stringify(value));
+          resolve();
+        });
+      }
+    };
+  }
+
   constructor() {
     super();
     this._onClick = this._onClick.bind(this);
@@ -9,13 +39,24 @@ export default define(class TopOffers extends ElementBase {
   }
   connectedCallback() {
     super.connectedCallback();
+    this.addEventListener('click', this._onClick);
+    this.shadowRoot.querySelector('.fab').addEventListener('click', this._onFabClick);
+
     (async () => {
-      const snap = await firebase.database().ref('offers').once('value');
-      window.offers = snap.val();
       await import('./top-offer-item.js')
-      this.stamp();
-      this.addEventListener('click', this._onClick);
-      this.shadowRoot.querySelector('.fab').addEventListener('click', this._onFabClick);
+      window.offerDisplay = window.offerDisplay || await this.offerDisplay.get();
+      if (offerDisplay) {
+        window.offers = window.offers || await this.offers.get();
+        await this.stamp();
+      }
+      try {
+        const snap = await firebase.database().ref('offerDisplay').once('value');
+        window.offerDisplay = snap.val();
+        this.stamp();
+        await this.offerDisplay.set(offerDisplay);
+      } catch (e) {
+        console.log('offline');
+      }
     })();
   }
 
@@ -37,18 +78,21 @@ export default define(class TopOffers extends ElementBase {
     window.adminGo('add-offer');
   }
 
-  stamp() {
-    let index = 0;
-    for (const offer of Object.keys(offers)) {
-      let item = this.querySelector('index[index]');
+  async stamp() {
+    if (!window.offers) window.offers = [];
+    for (const offer of Object.keys(offerDisplay)) {
+      if (!offers[offer]) {
+        const snap = await firebase.database().ref(`offers/${offer}`).once('value');
+        offers[offer] = snap.val();
+      }
+      let item = this.querySelector(`data-route[offer]`);
       if (!item) {
         item = document.createElement('top-offer-item');
         this.appendChild(item);
       }
-      item.value = offers[offer];
-      item.key = index;
-      item.dataset.route = index;
-      ++index;
+      item.value = { ...offerDisplay[offer], ...offers[offer]};
+      item.key = offer;
+      item.dataset.route = offer;
     }
   }
 
@@ -107,11 +151,10 @@ export default define(class TopOffers extends ElementBase {
 </span>
 
 <header>
-    <custom-svg-icon icon="filter-list"></custom-svg-icon>
-    <span class="flex"></span>
-    <custom-svg-icon icon="mode-edit"></custom-svg-icon>
-    <custom-svg-icon icon="search"></custom-svg-icon>
-
+  <custom-svg-icon icon="filter-list"></custom-svg-icon>
+  <span class="flex"></span>
+  <custom-svg-icon icon="mode-edit"></custom-svg-icon>
+  <custom-svg-icon icon="search"></custom-svg-icon>
 </header>
 <header>
   <h4 class="name">naam</h4>

@@ -2,6 +2,9 @@
 import SelectorMixin from './../node_modules/custom-select-mixins/src/selector-mixin.js';
 
 export default customElements.define('image-nails', class ImageNails extends HTMLElement {
+  get input() {
+    return this.shadowRoot.querySelector('input');
+  }
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
@@ -10,6 +13,9 @@ export default customElements.define('image-nails', class ImageNails extends HTM
     this._onTouchStart = this._onTouchStart.bind(this);
     this._onTouchMove = this._onTouchMove.bind(this);
     this._onTouchEnd = this._onTouchEnd.bind(this);
+    this._ondragover = this._ondragover.bind(this);
+    this._ondrop = this._ondrop.bind(this);
+    this._addToPhotos = this._addToPhotos.bind(this);
     // this.reset = this.reset.bind(this);
     this.targetBCR = null;
     this.target = null;
@@ -21,12 +27,22 @@ export default customElements.define('image-nails', class ImageNails extends HTM
 
   connectedCallback() {
     if (super.connectedCallback) super.connectedCallback();
-    this.addEventListener('touchstart', this._onTouchStart, {passive: true});
+    this.addEventListener('touchstart', this._onTouchStart, { passive: true });
 
-    this.addEventListener('touchend', this._onTouchEnd, {passive: true});
-    this.addEventListener('mousedown', this._onTouchStart, {passive: true});
+    this.addEventListener('touchend', this._onTouchEnd, { passive: true });
+    this.addEventListener('mousedown', this._onTouchStart, { passive: true });
 
-    this.addEventListener('mouseup', this._onTouchEnd, {passive: true});
+    this.addEventListener('mouseup', this._onTouchEnd, { passive: true });
+
+    this.addEventListener('drop', this._ondrop);
+    this.addEventListener('dragover', this._ondragover);
+    this.shadowRoot.querySelector('[icon="add-to-photos"]').addEventListener('click', this._addToPhotos);
+
+    this.input.onchange = () => {
+      for (let i = 0; i < this.input.files.length; ++i) {
+        this._readFile(this.input.files[i]);
+      }
+    };
   }
 
   set currentY(value) {
@@ -36,10 +52,11 @@ export default customElements.define('image-nails', class ImageNails extends HTM
       if (this.boundingClientRect) {
         const height = this.boundingClientRect.height;
         let y = this.screenY || 0;
-        if (this.dragging && this.currentY)
+        if (this.dragging && this.currentY) {
           y = this.currentY - this.startY;
-        else
+        } else {
           y += (this.y - y) / 2;
+        }
         const normalizedDistance = (Math.abs(y) / height);
         const opacity = 1 - Math.pow(normalizedDistance, 1.8);
         this.selected.style.transform = `translateY(${y}px)`;
@@ -50,10 +67,11 @@ export default customElements.define('image-nails', class ImageNails extends HTM
         if (isNearlyInvisible) {
           this.selected.classList.add('swiped');
           const detail = this.selected;
-          this.dispatchEvent(new CustomEvent('image-swiped', { detail }))
+          this.dispatchEvent(new CustomEvent('image-swiped', { detail }));
           this.reset();
-        }	else
+        }	else {
           this.reset();
+        }
       }
       this.lastDragging = this.dragging;
     });
@@ -66,73 +84,73 @@ export default customElements.define('image-nails', class ImageNails extends HTM
   /**
     * @param {boolean} value
     */
-   set dragging(value) {
-     this._dragging = value;
-   }
-   /**
+  set dragging(value) {
+    this._dragging = value;
+  }
+  /**
     * @param {object} value
     */
-   set boundingClientRect(value) {
-     this._boundingClientRect = value;
-   }
-   /**
+  set boundingClientRect(value) {
+    this._boundingClientRect = value;
+  }
+  /**
     * @return {boolean}
     * @default false
     */
-   get dragging() {
-     return this._dragging || false;
-   }
-   /**
+  get dragging() {
+    return this._dragging || false;
+  }
+  /**
     * @return {object}
     */
-   get boundingClientRect() {
-     return this._boundingClientRect;
-   }
-   /**
+  get boundingClientRect() {
+    return this._boundingClientRect;
+  }
+  /**
     * @return {number}
     */
-   get threshold() {
-     return this.boundingClientRect.height * 0.35;
-   }
-   /**
+  get threshold() {
+    return this.boundingClientRect.height * 0.35;
+  }
+  /**
     * @param {object} event
     */
-   _onTouchStart(event) {
-     this.selected = event.path[0];
-     if (this.selected.localName !== 'img') return;
-     this.reset();
+  _onTouchStart(event) {
+    this.selected = event.path[0];
+    if (this.selected.localName !== 'img') return;
+    this.reset();
 
-     this.addEventListener('touchmove', this._onTouchMove, {passive: true});
-     this.addEventListener('mousemove', this._onTouchMove, {passive: true});
-     this.boundingClientRect = this.getBoundingClientRect();
-     this.startY = event.pageY || event.touches[0].pageY;
-     this.currentY = this.startY;
-     this.selected.style.willChange = 'transform';
-     this.dragging = true;
-   }
-   /**
+    this.addEventListener('touchmove', this._onTouchMove, { passive: true });
+    this.addEventListener('mousemove', this._onTouchMove, { passive: true });
+    this.boundingClientRect = this.getBoundingClientRect();
+    this.startY = event.pageY || event.touches[0].pageY;
+    this.currentY = this.startY;
+    this.selected.style.willChange = 'transform';
+    this.dragging = true;
+  }
+  /**
     * @param {object} event
     */
-   _onTouchMove(event) {
-     if (this.dragging) this.currentY = event.pageY || event.touches[0].pageY;
-   }
-   /**
+  _onTouchMove(event) {
+    if (this.dragging) this.currentY = event.pageY || event.touches[0].pageY;
+  }
+  /**
     * @param {object} event
     */
-   _onTouchEnd(event) {
-     if (!this.selected) return;
-     const y = this.currentY - this.startY;
-     const height = this.boundingClientRect.height;
-     this.y = 0;
-     if (Math.abs(y) > this.threshold) {
-       this.y = (y > 0) ? height : -height;
-     };
-     this.currentY = 0;
-     this.lastDragging = this.dragging;
-     this.dragging = false;
-     this.removeEventListener('touchmove', this._onTouchMove, {passive: true});
-     this.removeEventListener('mousemove', this._onTouchMove, {passive: true});
-   }
+  _onTouchEnd(event) {
+    if (!this.selected) return;
+    const y = this.currentY - this.startY;
+    const height = this.boundingClientRect.height;
+    this.y = 0;
+    if (Math.abs(y) > this.threshold) {
+      this.y = (y > 0) ? height : -height;
+    }
+    this.currentY = 0;
+    this.lastDragging = this.dragging;
+    this.dragging = false;
+    this.removeEventListener('touchmove', this._onTouchMove, { passive: true });
+    this.removeEventListener('mousemove', this._onTouchMove, { passive: true });
+  }
 
   reset() {
     this.dragging = false;
@@ -146,11 +164,50 @@ export default customElements.define('image-nails', class ImageNails extends HTM
     this.selected.classList.remove('dragging');
   }
 
-  add({key, src}) {
+  add({ key, src }) {
     const img = document.createElement('img');
     img.src = src;
     img.setAttribute('key', key);
     this.appendChild(img);
+  }
+
+  _readFile(file) {
+    const reader = new FileReader();
+    reader.onload = () => this.upload(reader.result);
+    reader.readAsDataURL(file);
+  }
+
+  _ondragover(event) {
+    event.preventDefault();
+  }
+
+  _ondrop(event) {
+    console.log('File(s) dropped');
+    // Prevent default behavior (Prevent file from being opened)
+    event.preventDefault();
+
+    if (event.dataTransfer.items) {
+      // Use DataTransferItemList interface to access the file(s)
+      for (var i = 0; i < event.dataTransfer.items.length; i++) {
+        // If dropped items aren't files, reject them
+        if (event.dataTransfer.items[i].kind === 'file') {
+          this._readFile(event.dataTransfer.items[i].getAsFile());
+        }
+      }
+    } else {
+      // Use DataTransfer interface to access the file(s)
+      for (var i = 0; i < event.dataTransfer.files.length; i++) {
+        this._readFile(event.dataTransfer.files[i]);
+      }
+    }
+  }
+
+  _addToPhotos() {
+    this.input.click();
+  }
+
+  upload(dataURL) {
+    this.dispatchEvent(new CustomEvent('nail-upload', { detail: dataURL }));
   }
 
   remove() {
@@ -183,10 +240,17 @@ export default customElements.define('image-nails', class ImageNails extends HTM
     pointer-events: auto;
     cursor: pointer;
     user-select: none;
+    position: initial !important;
+  }
+  input {
+    opacity: 0;
+    position: fixed;
+
   }
 </style>
-<custom-svg-icon icon="remove"></custom-svg-icon>
 <slot></slot>
+<custom-svg-icon icon="add-to-photos"></custom-svg-icon>
+<input type="file" accept="image/*"></input>
     `;
   }
-})
+});

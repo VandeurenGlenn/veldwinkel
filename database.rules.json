@@ -14,6 +14,10 @@
       ".read": "true",
       ".write": "root.child('admins').child(auth.uid).child('admin').val() === true"
     },
+    "offerDisplay": {
+      ".read": "true",
+      ".write": "root.child('admins').child(auth.uid).child('admin').val() === true"
+    },
     "catalog": {
       ".read": "root.child('admins').child(auth.uid).child('admin').val() === true",
       ".write": "root.child('admins').child(auth.uid).child('admin').val() === true"

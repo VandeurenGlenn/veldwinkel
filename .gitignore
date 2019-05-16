@@ -68,6 +68,7 @@ node_modules/
 public/www/*.js
 public/shop/*.js
 public/admin/*.js
+public/admin/*.js.map
 public/www/assets/**
 public/admin/assets
 public/shop/assets

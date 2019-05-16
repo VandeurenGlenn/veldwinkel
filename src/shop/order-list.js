@@ -6,11 +6,13 @@ export default define(class OrderList extends ElementBase {
   connectedCallback() {
     super.connectedCallback();
     (async () => {
-      firebase.auth().onAuthStateChanged(async user => {
+      firebase.auth().onAuthStateChanged(async (user) => {
         if (user) {
-          firebase.database().ref(`users/${user.uid}/orders`).on('child_changed', this._stampOrders)
+          firebase.database().ref(`users/${user.uid}/orders`).on('child_changed', this._stampOrders);
           const snap = await firebase.database().ref(`users/${user.uid}/orders`).once('value');
           window.orders = snap.val();
+
+          // if (location.hash === '#order/latest') go('order', Object.keys(orders)[0]);
           this._stampOrders();
         }
       });
@@ -58,4 +60,4 @@ export default define(class OrderList extends ElementBase {
 </style>
 <span class="container"><slot></slot></span>`;
   }
-})
+});

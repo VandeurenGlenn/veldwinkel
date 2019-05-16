@@ -9,7 +9,7 @@ export default define(class TopProduct extends ElementBase {
     return this.shadowRoot.querySelector('[icon="delete"]');
   }
   get nails() {
-    return this.shadowRoot.querySelector('image-nails')
+    return this.shadowRoot.querySelector('image-nails');
   }
   set value(value) {
     this._value = value;
@@ -40,25 +40,26 @@ export default define(class TopProduct extends ElementBase {
   _onNailSwipe({ detail }) {
     let key;
     if (detail) key = detail.getAttribute('key');
-    if (key)
+    if (key) {
       firebase.database().ref(`products/${this._value}/image/${key}`).set(null);
+    }
   }
 
   stamp() {
     this.innerHTML = '';
     this.nails.innerHTML = '';
-    firebase.database().ref(`products/${this._value}`).once('value').then(snap => {
+    firebase.database().ref(`products/${this._value}`).once('value').then((snap) => {
       const value = snap.val();
-      console.log({value});
+      console.log({ value });
       for (const item of Object.keys(value)) {
         console.log(value[item]);
         let val = value[item];
         if (item === 'image') {
-          if (typeof val === 'object') val = [...Object.entries(val)]
+          if (typeof val === 'object') val = [...Object.entries(val)];
           if (!Array.isArray(val)) val = [val];
           val.forEach(([key, src]) => {
             console.log(key, src);
-            this.nails.add({key, src});
+            this.nails.add({ key, src });
           });
         } else {
           if (item !== 'packageCount') {
@@ -72,7 +73,7 @@ export default define(class TopProduct extends ElementBase {
         // this.innerHTML += `${item}: <br>${value[item]}<br><br>`
       }
       // this.innerHTML = JSON.stringify(snap.val());
-      this.render({ packageCount: this.packageCount })
+      this.render({ packageCount: this.packageCount });
     });
   }
   get template() {
@@ -94,6 +95,7 @@ export default define(class TopProduct extends ElementBase {
   <span class="flex"></span>
   <custom-svg-icon icon="delete"></custom-svg-icon>
 </header>
+
 <image-nails></image-nails>
 
 <span class="column">
@@ -121,5 +123,4 @@ export default define(class TopProduct extends ElementBase {
 </span>
 </custom-container>`;
   }
-
-})
+});

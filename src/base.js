@@ -2,6 +2,7 @@ import define from './../node_modules/backed/src/utils/define.js';
 import Renderer from './../node_modules/custom-renderer-mixin/src/render-mixin.js';
 import CSS from './../node_modules/backed/src/mixins/css-mixin.js';
 import importScript from './../node_modules/backed/src/utils/load-script.js';
+import SelectorMixin from './../node_modules/custom-select-mixins/src/selector-mixin.js';
 
 const mixin = (mix = HTMLElement) => class Mixin extends mix {
   constructor() {
@@ -53,4 +54,6 @@ window.readAsDataURL = (input) => new Promise((resolve, reject) => {
 window.importScript = importScript;
 window.ElementBase = ElementBase;
 window.define = define;
-export { define, ElementBase };
+window.SelectorMixin = SelectorMixin;
+window.RenderMixin = Renderer;
+export { define, ElementBase, Renderer, SelectorMixin };

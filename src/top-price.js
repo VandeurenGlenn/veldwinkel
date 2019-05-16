@@ -13,18 +13,18 @@ export default define(class TopPrice extends ElementBase {
       align-items: center;
       justify-content: center;
       pointer-events: none;
-      --svg-icon-size: 16px;
+      --svg-icon-size: 13px;
     }
     .container {
-      padding-left: 8px;
+      padding-left: 2px;
       text-transform: uppercase;
     }
     slot {
-      font-size: 16px;
+      font-size: 13px;
     }
   </style>
 
   <custom-svg-icon icon="euro"></custom-svg-icon>
   <span class="container"><slot></slot></span>`;
-}
-})
+  }
+});

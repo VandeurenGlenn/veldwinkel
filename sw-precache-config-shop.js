@@ -1,11 +1,16 @@
 module.exports = {
   staticFileGlobs: [
-    'public/shop/**',
-    'public/shop/assets/icons/**',
+    'public/shop/assets/**',
     '!public/shop/service-worker.js',
     'public/shop/*.js',
-    'public/shop/*.html'
+    'public/shop/*.html',
+    'public/shop/manifest.json'
   ],
   root: 'public/shop',
-  stripPrefix: 'public/shop'
+  stripPrefix: 'public/shop',
+  runtimeCaching: [{
+    urlPattern: /(.*)/,
+    handler: 'fastest'
+  }],
+  importScripts: []
 };

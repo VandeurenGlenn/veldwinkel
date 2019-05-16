@@ -7,6 +7,7 @@ import './../../node_modules/custom-selector/src/index.js';
 import './../../node_modules/custom-drawer/custom-drawer.js';
 import './../translator.js';
 import './../translated-string.js';
+import OADBManager from './../oadb-manager.js';
 // import './top-products.js';
 // import './top-orders.js';
 // import './input-fields.js';
@@ -40,6 +41,9 @@ export default define(class AdminShell extends ElementBase {
     this._selectorChange = this._selectorChange.bind(this);
     this._menuClick = this._menuClick.bind(this);
     this.drawerOpened = false;
+
+    window.topstore = window.topstore || {};
+    window.topstore.databases = window.topstore.databases || new OADBManager();
   }
   connectedCallback() {
     super.connectedCallback();

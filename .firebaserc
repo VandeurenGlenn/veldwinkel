@@ -1,6 +1,5 @@
 {
   "projects": {
-    "stable": "topveldwinkel",
     "default": "topveldwinkel"
   },
   "targets": {

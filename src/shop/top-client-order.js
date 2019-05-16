@@ -1,6 +1,20 @@
 import './../top-price.js';
+import './client-order-selector.js';
+import './../custom-container.js';
 
 export default define(class TopClientOrder extends ElementBase {
+  get selectors() {
+    return this.querySelectorAll('client-order-selector');
+  }
+
+  get offerDisplay() {
+    return window.topstore.databases.get('offerDisplay');
+  }
+
+  get offers() {
+    return window.topstore.databases.get('offers');
+  }
+
   constructor() {
     super();
     this._onSelected = this._onSelected.bind(this);
@@ -9,45 +23,84 @@ export default define(class TopClientOrder extends ElementBase {
 
   connectedCallback() {
     super.connectedCallback();
-    this.shadowRoot.querySelector('custom-svg-icon[icon="done"]').addEventListener('click', this._submit)
-    this.selectors = this.shadowRoot.querySelectorAll('custom-selector');
+    this.shadowRoot.querySelector('custom-svg-icon[icon="done"]').addEventListener('click', this._submit);
+    this.shadowRoot.querySelector('custom-svg-icon[icon="close"]').addEventListener('click', this._clear);
     for (const selector of this.selectors) {
       selector.addEventListener('selected', this._onSelected);
     }
 
     (async () => {
-      const snap = await firebase.database().ref(`offers`).once('value');
-      const products = snap.val();
-      for (let product of Object.keys(products)) {
-        const pub = products[product].public;
-        const { type, omschrijving, prijs, name, per } = products[product];
-        if (pub) {
-          const el = document.createElement('span');
-          el.classList.add('selection');
-          el.setAttribute('data-name', type);
+      console.log(await this.offerDisplay.get());
+      window.offerDisplay = await this.offerDisplay.get();
+      await this.stamp();
+    })();
 
-          if (type === 'bloemen' || type === 'eieren' || type === 'wijn' || type === 'honing') {
-            this.selectors[1].appendChild(el);
+    // import('./../../node_modules/custom-selector/src/index.js');
+  }
 
-            el.innerHTML = `<span class="row center"><input name="${type}" type="number" value="${per}"></input><h4>${name}</h4>
-              <span class="flex"></span>
-              <top-price name="${type}">${prijs}</top-price>
-            </span>
-            <summary>${omschrijving}</summary>`;
-          } else {
-            this.selectors[0].appendChild(el);
+  async stamp() {
+    if (!window.offers) window.offers = await this.offers.get();
+    console.log(window.offers);
+    for (const offer of Object.keys(offerDisplay)) {
+      if (!offers[offer]) offers = await this.offers.get(offer);
+      const pub = offerDisplay[offer].public || false;
+      if (pub) {
+        const el = document.createElement('span');
+        el.classList.add('selection');
+        el.setAttribute('data-key', offer);
 
-            el.innerHTML = `<span class="row center"><input name="${type}" type="number" value="${per}"></input><h4>${name} - ${type}</h4>
-              <span class="flex"></span>
-              <top-price name="${type}">${prijs}</top-price>
-            </span>
-            <summary>${omschrijving}</summary>`;
-          }
+        const { type } = offers[offer];
+        let sel = this.querySelector(`client-order-selector[is="${type}"]`);
+
+        if (!sel) {
+          sel = document.createElement('client-order-selector', type);
+          this.appendChild(sel);
         }
+        sel.add(offer);
       }
+    }
+  }
 
-      import('./../../node_modules/custom-selector/src/index.js');
-    })()
+  // async paymentOption() {
+  // TODO: dialog
+  // await ask
+  // await import('./../custom-prompt.js');
+  // const prompt = document.createElement('custom-prompt');
+  // prompt.innerHTML = `
+  // <span slot="pages">
+  //   <section data-route="paymentOption">
+  //     <selectable-input></selectable-input>
+  //   </section>
+  //   <section data-route="paymentRequest"></section>
+  // </span>`;
+  // document.body.appendChild(prompt);
+  // await prompt.prompt()
+  // document.removeChild(document.querySelector('custom-prompt'));
+  // return null;
+  // }
+
+  async checkout(set) {
+    const snap = await firebase.database().ref(`users/${user.uid}/orders`).push(set);
+    console.log(snap.key);
+    // document.dispatchEvent(new CustomEvent('order-placed', { detail: snap.key }));
+    const answer = await Notification.requestPermission();
+    if (answer === 'granted') {
+      navigator.serviceWorker.ready.then((registration) => {
+        registration.showNotification('Guldentop Veldwinkel', {
+          body: `order geplaatst
+u kan deze afhalen met: ${snap.key}`,
+          link: 'https://guldentopvbeldwinkel.be',
+          actions: [{
+            action: 'location',
+            title: 'afhaallocatie'
+          }, {
+            action: 'checkOrder',
+            title: 'bekijk bestelling'
+          }]
+        });
+        this._clear();
+      });
+    }
   }
 
   async _submit() {
@@ -66,37 +119,37 @@ export default define(class TopClientOrder extends ElementBase {
         selected = [...selected, ...selector.selected];
       }
     }
+    console.log(selected);
     for (const query of selected) {
       if (typeof query === 'string') {
-        let price = this.shadowRoot.querySelector(`top-price[name="${query}"]`).innerHTML;
-        const pieces = this.shadowRoot.querySelector(`input[name="${query}"]`).value;
+        const pieces = this.querySelector(`client-order-selector-item[is="${query}"]`).pieces;
         set.push({
           product: query,
           aantal: Number(pieces)
         });
       }
     }
+
+
     if (set.length > 1) {
-      const snap = await firebase.database().ref(`users/${user.uid}/orders`).push(set);
-      // document.dispatchEvent(new CustomEvent('order-placed', { detail: snap.key }));
-      const answer = await Notification.requestPermission();
-      if (answer === 'granted') navigator.serviceWorker.ready.then(registration => {
-        registration.showNotification('Guldentop Veldwinkel', {
-          body: `order geplaatst\n
-    U kan deze afhalen met\n
-    order nummer:\n
-    ${snap.key}\n
-    Tot snel!`});
-    this._clear();
-      });
+      // let paymentResult;
+      // const paymentMethod = await this.paymentOption();
+      // if (paymentMethod) paymentResult = await import('./shop-checkout');
+      // else return this.checkout()
+
+
+      // if (paymentResult) {
+      this.checkout(set);
+      // }
     }
   }
 
   _clear() {
     requestAnimationFrame(() => {
-      this.selectors[0].selected = [];
-      this.selectors[1].selected = [];
-    })
+      for (let i = 0; i<this.selectors.length; ++i) {
+        this.selectors[i].selected = [];
+      }
+    });
   }
 
   _onSelected(event) {
@@ -106,14 +159,12 @@ export default define(class TopClientOrder extends ElementBase {
       if (Array.isArray(selector.selected)) {
         selected = [...selected, ...selector.selected];
       }
-
     }
     for (const query of selected) {
       if (typeof query === 'string') {
-        let price = this.shadowRoot.querySelector(`top-price[name="${query}"]`).innerHTML
-        if (query === 'eieren') price = price / 6;
+        const price = offers[query].price;
         set.push([
-          Number(this.shadowRoot.querySelector(`input[name="${query}"]`).value),
+          Number(this.shadowRoot.querySelector(`client-order-selector-item[is="${query}"]`).pieces),
           Number(price)
         ]);
       }
@@ -129,30 +180,19 @@ export default define(class TopClientOrder extends ElementBase {
   get template() {
     return html`<style>
   :host {
-    display: flex;
+    mixin(--css-column)
     overflow-y: auto;
+    align-items: center;
   }
   summary, span {
     user-select: none;
     pointer-events: none;
   }
-  .container {
-    mixin(--css-column)
-    min-width: 320px;
-    width: 100%;
-    box-shadow: 0px 1px 3px 0px #333;
+  custom-container {
     overflow-y: auto;
+    overflow-x: hidden;
     pointer-events: auto;
-  }
-  .custom-selected {
-    background: #1b5e20a6;
-    color: #fff;
-    --svg-icon-color: #fff;
-  }
-
-  .custom-selected input {
-    /* background: #1b5e20a6; */
-    color: #fff;
+    height: calc(100% - 54px);
   }
   .toolbar {
     box-sizing: border-box;
@@ -160,36 +200,10 @@ export default define(class TopClientOrder extends ElementBase {
     align-items: center;
     height: 52px;
     border-top: 1px solid #0000004f;
+    max-width: 640px;
+    width: 100%;
   }
   custom-svg-icon {
-    cursor: pointer;
-    pointer-events: auto;
-  }
-  h2 {
-    padding: 24px;
-    margin: 0;
-    border-top: 1px solid #0000004f;
-    border-bottom: 1px solid #0000004f;
-    text-transform: uppercase;
-    pointer-events: none;
-  }
-  h3 {
-    padding: 24px;
-    margin: 0;
-    text-transform: uppercase;
-    pointer-events: none;
-  }
-  h4 {
-    margin: 0;
-    pointer-events: none;
-    text-transform: uppercase;
-  }
-  .selection {
-    mixin(--css-column)
-    padding: 24px;
-    box-sizing: border-box;
-    min-height: 82px;
-    height: fit-content;
     cursor: pointer;
     pointer-events: auto;
   }
@@ -209,15 +223,6 @@ export default define(class TopClientOrder extends ElementBase {
     border-top: 1px solid #0000004f;
     padding: 12px 24px;
   }
-  summary {
-    padding-left: 48px;
-  }
-  @media (min-width: 640px) {
-    :host {
-      /* align-items: center; */
-      /* justify-content: center; */
-    }
-  }
   /* custom-selector {
     padding: 24px;
     box-sizing: border-box;
@@ -226,22 +231,18 @@ export default define(class TopClientOrder extends ElementBase {
   apply(--css-center)
   apply(--css-flex)
 </style>
-<span class="container">
-  <h3>groentepakketten</h3>
-  <custom-selector attr-for-selected="data-name" multi="true" selected="" class="paketten"></custom-selector>
-
-  <h3>allerlei</h3>
-  <custom-selector attr-for-selected="data-name" multi="true" selected=""></custom-selector>
-
+<custom-container>
+  <slot></slot>
   <input name="reference" type="text" placeholder="referentie of opmerking"></input>
   <span class="flex"></span>
-  <span class="row toolbar">
-    <custom-svg-icon icon="close"></custom-svg-icon>
-    <span class="flex"></span>
-    <top-price class="total">0</top-price>
-    <span class="flex"></span>
-    <custom-svg-icon icon="done"></custom-svg-icon>
-  </span>
+</custom-container>
+
+<span class="row toolbar">
+  <custom-svg-icon icon="close"></custom-svg-icon>
+  <span class="flex"></span>
+  <top-price class="total">0</top-price>
+  <span class="flex"></span>
+  <custom-svg-icon icon="done"></custom-svg-icon>
 </span>`;
   }
-})
+});

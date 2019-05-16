@@ -32,11 +32,19 @@ export default define(class TopIconButton extends ElementBase {
         user-select: none;
         border-radius: 30px;
         --svg-icon-color: #1B5E20;
+        border-radius: 30px;
+        border-bottom-left-radius: var(--top-icon-button-border-radius-left, 30px);
+        border-bottom-right-radius: var(--top-icon-button-border-radius-right, 30px);
+        overflow: hidden;
+        pointer-events: auto;
+        cursor: pointer;
       }
       button {
         display: flex;
         flex-direction: row;
         border-radius: 30px;
+        border-bottom-left-radius: var(--top-icon-button-border-radius-left, 30px);
+        border-bottom-right-radius: var(--top-icon-button-border-radius-right, 30px);
         padding: 10px 14px;
         width: 100%;
         background: transparent;
@@ -47,6 +55,8 @@ export default define(class TopIconButton extends ElementBase {
         border-color: #8BC34A;
         color: var(--svg-icon-color);
         text-transform: uppercase;
+        overflow: hidden;
+        pointer-events: none;
       }
       custom-svg-icon {
         padding-right: 10px;
@@ -63,4 +73,4 @@ export default define(class TopIconButton extends ElementBase {
     </button>
     `;
   }
-})
+});
