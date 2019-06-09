@@ -7,11 +7,11 @@
     "install": "cd functions && npm i && cd ..",
     "test": "echo \"Error: no test specified\" && exit 1",
     "c": "rollup -c",
-    "watch": "rollup -c -w",
+    "watch": "set production=false && rollup -c -w",
     "precache": "sw-precache --config=sw-precache-config.js && npm run precache-admin && npm run precache-shop",
     "precache-admin": "sw-precache --config=sw-precache-config-admin.js",
     "precache-shop": "sw-precache --config=sw-precache-config-shop.js",
-    "build": "npm run c && npm run precache"
+    "build": "set production=true && npm run c && npm run precache"
   },
   "repository": {
     "type": "git",
@@ -29,6 +29,7 @@
   "dependencies": {
     "@tensorflow-models/mobilenet": "^1.0.1",
     "@tensorflow/tfjs": "^1.1.2",
+    "@vandeurenglenn/custom-date": "^1.0.0",
     "backed": "^0.13.0",
     "custom-drawer": "^1.0.0",
     "custom-input": "git+https://github.com/andrewvanardennen/custom-input.git",

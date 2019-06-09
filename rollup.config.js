@@ -1,7 +1,7 @@
 import { terser } from 'rollup-plugin-terser';
 import json from 'rollup-plugin-json';
 import { execSync } from 'child_process';
-import { mkdirSync } from 'fs';
+import { mkdirSync, writeFileSync, readFileSync } from 'fs';
 
 try {
   execSync('rm public/www/chunk-*.js');
@@ -46,9 +46,27 @@ try {
   console.log(e);
 }
 
-const prepareAndCopy = (target) => {
+const sw = `
+try {
+  window.registration = await navigator.serviceWorker.register('/service-worker.js');
+  registration.onupdatefound = () => {
+    // notifyUpdate();
+  };
+  console.log('Registration successful, scope is:', registration.scope);
+} catch (error) {
+  console.log('Service worker registration failed, error:', error);
+}`;
+
+const prepareAndCopy = async (target) => {
   execSync(`rm public/${target}/* -r`);
   execSync(`cp src/${target}/index.html public/${target}`);
+  let index = await readFileSync(`public/${target}/index.html`);
+  index = index.toString();
+  let isProduction = execSync('set production');
+  isProduction = Boolean(isProduction.toString().split('=')[1] === 'true \r\n');
+  console.log(isProduction);
+  index = index.replace('@build:sw', isProduction ? sw : '');
+  await writeFileSync(`public/${target}/index.html`, index);
   execSync(`cp src/${target}/manifest.json public/${target}`);
   mkdirSync(`public/${target}/assets`);
   execSync(`cp public/assets/icons public/${target}/assets -r`);
@@ -56,7 +74,6 @@ const prepareAndCopy = (target) => {
 
 prepareAndCopy('admin');
 prepareAndCopy('shop');
-
 
 export default [{
   input: ['src/iconset.js', 'src/top-icon-button.js', 'src/top-button.js',

@@ -17,21 +17,12 @@
     <link rel="manifest" href="manifest.json">
     <script>
       (async () => {
-        try {
-          window.registration = await navigator.serviceWorker.register('/service-worker.js');
-          registration.onupdatefound = () => {
-            // notifyUpdate();
-          };
-          console.log('Registration successful, scope is:', registration.scope);
-        } catch (error) {
-          console.log('Service worker registration failed, error:', error);
-        }
+        @build:sw
       })();
     </script>
-    <script defer src="/__/firebase/5.10.0/firebase-app.js"></script>
-    <script defer src="/__/firebase/5.10.0/firebase-auth.js"></script>
-    <script defer src="/__/firebase/5.10.0/firebase-database.js"></script>
-    <script defer src="/__/firebase/5.10.0/firebase-functions.js"></script>
+    <script defer src="/__/firebase/6.1.1/firebase-app.js"></script>
+    <script defer src="/__/firebase/6.1.1/firebase-auth.js"></script>
+    <script defer src="/__/firebase/6.1.1/firebase-database.js"></script>
     <script defer src="/__/firebase/init.js"></script>
 
     <style media="screen">
