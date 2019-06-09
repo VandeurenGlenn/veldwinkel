@@ -66,9 +66,6 @@ node_modules/
 
 # build
 public/www/*.js
-public/shop/*.js
-public/admin/*.js
-public/admin/*.js.map
+public/shop
+public/admin
 public/www/assets/**
-public/admin/assets
-public/shop/assets
