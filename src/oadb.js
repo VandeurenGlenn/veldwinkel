@@ -9,12 +9,12 @@ export default class OADB {
             data = JSON.parse(data);
             data = data[child];
           } else {
-            data = null;
+            data = {};
           }
         } else {
           data = localStorage.getItem(this.name);
           if (data) data = JSON.parse(data);
-          else data = null;
+          else data = {};
           // if (!data) data = {};
         }
         resolve(data);
@@ -44,11 +44,11 @@ export default class OADB {
           data = localStorage.getItem('localChanges');
           data = JSON.parse(data);
           if (data) data = data[child];
-          else data = null;
+          else data = {};
         } else {
           data = localStorage.getItem('localChanges');
           if (data) data = JSON.parse(data);
-          else data = null;
+          else data = {};
           // if (!data) data = {};
         }
         resolve(data);
