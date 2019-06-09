@@ -1,6 +1,7 @@
 import './../top-price.js';
 import './client-order-selector.js';
 import './../custom-container.js';
+import './../../node_modules/@vandeurenglenn/custom-date/custom-date.js';
 
 export default define(class TopClientOrder extends ElementBase {
   get selectors() {
@@ -30,7 +31,6 @@ export default define(class TopClientOrder extends ElementBase {
     }
 
     (async () => {
-      console.log(await this.offerDisplay.get());
       window.offerDisplay = await this.offerDisplay.get();
       await this.stamp();
     })();
@@ -107,7 +107,13 @@ u kan deze afhalen met: ${snap.key}`,
     if (!window.user) {
       await window.signin();
     }
+    await import('./checkout-prompt.js')
+    let prompt = document.createElement('checkout-prompt');
+    const prompted = await prompt.show();
+
     const set = [{
+      collectionTime: prompted[0],
+      payment: prompted[1],
       referentie: this.shadowRoot.querySelector('input[name="reference"]').value,
       displayName: user.displayName,
       email: user.email,
@@ -196,7 +202,7 @@ u kan deze afhalen met: ${snap.key}`,
   }
   .toolbar {
     box-sizing: border-box;
-    padding: 12px;
+    padding: 24px;
     align-items: center;
     height: 52px;
     border-top: 1px solid #0000004f;

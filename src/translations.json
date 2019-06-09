@@ -1,11 +1,13 @@
 {
   "nl": {
+    "between": "tussen",
     "description": "Omschrijving",
     "products": "producten",
     "name": "naam",
     "order": "bestel",
     "stock": "veldoverzicht",
     "stockCount": "voorraad",
+    "payment": "betaling",
     "price": "prijs",
     "packageCount": "in pakketten",
     "info": "info",
@@ -13,6 +15,8 @@
     "collections": "afhalingen",
     "collection": "afhaling",
     "portion": "portie",
-    "image": "afbeelding"
+    "image": "afbeelding",
+    "collection times": "afhaalmomenten",
+    "delivery times": "leveringmomenten"
   }
 }

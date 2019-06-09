@@ -37,7 +37,7 @@ export default define(class ClientProduct extends ElementBase {
     }
   }
 </style>
-<img crossorigin="use-credentials"></img>
+<img crossorigin="anonymous"></img>
 <h2>${'name'}</h2>
 <top-price>${'price'}</top-price>
 <summary>${'description'}</summary>
