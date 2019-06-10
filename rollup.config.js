@@ -64,7 +64,6 @@ const prepareAndCopy = async (target) => {
   index = index.toString();
   let isProduction = execSync('set production');
   isProduction = Boolean(isProduction.toString().split('=')[1] === 'true \r\n');
-  console.log(isProduction);
   index = index.replace('@build:sw', isProduction ? sw : '');
   await writeFileSync(`public/${target}/index.html`, index);
   execSync(`cp src/${target}/manifest.json public/${target}`);
@@ -74,6 +73,7 @@ const prepareAndCopy = async (target) => {
 
 prepareAndCopy('admin');
 prepareAndCopy('shop');
+execSync('cp src/shop/notification-listener.js public/shop');
 
 export default [{
   input: ['src/iconset.js', 'src/top-icon-button.js', 'src/top-button.js',
@@ -90,7 +90,8 @@ export default [{
   input: ['src/iconset.js', 'src/shop/shell.js', 'src/shop/client-product.js', 'src/shop/item-list.js', 'src/shop/order-list.js', 'src/shop/top-client-order.js'],
   output: {
     dir: 'public/shop',
-    format: 'es'
+    format: 'es',
+    sourcemap: true
   },
   plugins: [
     json(),

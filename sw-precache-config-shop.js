@@ -12,5 +12,5 @@ module.exports = {
     urlPattern: /(.*)/,
     handler: 'fastest'
   }],
-  importScripts: []
+  importScripts: ['notification-listener.js']
 };
