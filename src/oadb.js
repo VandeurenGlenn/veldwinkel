@@ -9,13 +9,13 @@ export default class OADB {
             data = JSON.parse(data);
             data = data[child];
           } else {
-            data = {};
+            data = null;
           }
         } else {
           data = localStorage.getItem(this.name);
           if (data) data = JSON.parse(data);
-          else data = {};
-          // if (!data) data = {};
+          else data = null;
+          // if (!data) data = null;
         }
         resolve(data);
       }),
@@ -44,12 +44,12 @@ export default class OADB {
           data = localStorage.getItem('localChanges');
           data = JSON.parse(data);
           if (data) data = data[child];
-          else data = {};
+          else data = null;
         } else {
           data = localStorage.getItem('localChanges');
           if (data) data = JSON.parse(data);
-          else data = {};
-          // if (!data) data = {};
+          else data = null;
+          // if (!data) data = null;
         }
         resolve(data);
       }),
@@ -137,7 +137,7 @@ export default class OADB {
   get(child) {
     return new Promise(async (resolve, reject) => {
       const online = this.isOnline();
-      const data = this.localStorage.get(child);
+      const data = await this.localStorage.get(child);
       if (data) resolve(data);
       if (online && this.ref) {
         let snap;
@@ -146,12 +146,13 @@ export default class OADB {
         snap = snap.val();
         if (!data) {
           resolve(snap);
-          if (child) this.localStorage.set(child, snap);
-          else this.localStorage.set(snap);
+          if (child) await this.localStorage.set(child, snap);
+          else await this.localStorage.set(snap);
         } else {
+          // TODO: introduce timestamps
           if (data.timestamp < snap.timestamp) {
-            if (child) this.localStorage.set(child, snap);
-            else this.localStorage.set(snap);
+            if (child) await this.localStorage.set(child, snap);
+            else await this.localStorage.set(snap);
             document.dispatchEvent(new CustomEvent('storage-update', { detail: { child, snap } }));
           }
         }
