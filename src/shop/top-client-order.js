@@ -32,6 +32,7 @@ export default define(class TopClientOrder extends ElementBase {
 
     (async () => {
       window.offerDisplay = await this.offerDisplay.get();
+      if(Object.keys(offerDisplay).length === 0) window.offerDisplay = await this.offerDisplay.get()
       await this.stamp();
     })();
 
@@ -40,9 +41,8 @@ export default define(class TopClientOrder extends ElementBase {
 
   async stamp() {
     if (!window.offers) window.offers = await this.offers.get();
-    console.log(window.offers);
     for (const offer of Object.keys(offerDisplay)) {
-      if (!offers[offer]) offers = await this.offers.get(offer);
+      if (!offers[offer]) offers[offer] = await this.offers.get(offer);
       const pub = offerDisplay[offer].public || false;
       if (pub) {
         const el = document.createElement('span');
@@ -89,7 +89,8 @@ export default define(class TopClientOrder extends ElementBase {
         registration.showNotification('Guldentop Veldwinkel', {
           body: `order geplaatst
 u kan deze afhalen met: ${snap.key}`,
-          link: 'https://guldentopvbeldwinkel.be',
+          link: 'https://guldentopveldwinkel.be',
+          data: snap.key,
           actions: [{
             action: 'location',
             title: 'afhaallocatie'
@@ -109,6 +110,7 @@ u kan deze afhalen met: ${snap.key}`,
     }
     await import('./checkout-prompt.js')
     let prompt = document.createElement('checkout-prompt');
+    document.body.appendChild(prompt)
     const prompted = await prompt.show();
 
     const set = [{

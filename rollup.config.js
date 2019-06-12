@@ -87,7 +87,7 @@ export default [{
     terser({ keep_classnames: true })
   ]
 }, {
-  input: ['src/iconset.js', 'src/shop/shell.js', 'src/shop/client-product.js', 'src/shop/item-list.js', 'src/shop/order-list.js', 'src/shop/top-client-order.js'],
+  input: ['src/iconset.js', 'src/shop/shell.js', 'src/shop/client-product.js', 'src/shop/client-order.js', 'src/shop/item-list.js', 'src/shop/order-list.js', 'src/shop/top-client-order.js'],
   output: {
     dir: 'public/shop',
     format: 'es',

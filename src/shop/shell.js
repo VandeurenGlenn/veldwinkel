@@ -36,6 +36,7 @@ export default define(class AppShell extends ElementBase {
     this._selectorChange = this._selectorChange.bind(this);
     this._menuClick = this._menuClick.bind(this);
     this._onPopstate = this._onPopstate.bind(this);
+    window.onpopstate = this._onPopstate;
     this.drawerOpened = false;
     window.topstore = window.topstore || {};
     window.topstore.databases = window.topstore.databases || new OADBManager();
@@ -46,15 +47,20 @@ export default define(class AppShell extends ElementBase {
     this.querySelector('custom-svg-icon[icon="menu"]').addEventListener('click', this._menuClick);
     (async () => {
       if (window.location.hash) {
-        this.selector.select(window.location.hash.replace('#', ''));
-        this._selectorChange();
+        console.log(window.location.hash);
+        let route = window.location.hash.split('#');
+        route = route[1].split('?=');
+        this.selector.select(route[0]);
+        console.log(route);
+        await this._selectorChange();
+        if (route[1]) {
+          this.shadowRoot.querySelector(`[route="${route[0]}"]`).value = route[1]
+        }
       } else {
-        this.selector.select('order');
-        this._selectorChange();
+        this.selector.select('quick-order');
+        await this._selectorChange();
       }
-      window.onpopstate = this._onPopstate;
       this.translatedTitle.value = this.selector.selected;
-      this.pages.select(this.selector.selected);
       const loginButton = this.querySelector('.login-button');
 
       firebase.auth().onAuthStateChanged(async user => {
@@ -79,7 +85,7 @@ export default define(class AppShell extends ElementBase {
   }
 
   _onPopstate() {
-    this.selector.selected = history.state.selected;
+    if (history.state) this.selector.selected = history.state.selected;
     this._selectorChange();
   }
 
@@ -89,16 +95,19 @@ export default define(class AppShell extends ElementBase {
 
   async _selectorChange() {
     const selected = this.selector.selected;
+    console.log(selected);
     if (selected) {
       this.translatedTitle.value = selected;
-      if (selected === 'order') await import('./top-client-order');
+      if (selected === 'quick-order') await import('./top-client-order');
       if (selected === 'stock') await import('./item-list');
       if (selected === 'orders') await import('./order-list');
+      if (selected === 'order') await import('./client-order');
       if (selected === 'products') await import('./client-products');
       if (selected === 'product') await import('./client-product');
       this.pages.select(selected);
       history.pushState({selected}, selected, `#${selected}`);
     }
+    return
   }
   get template() {
     return html`
@@ -211,7 +220,7 @@ export default define(class AppShell extends ElementBase {
 
   <custom-selector slot="content" attr-for-selected="data-route" selected="order">
 
-    <span class="row selection" data-route="order" >
+    <span class="row selection" data-route="quick-order" >
       <custom-svg-icon icon="shopping-cart"></custom-svg-icon>
       <span class="flex"></span>
       snelle bestelling
@@ -246,11 +255,12 @@ export default define(class AppShell extends ElementBase {
   </custom-selector>
 </custom-drawer>
 <custom-pages attr-for-selected="route">
-  <top-client-order route="order"></top-client-order>
+  <top-client-order route="quick-order"></top-client-order>
   <client-products route="products"></client-products>
   <client-product route="product"></client-product>
   <item-list route="stock" type="stock"></item-list>
   <order-list route="orders" type="orders"></order-list>
+  <client-order route="order" type="order"></client-order>
   <section route="info">
     <span class="container">
     <h4>Guldentop Veldwinkel</h4>

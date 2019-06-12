@@ -5,18 +5,17 @@ import './../custom-container.js';
 import './../device-api.js';
 
 export default define(class AddOffer extends ElementBase {
-
   get _submitButton() {
-    return this.shadowRoot.querySelector('custom-svg-icon[icon="done"]')
+    return this.shadowRoot.querySelector('custom-svg-icon[icon="done"]');
   }
   get _publishButton() {
-    return this.shadowRoot.querySelector('custom-svg-icon[icon="public"]')
+    return this.shadowRoot.querySelector('custom-svg-icon[icon="public"]');
   }
   get _frontCamButton() {
-    return this.shadowRoot.querySelector('custom-svg-icon[icon="camera-front"]')
+    return this.shadowRoot.querySelector('custom-svg-icon[icon="camera-front"]');
   }
   get _rearCamButton() {
-    return this.shadowRoot.querySelector('custom-svg-icon[icon="camera-rear"]')
+    return this.shadowRoot.querySelector('custom-svg-icon[icon="camera-rear"]');
   }
   get _camButton() {
     return this.shadowRoot.querySelector('top-button.camera');
@@ -56,7 +55,7 @@ export default define(class AddOffer extends ElementBase {
 
   _publish() {
     this.public = true;
-    this.submit()
+    this.submit();
   }
 
   _closePreview() {
@@ -87,10 +86,10 @@ export default define(class AddOffer extends ElementBase {
     const clone = this._previewPhotoEl.cloneNode(true);
     clone.classList.remove('preview-photo');
     clone.classList.add('image-previews-image');
-    clone.onclick = ({path}) => {
+    clone.onclick = ({ path }) => {
       this._previewPhotoEl.src = path[0].src;
       this.classList.add('has-close');
-    }
+    };
     this.shadowRoot.querySelector('.image-previews').appendChild(clone);
     deviceApi.camera.preview(this._previewEl, this._facingMode);
     this._previewPhotoEl.src = '';
@@ -98,15 +97,18 @@ export default define(class AddOffer extends ElementBase {
 
   async submit() {
     const inputs = Array.from(this.shadowRoot.querySelectorAll('custom-input'));
-    const value = {}
-    inputs.forEach(input => value[input.getAttribute('name')] = input.value);
-    value.packageCount = 0;
-    value.public = this.public;
+    const value = {};
+    inputs.forEach((input) => value[input.getAttribute('name')] = input.value);
     const images = Array.from(this.shadowRoot.querySelector('.image-previews').children);
-    const snap = await firebase.database().ref('offers').push(value);
+    const snap = await firebase.database().ref('offerDisplay').push({ name: value.name, price: value.price, public: this.public });
+    delete value.name;
+    delete value.price;
+    await firebase.database().ref(`offers/${snap.key}`).set(value);
 
-    images.forEach(img =>
-      firebase.database().ref(`offers/${snap.key}/image`).push(img.src));
+    images.forEach((img, i) => {
+      if (i === 0) firebase.database().ref(`offerDisplay/${snap.key}/image`).push(img.src);
+      else firebase.database().ref(`offers/${snap.key}/image`).push(img.src);
+    });
 
     adminGo('offers');
   }
@@ -220,9 +222,10 @@ apply(--css-flex)
   <span class="image-previews"></span>
 
   <custom-input name="name" title="name" placeholder="name"></custom-input>
+  <custom-input name="content" title="content" placeholder="content"></custom-input>
   <custom-input name="description" title="description" placeholder="description"></custom-input>
   <custom-input name="price" title="price" placeholder="price"></custom-input>
-  <custom-input name="pieces" title="pieces" placeholder="pieces"></custom-input>
+  <custom-input name="portion" title="portion" placeholder="portion"></custom-input>
   <custom-input name="type" title="type" placeholder="type"></custom-input>
   <span class="flex"></span>
   <span class="row actions">

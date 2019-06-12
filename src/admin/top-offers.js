@@ -3,33 +3,11 @@ import './top-offer-item.js';
 
 export default define(class TopOffers extends ElementBase {
   get offerDisplay() {
-    return {
-      get: () => new Promise((resolve, reject) => {
-        const value = localStorage.getItem('offerDisplay');
-        resolve(JSON.parse(value));
-      }),
-      set: (value) => {
-        return new Promise((resolve, reject) => {
-          localStorage.setItem('offerDisplay', JSON.stringify(value));
-          resolve();
-        });
-      }
-    };
+    return window.topstore.databases.get('offerDisplay');
   }
 
   get offers() {
-    return {
-      get: () => new Promise((resolve, reject) => {
-        const value = localStorage.getItem('offers');
-        resolve(JSON.parse(value));
-      }),
-      set: (value) => {
-        return new Promise((resolve, reject) => {
-          localStorage.setItem('offers', JSON.stringify(value));
-          resolve();
-        });
-      }
-    };
+    return window.topstore.databases.get('offers');
   }
 
   constructor() {
@@ -44,19 +22,9 @@ export default define(class TopOffers extends ElementBase {
 
     (async () => {
       await import('./top-offer-item.js')
-      window.offerDisplay = window.offerDisplay || await this.offerDisplay.get();
-      if (offerDisplay) {
-        window.offers = window.offers || await this.offers.get();
-        await this.stamp();
-      }
-      try {
-        const snap = await firebase.database().ref('offerDisplay').once('value');
-        window.offerDisplay = snap.val();
-        this.stamp();
-        await this.offerDisplay.set(offerDisplay);
-      } catch (e) {
-        console.log('offline');
-      }
+      window.offerDisplay = await this.offerDisplay.get();
+      if(Object.keys(offerDisplay).length === 0) window.offerDisplay = await this.offerDisplay.get()
+      await this.stamp();
     })();
   }
 
@@ -79,12 +47,13 @@ export default define(class TopOffers extends ElementBase {
   }
 
   async stamp() {
-    if (!window.offers) window.offers = [];
+    if (!window.offers) await this.offers.get();
+    console.log(window.offers);
+
+    if (!window.offers) window.offers = {}
     for (const offer of Object.keys(offerDisplay)) {
-      if (!offers[offer]) {
-        const snap = await firebase.database().ref(`offers/${offer}`).once('value');
-        offers[offer] = snap.val();
-      }
+      if (!offers[offer]) offers[offer] = await this.offers.get(offer);
+      console.log(offers);
       let item = this.querySelector(`data-route[offer]`);
       if (!item) {
         item = document.createElement('top-offer-item');

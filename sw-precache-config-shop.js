@@ -1,4 +1,5 @@
 module.exports = {
+  templateFilePath: './service-worker.tmpl',
   staticFileGlobs: [
     'public/shop/assets/**',
     '!public/shop/service-worker.js',

@@ -1,12 +1,45 @@
-
+import './../top-price.js';
+import './../custom-container.js';
+import './../translated-string.js';
 
 export default define(class ClientOrder extends ElementBase {
-  set key(value) {
+  set value(value) {
     ( async () => {
-      const snap = await firebase.database().ref(`offers/${value}`).once('value');
-      const { name, description, price, photo, type, portion, pieces } = snap.val();
-      if (photo) this.shadowRoot.querySelector('img').src = photo;
-      this.render({ name, description, price, photo, type, portion, pieces });
+      firebase.auth().onAuthStateChanged(async (user) => {
+        if (user) {
+          this.innerHTML = '';
+          let snap = await firebase.database().ref(`users/${user.uid}/orders/${value}`).once('value');
+          snap = snap.val();
+          const { collectionTime, payment } = snap[0];
+          const el = document.createElement('span');
+          el.classList.add('column', 'heading');
+          el.innerHTML = `
+          <span class="row"><strong>order</strong>: ${value}</span><br>
+          <span class="row"><strong><translated-string>collection time</translated-string></strong>: <translated-string>${collectionTime}</translated-string></span><br>
+          <span class="row"><strong><translated-string>payment</translated-string></strong>: ${payment}</span><br>
+          `;
+          this.appendChild(el);
+          snap.shift();
+          for (const item of snap) {
+            const snap = await firebase.database().ref(`offerDisplay/${item.product}`).once('value');
+            item.product = snap.val();
+            const el = document.createElement('span');
+            el.classList.add('row', 'list-item');
+            el.innerHTML = `
+            <strong>${item.aantal}</strong>
+            <strong>${item.product.name}</strong>
+            <span class="flex"></span>
+            <top-price>${item.product.price}</top-price>
+            `;
+            this.appendChild(el);
+          }
+
+          // if (photo) this.shadowRoot.querySelector('img').src = photo;
+          // this.render({ name, description, price, photo, type, portion, pieces });
+        } else {
+          await signin();
+        }
+      });
     })();
   }
   constructor() {
@@ -23,26 +56,31 @@ export default define(class ClientOrder extends ElementBase {
   :host {
     display: flex;
     flex-direction: column;
+    align-items: baseline;
+  }
+  ::slotted(.heading) {
+    mixin(--css-column)
+    height: 128px;
+    width: 100%;
+    padding: 12px;
+    box-sizing: border-box;
+  }
+  ::slotted(.list-item) {
+    mixin(--css-row)
+    mixin(--css-center)
+    width: 100%;
+    padding: 12px;
+    box-sizing: border-box;
+    height: 48px;
+  }
+  ::slotted(* .flex) {
+    mixin(--css-flex)
   }
 
-  @media (max-width: 720px) {
-    top-icon-button {
-      position: fixed;
-      bottom: 0;
-      height: 54px;
-      left: 0;
-      right: 0;
-      --top-icon-button-border-radius-right: 0;
-      --top-icon-button-border-radius-left: 0;
-    }
-  }
 </style>
-<img></img>
-<h2>${'name'}</h2>
-<top-price>${'price'}</top-price>
-<summary>${'description'}</summary>
-
-<top-icon-button icon="shopping-cart">add to cart</top-icon-button>
+<custom-container>
+<slot></slot>
+</custom-container>
     `;
   }
 });

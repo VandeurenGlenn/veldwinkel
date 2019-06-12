@@ -247,11 +247,15 @@
 
         window.go = async (view, selection) => {
           console.log(view);
-        if (selection && view === 'product') {
-          await import('./client-product.js');
-          shell.shadowRoot.querySelector('client-product').key = selection;
-        }
-        pages.select(view);
+          if (selection && view === 'product') {
+            await import('./client-product.js');
+            shell.shadowRoot.querySelector('client-product').key = selection;
+          }
+          if (selection && view === 'order') {
+            await import('./client-order.js');
+            shell.shadowRoot.querySelector('client-order').value = selection;
+          }
+          pages.select(view);
         }
       })();
     </script>

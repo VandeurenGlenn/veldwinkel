@@ -17,6 +17,10 @@
     "portion": "portie",
     "image": "afbeelding",
     "collection times": "afhaalmomenten",
-    "delivery times": "leveringmomenten"
+    "collection time": "afhaalmoment",
+    "delivery times": "leveringmomenten",
+    "tuesday": "dinsdag",
+    "friday": "vrijdag",
+    "quick-order": "snelle bestelling"
   }
 }

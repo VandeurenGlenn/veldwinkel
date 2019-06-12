@@ -26,12 +26,13 @@ define(class ClientProductItem extends ElementBase {
     justify-content: center; */
     flex-direction: column;
     flex: 1 1;
-    max-width: 50%;
-    flex-basis: 50%;
-    width: 50%;
+    max-width: 25%;
+    flex-basis: 25%;
+    width: 25%;
     padding: 0 12px;
     box-sizing: border-box;
     cursor: pointer;
+    border: 1px solid #eee;
   }
   .container {
     display: flex;
@@ -60,6 +61,27 @@ define(class ClientProductItem extends ElementBase {
   }
   .name {
     font-weight: 700;
+  }
+  @media (max-width: 960px) {
+    :host {
+      max-width: 50%;
+      flex-basis: 50%;
+      width: 50%;
+    }
+  }
+  @media (min-width: 1400px) {
+    :host {
+      max-width: calc(100% / 5);
+      flex-basis: calc(100% / 5);
+      width: calc(100% / 5);
+    }
+  }
+  @media (min-width: 1920px) {
+    :host {
+      max-width: calc(100% / 6);
+      flex-basis: calc(100% / 6);
+      width: calc(100% / 6);
+    }
   }
 </style>
 <span class="container">

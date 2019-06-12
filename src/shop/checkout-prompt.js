@@ -40,7 +40,7 @@ export default define(class CheckoutPrompt extends ElementBase {
       apply(--css-row)
       @media (min-width: 720px) {
         custom-prompt {
-          max-height: 340px;
+          max-height: 600px;
           max-width: 600px;
         }
       }
