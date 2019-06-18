@@ -19,17 +19,16 @@ export default class ProductEditorMixin extends ElementBase {
 
   constructor() {
     super();
-    this._onNailSwipe = this._onNailSwipe.bind(this);
     this._onNailUpload = this._onNailUpload.bind(this);
     this._onDelete = this._onDelete.bind(this);
     this._onPublic = this._onPublic.bind(this);
     this._onSave = this._onSave.bind(this);
+    this.ref = 'products';
   }
 
   connectedCallback() {
     if (super.connectedCallback) super.connectedCallback();
     if (this._value) this.stamp();
-    this.nails.addEventListener('image-swiped', this._onNailSwipe);
     this.nails.addEventListener('nail-upload', this._onNailUpload);
     this.publicIcon.addEventListener('click', this._onPublic);
     this.saveButton.addEventListener('click', this._onSave);
@@ -38,36 +37,38 @@ export default class ProductEditorMixin extends ElementBase {
 
   async _onSave() {
     console.log('save');
+    const value  = {};
     const inputs = Array.from(this.querySelectorAll('custom-input'));
-    const images = Array.from(this.nails.querySelectorAll('img'));
-    inputs.forEach((input) => {
-      const name = input.getAttribute('name');
-      if (name === 'name' || name === 'price' || name === 'public') {
-        firebase.database().ref(`offerDisplay/${this._value}/${name}`).set(input.value);
-      } else {
-        firebase.database().ref(`offers/${this._value}/${name}`).set(input.value);
-      }
-    });
+    let image = Array.from(this.nails.querySelectorAll('img'));
+    value.image = {};
+    image = image.map((img, i) => {
+      let src;
+      if (img.src.indexOf('base64') !== -1) src = img.src.split(',')[1];
+      else src = img.src.replace(`${window.functionsRoot}/api/thumb/`, '');
+console.log(img.getAttribute('key'));
+      value.image[img.getAttribute('key')] = src;
+    })
+    inputs.forEach((input) => value[input.getAttribute('name')] = input.value);
     const pub = this.publicIcon.hasAttribute('public');
 
-    await firebase.database().ref(`offerDisplay/${this._value}/public`).set(pub);
-    images.forEach((img, i) => {
-      const key = img.getAttribute('key');
-      if (key) {
-        if (i === 0) firebase.database().ref(`offerDisplay/${this._value}/image/${key}`).set(img.src);
-        else firebase.database().ref(`offers/${this._value}/image/${key}`).set(img.src);
-      } else {
-        if (i === 0) firebase.database().ref(`offerDisplay/${this._value}/image`).push(img.src);
-        else firebase.database().ref(`offers/${this._value}/image`).push(img.src);
-      }
+    const body = JSON.stringify({
+      ...value,
+      key: this._value,
+      public: pub
     });
+    const url = `${window.functionsRoot}/api/${this.ref}`;
+    const options = {
+      method: 'PATCH',
+      body,
+      mode: 'cors',
+      headers: { 'Content-Type': 'application/json' }
+    };
+    await fetch(url, options)
+    history.back();
   }
 
   async _onNailUpload({ detail }) {
-    let snap = await firebase.database().ref(`offerDisplay/${this._value}/image`);
-    if (!snap.value) snap = await firebase.database().ref(`offerDisplay/${this._value}/image`).push(detail);
-    else snap = await firebase.database().ref(`offers/${this._value}/image`).push(detail);
-    this.nails.add({ src: detail, key: snap.key });
+    this.nails.add({ src: detail, key: this.nails.children.length > 0 ? this.nails.children.length - 1 : 0 });
   }
 
   _onPublic() {
@@ -78,16 +79,18 @@ export default class ProductEditorMixin extends ElementBase {
   async _onDelete() {
     const answer = await confirm('are you sure you want to remove this product?');
     if (answer) {
-      firebase.database().ref(`products/${this._value}`).set(null);
-      adminGo('products');
-    }
-  }
-
-  _onNailSwipe({ detail }) {
-    let key;
-    if (detail) key = detail.getAttribute('key');
-    if (key) {
-      firebase.database().ref(`products/${this._value}/image/${key}`).set(null);
+      const body = JSON.stringify({
+        key: this._value
+      });
+      const url = `${window.functionsRoot}/api/${this.ref}`;
+      const options = {
+        method: 'DELETE',
+        body,
+        mode: 'cors',
+        headers: { 'Content-Type': 'application/json' }
+      };
+      await fetch(url, options)
+      history.back();
     }
   }
 }

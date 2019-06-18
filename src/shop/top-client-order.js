@@ -80,7 +80,8 @@ export default define(class TopClientOrder extends ElementBase {
   // }
 
   async checkout(set) {
-    const snap = await firebase.database().ref(`users/${user.uid}/orders`).push(set);
+    const snap = await firebase.database().ref(`orders/${user.uid}`).push(set);
+    firebase.database().ref(`orderKeys/${user.uid}`).set(true);
     console.log(snap.key);
     // document.dispatchEvent(new CustomEvent('order-placed', { detail: snap.key }));
     const answer = await Notification.requestPermission();

@@ -27,6 +27,7 @@ export default define(class TopCollection extends ElementBase {
 
   constructor() {
     super();
+    this._onClick = this._onClick.bind(this);
   }
   connectedCallback() {
     if (super.connectedCallback) super.connectedCallback();
@@ -34,13 +35,23 @@ export default define(class TopCollection extends ElementBase {
       await import('./../top-button.js')
     })();
 
-    this.addEventListener('click', async ({path}) => {
-      if (path[0].classList.contains('confirm')) {
-        firebase.database().ref(`users/${this.user}/orders/${this.uid}/0/shipped`).set('true');
-        adminGo('collections')
-      }
-      if (path[0].classList.contains('cancel')) adminGo('collections');
-    })
+    this.addEventListener('click', this._onClick)
+  }
+
+  async _onClick({path}) {
+    if (path[0].classList.contains('confirm')) {
+      await firebase.database().ref(`orders/${this.user}/${this.uid}/0/shipped`).set('true');
+      let orders = await firebase.database().ref(`orders/${this.user}`).once('value');
+      orders = orders.val();
+      const notShipped = Object.keys(orders).reduce((p, order) => {
+        console.log(order);
+        if (!orders[order][0].shipped) p+=1;
+        return p;
+      }, 0)
+      if (notShipped === 0) await firebase.database().ref(`orderKeys/${this.user}`).set(null);
+      adminGo('collections')
+    }
+    if (path[0].classList.contains('cancel')) adminGo('collections');
   }
   get template() {
     return html`<style>

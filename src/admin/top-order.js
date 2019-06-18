@@ -2,28 +2,54 @@ import { define, ElementBase } from './../base.js';
 
 export default define(class TopOrder extends ElementBase {
 
+  get offerDisplay() {
+    return window.topstore.databases.get('offerDisplay');
+  }
+
+  get offers() {
+    return window.topstore.databases.get('offers');
+  }
+
   set value({ user, uid }) {
     console.log(user, uid);
     if (user && uid) {
-      const order = orders[uid];
+      const order = orders[user][uid];
       const info = order.shift();
       this.order = order;
       this.orderLength = order.length;
       this.user = user;
       this.uid = uid;
       console.log({ info });
-      this.innerHTML = `
-      <h4 class="name" slot="info">${info.displayName}</h4>
-      <h4 class="name" slot="info">${info.email}</h4>
+      const items = [];
+      const promises = [];
+      (async () => {
+        for (const item of order) {
+          promises.push((async () => {
+            const { product, aantal } = item;
+            const { name } = await this.offerDisplay.get(product);
+            items[product] = {name, aantal}
+          })());
+        }
+        await Promise.all(promises);
+        this.innerHTML = `
+        <span class="row center" slot="info">
+          <h4 class="name">${info.displayName}</h4>
+          <span class="flex"></span>
+          <h4 class="name">${info.email}</h4>
+        </span>
+        <span class="row center" slot="info">
+          <h4 class="name"><translated-string>collection time</translated-string></h4>
+          <span class="flex"></span>
+          <translated-string>${info.collectionTime}</translated-string>
+        </span>
 
-      <custom-selector multi="true" selected="[]" attr-for-selected="name">
-        ${order.map(item => {
-          return `<span class="row selection" name="${item.product}">${item.product}<span class="flex" style="pointer-events: none;"></span>${item.aantal}</span>`
-        }).join(' ')}
-      </custom-selector>
-      `;
-      // if ()
-      // firebase.database().ref(`users/${user}/orders/${uid}`).once('value')
+        <custom-selector multi="true" selected="[]" attr-for-selected="name">
+          ${items.map((item, i) => {
+              return `<span class="row selection" name="${i}">${item.name}<span class="flex" style="pointer-events: none;"></span>${item.aantal}</span>`
+          }).join(' ')}
+        </custom-selector>
+        `;
+      })()
     }
   }
 
@@ -42,7 +68,6 @@ export default define(class TopOrder extends ElementBase {
         console.log(selected);
         if (selected.length !== this.orderLength) {
           const answer = await confirm(`are you sure?\n it seem's you haven't selected all products,\n\nIf everyting is in stock press cancel\n\npress confirm if item is out of stock (users will see this in their order list)`)
-          console.log(selected);
 
           if (answer === true) {
 
@@ -54,12 +79,12 @@ export default define(class TopOrder extends ElementBase {
                 if (selected.indexOf(o.product) === -1) missing.push(o.product);
               })
             };
-            firebase.database().ref(`users/${this.user}/orders/${this.uid}/0/missing`).set(missing);
-            firebase.database().ref(`users/${this.user}/orders/${this.uid}/0/ready`).set('true');
+            firebase.database().ref(`orders/${this.user}/${this.uid}/0/missing`).set(missing);
+            firebase.database().ref(`orders/${this.user}/${this.uid}/0/ready`).set('true');
             adminGo('orders')
           }
         } else {
-          firebase.database().ref(`users/${this.user}/orders/${this.uid}/0/ready`).set('true');
+          firebase.database().ref(`orders/${this.user}/${this.uid}/0/ready`).set('true');
           adminGo('orders')
         }
       }
@@ -83,7 +108,6 @@ export default define(class TopOrder extends ElementBase {
     user-select: none;
     pointer-events: none;
   }
-  apply(--css-flex)
   .toolbar {
     mixin(--css-row)
     position: absolute;
@@ -102,6 +126,16 @@ export default define(class TopOrder extends ElementBase {
     flex-direction: column;
     height: 100%;
   }
+  ::slotted(*.row) {
+    mixin(--css-row)
+  }
+  ::slotted(*.center) {
+    mixin(--css-center)
+  }
+  ::slotted(*.flex) {
+    mixin(--css-flex)
+  }
+  apply(--css-flex)
   @media (min-width: 640px) {
     :host {
       align-items: center;

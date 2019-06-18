@@ -10,6 +10,10 @@ export default define(class TopOffers extends ElementBase {
     return window.topstore.databases.get('offers');
   }
 
+  get images() {
+    return window.topstore.databases.get('images');
+  }
+
   constructor() {
     super();
     this._onClick = this._onClick.bind(this);
@@ -47,22 +51,30 @@ export default define(class TopOffers extends ElementBase {
   }
 
   async stamp() {
-    if (!window.offers) await this.offers.get();
+    // if (!window.offers) await this.offers.get();
+    // if (!window.images) await this.images.get();
     console.log(window.offers);
-
+    const jobs = [];
     if (!window.offers) window.offers = {}
+    if (!window.images) window.images = {}
     for (const offer of Object.keys(offerDisplay)) {
-      if (!offers[offer]) offers[offer] = await this.offers.get(offer);
-      console.log(offers);
-      let item = this.querySelector(`data-route[offer]`);
-      if (!item) {
-        item = document.createElement('top-offer-item');
-        this.appendChild(item);
-      }
-      item.value = { ...offerDisplay[offer], ...offers[offer]};
-      item.key = offer;
-      item.dataset.route = offer;
+      jobs.push((async () => {
+        if (!offers[offer]) offers[offer] = await this.offers.get(offer);
+        if (!images[offer]) images[offer] = await this.images.get(offer);
+
+        let item = this.querySelector(`data-route[offer]`);
+        if (!item) {
+          item = document.createElement('top-offer-item');
+          this.appendChild(item);
+        }
+        item.key = offer;
+        item.value = { ...offerDisplay[offer], ...offers[offer], image: {...images[offer]} };
+
+        item.dataset.route = offer;
+      })())
     }
+
+    Promise.all(jobs)
   }
 
   get template() {

@@ -91,10 +91,10 @@ export default define(class AddProduct extends ElementBase {
     deviceApi.camera.preview(this._previewEl, this._facingMode);
     this._previewPhotoEl.src = '';
 
-    const url = new URL(`http://localhost:3000/predictImage`);
-    // params = {lat:35.696233, long:139.570431}
-    let response = await fetch(url, {method: 'POST', body: JSON.stringify({image: base64}), headers: {'Content-Type': 'application/json'}});
-    console.log(response);
+    // const url = new URL(`http://localhost:3000/predictImage`);
+    // // params = {lat:35.696233, long:139.570431}
+    // let response = await fetch(url, {method: 'POST', body: JSON.stringify({image: base64}), headers: {'Content-Type': 'application/json'}});
+    // console.log(response);
 
 
     // console.log('Predictions: ');
@@ -108,23 +108,27 @@ export default define(class AddProduct extends ElementBase {
   }
 
   async submit() {
+    const value = {};
     const inputs = [
       ...Array.from(this.shadowRoot.querySelectorAll('custom-input')),
       ...Array.from(this.shadowRoot.querySelectorAll('selectable-input'))
     ];
-    const value = {};
     inputs.forEach((input) => value[input.getAttribute('name')] = input.value);
-    value['packageCount'] = 0;
-    const images = Array.from(this.shadowRoot.querySelector('.image-previews').children);
-    // {
-    //   image, description, portion, name, stockCount
-    // }
-    const snap = await firebase.database().ref('products').push(value);
-    console.log(snap.key);
-
-    images.forEach((img) =>
-      firebase.database().ref(`products/${snap.key}/image`).push(img.src));
-
+    let image = Array.from(this.shadowRoot.querySelector('.image-previews').children);
+    image = image.map((img) => img.src.split(',')[1]);
+    const body = JSON.stringify({
+      image,
+      ...value,
+      public: false
+    });
+    const url = `${window.functionsRoot}/api/product`;
+    const options = {
+      method: 'POST',
+      body,
+      mode: 'cors',
+      headers: { 'Content-Type': 'application/json' }
+    };
+    await fetch(url, options)
     adminGo('products');
   }
 

@@ -10,8 +10,8 @@ export default define(class OrderList extends ElementBase {
       firebase.auth().onAuthStateChanged(async (user) => {
         await import('./order-list-item')
         if (user) {
-          firebase.database().ref(`users/${user.uid}/orders`).on('child_changed', this._stampOrders);
-          const snap = await firebase.database().ref(`users/${user.uid}/orders`).once('value');
+          firebase.database().ref(`orders/${user.uid}`).on('child_changed', this._stampOrders);
+          const snap = await firebase.database().ref(`orders/${user.uid}`).once('value');
           window.orders = snap.val();
 
           // if (location.hash === '#order/latest') go('order', Object.keys(orders)[0]);

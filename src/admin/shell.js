@@ -12,6 +12,8 @@ import OADBManager from './../oadb-manager.js';
 // import './top-orders.js';
 // import './input-fields.js';
 
+
+
 export default define(class AdminShell extends ElementBase {
   get pages() {
     return this.querySelector('custom-pages');
@@ -44,6 +46,26 @@ export default define(class AdminShell extends ElementBase {
 
     window.topstore = window.topstore || {};
     window.topstore.databases = window.topstore.databases || new OADBManager();
+    window.topstore.upgrade = async (target) => {
+      const url = 'http://localhost:5000/topveldwinkel/us-central1/api/add/offer';
+
+      let offers = await firebase.database().ref('offers').once('value');
+      offers = offers.val();
+      for (const o of Object.keys(offers)) {
+        let value = await firebase.database().ref(`offerDisplay/${o}`).once('value');
+        value = value.val();
+        const body = JSON.stringify({...value, ...offers[o]});
+
+        const options = {
+          method: 'POST',
+          body,
+          mode: 'cors',
+          headers: { 'Content-Type': 'application/json' }
+        };
+        await fetch(url, options)
+      }
+
+    }
   }
   connectedCallback() {
     super.connectedCallback();
@@ -75,6 +97,11 @@ export default define(class AdminShell extends ElementBase {
     }
   }
 
+  _onPopstate() {
+    if (history.state) this.selector.selected = history.state.selected;
+    this._selectorChange();
+  }
+
   _menuClick() {
     this.drawerOpened = !this.drawerOpened;
   }
@@ -89,6 +116,7 @@ export default define(class AdminShell extends ElementBase {
       if (selected === 'collections') await import('./top-collections.js');
       this.translatedTitle.value = selected;
       this.pages.select(selected);
+      history.pushState({selected}, selected, `#${selected}`);
     }
   }
 

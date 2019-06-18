@@ -26,6 +26,7 @@ export default class OADB {
         }
         if (child) {
           let data = localStorage.getItem(this.name);
+          if (!data) data = {};
           data = JSON.parse(data);
           data[child] = value;
           value = data;
@@ -144,19 +145,20 @@ export default class OADB {
         if (child) snap = await firebase.database().ref(`${this.name}/${child}`).once('value');
         else snap = await this.ref.once('value');
         snap = snap.val();
-        if (!data) {
+        if (!data && snap) {
           resolve(snap);
           if (child) await this.localStorage.set(child, snap);
           else await this.localStorage.set(snap);
         } else {
           // TODO: introduce timestamps
-          if (data.timestamp < snap.timestamp) {
+          if (snap && data && data.timestamp < snap.timestamp) {
             if (child) await this.localStorage.set(child, snap);
             else await this.localStorage.set(snap);
             document.dispatchEvent(new CustomEvent('storage-update', { detail: { child, snap } }));
           }
         }
       }
+      resolve();
     });
   }
 }

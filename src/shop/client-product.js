@@ -1,12 +1,27 @@
-
+import './../custom-container.js';
 
 export default define(class ClientProduct extends ElementBase {
   set key(value) {
     ( async () => {
-      const snap = await firebase.database().ref(`offers/${value}`).once('value');
-      const { name, description, price, photo, type, portion, pieces } = snap.val();
-      if (photo) this.shadowRoot.querySelector('img').src = photo;
-      this.render({ name, description, price, photo, type, portion, pieces });
+      firebase.database().ref(`images/${value}`).once('value').then(images => {
+        images = images.val();
+        if (images) {
+          for (const img of Object.keys(images)) {
+            if (img !== 'thumb') {
+              if (images[img]) this.shadowRoot.querySelector('img').src = `${functionsRoot}/api/thumb/${images[img]}`;
+            }
+          }
+        }
+      });
+      let snap = await firebase.database().ref(`offers/${value}`).once('value');
+      snap = snap.val();
+      let snapd = await firebase.database().ref(`offerDisplay/${value}`).once('value');
+      snapd = snapd.val();
+      const { name, description, price, photo, type, portion, pieces } = {...snapd, ...snap};
+
+
+
+      this.render({ name, description, price, type, portion, pieces });
     })();
   }
   constructor() {
@@ -25,6 +40,16 @@ export default define(class ClientProduct extends ElementBase {
     flex-direction: column;
   }
 
+  .row {
+    padding-top: 48px;
+    mixin(--css-row)
+    width: 100%;
+  }
+  summary {
+    width: 100%;
+  }
+  apply(--css-flex)
+
   @media (max-width: 720px) {
     top-icon-button {
       position: fixed;
@@ -37,12 +62,17 @@ export default define(class ClientProduct extends ElementBase {
     }
   }
 </style>
-<img crossorigin="anonymous"></img>
-<h2>${'name'}</h2>
-<top-price>${'price'}</top-price>
-<summary>${'description'}</summary>
-
-<top-icon-button icon="shopping-cart">add to cart</top-icon-button>
+<custom-container>
+  <img></img>
+  <span class="row">
+    <h2>${'name'}</h2>
+    <span class="flex"></span>
+    <top-price>${'price'}</top-price>
+  </span>
+  <summary>${'description'}</summary>
+  <span class="flex"></span>
+  <top-icon-button icon="shopping-cart">add to cart</top-icon-button>
+</custom-container>
     `;
   }
 });

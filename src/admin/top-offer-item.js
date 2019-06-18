@@ -1,10 +1,11 @@
 import { ElementBase, define } from './../base.js';
 export default define(class TopOfferItem extends ElementBase {
   get _publicIcon() {
-    return this.shadowRoot.querySelector('custom-svg-icon[icon="public"]')
+    return this.shadowRoot.querySelector('custom-svg-icon[icon="public"]');
   }
 
   set value(value) {
+    this._value = value;
     console.log(value);
     this.name = value.name || 'missing name';
     this.per = value['per'];
@@ -20,7 +21,7 @@ export default define(class TopOfferItem extends ElementBase {
       this.shadowRoot.querySelector('.name').setAttribute('title', title);
     }
     // this.stamp();
-    this.render({name: this.name})
+    this.render({ name: this.name });
   }
 
   set key(value) {
@@ -92,4 +93,4 @@ export default define(class TopOfferItem extends ElementBase {
 </span>
 `;
   }
-})
+});

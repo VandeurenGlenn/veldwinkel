@@ -95,15 +95,14 @@ export default define(class AppShell extends ElementBase {
 
   async _selectorChange() {
     const selected = this.selector.selected;
-    console.log(selected);
     if (selected) {
-      this.translatedTitle.value = selected;
       if (selected === 'quick-order') await import('./top-client-order');
       if (selected === 'stock') await import('./item-list');
       if (selected === 'orders') await import('./order-list');
       if (selected === 'order') await import('./client-order');
       if (selected === 'products') await import('./client-products');
       if (selected === 'product') await import('./client-product');
+      this.translatedTitle.value = selected;
       this.pages.select(selected);
       history.pushState({selected}, selected, `#${selected}`);
     }

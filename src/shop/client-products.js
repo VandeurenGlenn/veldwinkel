@@ -1,13 +1,43 @@
 import './../top-price.js';
 import { Renderer, SelectorMixin } from './../base.js';
-
 define(class ClientProductItem extends ElementBase {
   set key(value) {
     this.setAttribute('key', value);
   }
-  set value({ name, image, price }) {
-    if (image) this.shadowRoot.querySelector('img').src = image[Object.keys(image)[0]];
-    this.render({ name, image, price });
+  set value({ name, price, thumb, placeholder }) {
+    this.render({ name, price });
+    const promises = [];
+    const job = (key, data) => new Promise((resolve, reject) => {
+      // data = await firebase.database().ref(`/images/${this.getAttribute('key')}/${key}`).once('value');
+      // data = data.val();
+      // const url = `${window.functionsRoot}/api/${key}/${this.getAttribute('key')}-${key}.webp`;
+      // const options = {
+      //   method: 'GET',
+      //   mode: 'cors'
+      // };
+      // const response = await fetch(url, options);
+      // data = await response.blob();
+      // 
+      // 
+      // 
+      // data = await readAsDataURL(data);
+      // // console.log(data);
+      // // console.log(data.blob());
+      const img = document.createElement('img')
+      img.onload = () => {
+        this.shadowRoot.querySelector('img').src = `${window.functionsRoot}/api/${key}/${this.getAttribute('key')}-${key}.webp`
+        resolve(key)
+      };
+      img.src = `${window.functionsRoot}/api/${key}/${this.getAttribute('key')}-${key}.webp`
+      // return key
+      // return { data, key };
+    });
+    
+    promises.push(job('placeholder'), job('thumbm'));
+    Promise.race(promises).then(async (keys) => {
+      
+      if (keys[0] !== 'thumbm') job('thumbm');
+    });
   }
   constructor() {
     super();
@@ -111,14 +141,18 @@ export default define(class ClientProducts extends Renderer(SelectorMixin(HTMLEl
   async _stamp() {
     const snap = await firebase.database().ref(`offerDisplay`).once('value');
     const offers = snap.val();
+    const promises = []
     for (const [key, value] of Object.entries(offers)) {
       if (value.public) {
-        const el = document.createElement('client-product-item');
-        this.appendChild(el);
-        el.key = key;
-        el.value = value;
+        promises.push((() => {
+          const el = document.createElement('client-product-item');
+          this.appendChild(el);
+          el.key = key;
+          el.value = value;
+        })())
       }
     }
+    Promise.all(promises)
   }
 
   get template() {

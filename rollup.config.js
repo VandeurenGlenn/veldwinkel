@@ -65,6 +65,7 @@ const prepareAndCopy = async (target) => {
   let isProduction = execSync('set production');
   isProduction = Boolean(isProduction.toString().split('=')[1] === 'true \r\n');
   index = index.replace('@build:sw', isProduction ? sw : '');
+  index = index.replace('@build:functionsRoot', `window.functionsRoot = ${isProduction} ? 'https://us-central1-topveldwinkel.cloudfunctions.net' : 'http://localhost:5000/topveldwinkel/us-central1'`);
   await writeFileSync(`public/${target}/index.html`, index);
   execSync(`cp src/${target}/manifest.json public/${target}`);
   mkdirSync(`public/${target}/assets`);

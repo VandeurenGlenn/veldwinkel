@@ -69,3 +69,6 @@ public/www/*.js
 public/shop
 public/admin
 public/www/assets/**
+functions/node_modules
+
+.runtimeconfig.json

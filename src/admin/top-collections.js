@@ -11,15 +11,13 @@ export default define(class TopCollections extends ElementBase {
       if (user) {
         await import('./top-collection-item.js');
         window.collections = {};
-        const snap = await firebase.database().ref(`users`).once('value');
-        window.users = snap.val();
-        if (users) for (const uid of Object.keys(users)) {
-          const snap = await firebase.database().ref(`users/${uid}/orders`).once('value');
-          let orders = snap.val();
-          Object.keys(orders).map(order => {
-            if (orders[order][0].ready && !orders[order][0].shipped) {
-              orders[order][0].user = uid;
-              collections[order] = orders[order];
+        const snap = await firebase.database().ref(`orders`).once('value');
+        window.orders = snap.val();
+        if (orders) for (const uid of Object.keys(orders)) {
+          Object.keys(orders[uid]).map(order => {
+            if (orders[uid][order][0].ready && !orders[uid][order][0].shipped) {
+              orders[uid][order][0].user = uid;
+              collections[order] = orders[uid][order];
             }
           });
 
@@ -29,7 +27,7 @@ export default define(class TopCollections extends ElementBase {
         // window.orders = snap.val();
         this._stamp();
 
-        firebase.database().ref('users').on('child_changed', this._stamp);
+        firebase.database().ref('orders').on('child_changed', this._stamp);
       }
       this.addEventListener('click', this._onClick);
     })();
@@ -50,23 +48,20 @@ export default define(class TopCollections extends ElementBase {
   }
 
   async _stamp(change) {
-    console.log(change);
     let index = 0;
-    console.log(collections);
     this.innerHTML = '';
     if (change) {
-      const snap = await firebase.database().ref(`users`).once('value');
-      window.users = snap.val();
-      window.collections = {};
-      if (users) for (const uid of Object.keys(users)) {
-        const snap = await firebase.database().ref(`users/${uid}/orders`).once('value');
-        let orders = snap.val();
-        Object.keys(orders).map(order => {
-          if (orders[order][0].ready && !orders[order][0].shipped) {
-            orders[order][0].user = uid;
-            collections[order] = orders[order];
+      window.collection = {}
+      const snap = await firebase.database().ref(`orders`).once('value');
+      window.orders = snap.val();
+      if (orders) for (const uid of Object.keys(orders)) {
+        Object.keys(orders[uid]).map(order => {
+          if (orders[uid][order][0].ready && !orders[uid][order][0].shipped) {
+            orders[uid][order][0].user = uid;
+            collections[order] = orders[uid][order];
           }
         });
+
       }
     }
     for (const collection of Object.keys(collections)) {

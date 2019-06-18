@@ -8,7 +8,7 @@ export default define(class ClientOrder extends ElementBase {
       firebase.auth().onAuthStateChanged(async (user) => {
         if (user) {
           this.innerHTML = '';
-          let snap = await firebase.database().ref(`users/${user.uid}/orders/${value}`).once('value');
+          let snap = await firebase.database().ref(`orders/${user.uid}/${value}`).once('value');
           snap = snap.val();
           const { collectionTime, payment } = snap[0];
           const el = document.createElement('span');

@@ -10,6 +10,7 @@ export default define(class TopOffer extends ProductEditorMixin {
   }
   constructor() {
     super();
+    this.ref = 'offer';
     this.addField = this.addField.bind(this);
   }
 
@@ -32,23 +33,29 @@ export default define(class TopOffer extends ProductEditorMixin {
     }
   }
 
-  stamp() {
+  async stamp() {
     this.innerHTML = '';
+    this.nails.clear()
     const offer = {...window.offers[this._value], ...window.offerDisplay[this._value]};
+    offer.image = await firebase.database().ref(`images/${this._value}`).once('value');
+    offer.image = offer.image.val()
+    delete offer.thumb;
     // console.log(offer);
     for (const i of Object.keys(offer)) {
-      console.log(i);
-      console.log(offer[i]);
       if (i === 'image') {
         let val = offer[i];
-        if (typeof val === 'object') val = [...Object.entries(val)];
-        if (!Array.isArray(val)) val = [val];
-        val.forEach(([key, src]) => {
-          console.log(key, src);
-          this.nails.add({ key, src });
-        });
+        if (val) for (const key of Object.keys(val)) {
+          console.log(key);
+          if (val[key] && key !== 'thumb' && key !== 'thumbm' && key !== 'placeholder') this.nails.add({ key, src: `${window.functionsRoot}/api/thumb/${val[key]}` });
+        }
+        // if (typeof val === 'object') val = [...Object.entries(val)];
+        // if (!Array.isArray(val)) val = [val];
+        // val.forEach(([key, src]) => {
+        //   console.log(src);
+        //   this.nails.add({ key, src: `${window.functionsRoot}/api/thumb/${src}` });
+        // });
       } else if (i === 'public') {
-        if (offer[i]) this.publicIcon.setAttribute('public', ' ')
+        if (offer[i]) this.publicIcon.setAttribute('public', '')
       } else {
         const span = document.createElement('span');
         span.classList.add('column');
