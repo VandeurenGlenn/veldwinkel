@@ -4,40 +4,24 @@ define(class ClientProductItem extends ElementBase {
   set key(value) {
     this.setAttribute('key', value);
   }
+  get img() {
+    return this.shadowRoot.querySelector('img');
+  }
   set value({ name, price, thumb, placeholder }) {
     this.render({ name, price });
     const promises = [];
     const job = (key, data) => new Promise((resolve, reject) => {
-      // data = await firebase.database().ref(`/images/${this.getAttribute('key')}/${key}`).once('value');
-      // data = data.val();
-      // const url = `${window.functionsRoot}/api/${key}/${this.getAttribute('key')}-${key}.webp`;
-      // const options = {
-      //   method: 'GET',
-      //   mode: 'cors'
-      // };
-      // const response = await fetch(url, options);
-      // data = await response.blob();
-      // 
-      // 
-      // 
-      // data = await readAsDataURL(data);
-      // // console.log(data);
-      // // console.log(data.blob());
       const img = document.createElement('img')
       img.onload = () => {
-        this.shadowRoot.querySelector('img').src = `${window.functionsRoot}/api/${key}/${this.getAttribute('key')}-${key}.webp`
-        resolve(key)
+        this.img.onload = () => {
+        resolve(key)  
+        }
+        this.img.src = `${window.functionsRoot}/api/${key}/${this.getAttribute('key')}-${key}.webp`;        
       };
-      img.src = `${window.functionsRoot}/api/${key}/${this.getAttribute('key')}-${key}.webp`
-      // return key
-      // return { data, key };
+      img.src = `${window.functionsRoot}/api/${key}/${this.getAttribute('key')}-${key}.webp`;
     });
     
-    promises.push(job('placeholder'), job('thumbm'));
-    Promise.race(promises).then(async (keys) => {
-      
-      if (keys[0] !== 'thumbm') job('thumbm');
-    });
+    job('thumbm')
   }
   constructor() {
     super();
