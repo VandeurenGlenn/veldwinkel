@@ -3,28 +3,7 @@ import json from 'rollup-plugin-json';
 import { execSync } from 'child_process';
 import { mkdirSync, writeFileSync, readFileSync } from 'fs';
 
-try {
-  execSync('rm public/www/chunk-*.js');
-  execSync('rm public/www/*.js');
-  execSync('rm public/www/*.js.map');
-  execSync('rm public/www/chunk-*.js.map');
-} catch (e) {
 
-}
-
-try {
-  execSync('rm public/admin/chunk-*.js');
-  execSync('rm public/admin/*.js');
-  execSync('rm public/admin/*.js.map');
-  execSync('rm public/admin/chunk-*.js.map');
-} catch (e) {
-}
-
-try {
-  execSync('rm public/shop/*.js');
-} catch (e) {
-
-}
 
 try {
   execSync('cp public/assets/icons public/admin/assets -r');
