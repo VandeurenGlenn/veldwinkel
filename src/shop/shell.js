@@ -4,6 +4,7 @@ import './../../node_modules/custom-selector/src/index.js';
 import './../../node_modules/custom-svg-icon/src/custom-svg-icon.js';
 import './../../node_modules/custom-tabs/src/custom-tabs.js';
 import './../../node_modules/custom-drawer/custom-drawer.js';
+import './../custom-container.js';
 import './../top-icon-button.js';
 import './../top-button.js';
 import './../translated-tab.js';
@@ -15,6 +16,9 @@ export default define(class AppShell extends ElementBase {
   get pages() {
     return this.shadowRoot.querySelector('custom-pages');
   }
+  get map() {
+    return this.shadowRoot.querySelector('iframe');
+  }
   get selector() {
     return this.shadowRoot.querySelector('custom-selector');
   }
@@ -25,7 +29,10 @@ export default define(class AppShell extends ElementBase {
     return this.querySelector('translated-string');
   }
   set drawerOpened(value) {
-    if (value) this.setAttribute('drawer-opened', '');
+    if (value) {
+      this.setAttribute('drawer-opened', '');
+      this.map.width -= 256;
+    }
     else this.removeAttribute('drawer-opened');
   }
   get drawerOpened() {
@@ -40,10 +47,12 @@ export default define(class AppShell extends ElementBase {
     this.drawerOpened = false;
     window.topstore = window.topstore || {};
     window.topstore.databases = window.topstore.databases || new OADBManager();
+    this._onResize = this._onResize.bind(this)
   }
   connectedCallback() {
     super.connectedCallback();
     this.selector.addEventListener('selected', this._selectorChange);
+    window.addEventListener('resize', this._onResize);
     this.querySelector('custom-svg-icon[icon="menu"]').addEventListener('click', this._menuClick);
     (async () => {
       if (window.location.hash) {
@@ -62,7 +71,8 @@ export default define(class AppShell extends ElementBase {
       }
       this.translatedTitle.value = this.selector.selected;
       const loginButton = this.querySelector('.login-button');
-
+      
+      this._onResize();
       firebase.auth().onAuthStateChanged(async user => {
         if (user) {
           window.ref = firebase.database().ref(`${user.uid}`);
@@ -83,6 +93,16 @@ export default define(class AppShell extends ElementBase {
       });
     })();
   }
+  
+  _onResize() {
+    requestAnimationFrame(() => {
+      const {height, width} = this.pages.getClientRects()[0];
+      if (this.drawerOpened) this.map.width = width - 256;
+      else this.map.width = width;
+      
+      this.map.height = height;
+    })
+  }
 
   _onPopstate() {
     if (history.state) this.selector.selected = history.state.selected;
@@ -102,6 +122,11 @@ export default define(class AppShell extends ElementBase {
       if (selected === 'order') await import('./client-order');
       if (selected === 'products') await import('./client-products');
       if (selected === 'product') await import('./client-product');
+      if (selected === 'directions') {
+        this.selector.select(this.selector.previousSelected);
+        window.open('https://www.google.com/maps/dir//50.9804131,4.7489457/@50.980413,4.748946,17z?hl=en-GB')
+        return;
+      }
       this.translatedTitle.value = selected;
       this.pages.select(selected);
       history.pushState({selected}, selected, `#${selected}`);
@@ -245,10 +270,22 @@ export default define(class AppShell extends ElementBase {
 
     <span class="flex" style="pointer-events: none;"></span>
 
-    <span class="row selection" data-route="info" >
+    <!-- <span class="row selection" data-route="about" >
       <custom-svg-icon icon="info"></custom-svg-icon>
       <span class="flex"></span>
-      info
+      about
+    </span> -->
+    
+    <span class="row selection" data-route="info" >
+      <custom-svg-icon icon="map"></custom-svg-icon>
+      <span class="flex"></span>      
+      <translated-string>location information</translated-string>
+    </span>
+    
+    <span class="row selection" data-route="directions" >
+      <custom-svg-icon icon="directions"></custom-svg-icon>
+      <span class="flex"></span>
+      <translated-string>directions</translated-string>
     </span>
 
   </custom-selector>
@@ -261,11 +298,7 @@ export default define(class AppShell extends ElementBase {
   <order-list route="orders" type="orders"></order-list>
   <client-order route="order" type="order"></client-order>
   <section route="info">
-    <span class="container">
-    <h4>Guldentop Veldwinkel</h4>
-    <span class="row"><strong>adres: </strong>Guldentop 23, 3118 Rotselaar</span>
-
-    </span>
+      <iframe width="600" height="500" src="https://maps.google.com/maps?q=guldentopveldwinkel&t=&z=17&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
   </section>
 </custom-pages>`;
   }

@@ -21,6 +21,8 @@
     "delivery times": "leveringmomenten",
     "tuesday": "dinsdag",
     "friday": "vrijdag",
-    "quick-order": "snelle bestelling"
+    "quick-order": "snelle bestelling",
+    "directions": "routebeschrijving",
+    "location information": "locatie informatie"
   }
 }
