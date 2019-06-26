@@ -46,7 +46,6 @@ define(class ClientProductItem extends ElementBase {
     padding: 0 12px;
     box-sizing: border-box;
     cursor: pointer;
-    border: 1px solid #eee;
   }
   .container {
     display: flex;
@@ -55,8 +54,11 @@ define(class ClientProductItem extends ElementBase {
     padding: 24px 0;
     box-sizing: border-box;
     pointer-events: none;
+    border: 1px solid #eee;
+    border-radius: 30px;
   }
   .img {
+    border-radius: 30px;
     max-height: 250px;
     max-width: 100%;
     background: var(--product-photo);
