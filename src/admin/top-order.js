@@ -11,26 +11,23 @@ export default define(class TopOrder extends ElementBase {
   }
 
   set value({ user, uid }) {
-    console.log(user, uid);
     if (user && uid) {
-      const order = orders[user][uid];
+      const order = [...orders[user][uid]];
       const info = order.shift();
       this.order = order;
       this.orderLength = order.length;
       this.user = user;
       this.uid = uid;
-      console.log({ info });
-      const items = [];
       const promises = [];
       (async () => {
         for (const item of order) {
           promises.push((async () => {
             const { product, aantal } = item;
             const { name } = await this.offerDisplay.get(product);
-            items[product] = {name, aantal}
+            return `<span class="row selection" name="${product}">${name}<span class="flex" style="pointer-events: none;"></span>${aantal}</span>`
           })());
         }
-        await Promise.all(promises);
+        const result = await Promise.all(promises);
         this.innerHTML = `
         <span class="row center" slot="info">
           <h4 class="name">${info.displayName}</h4>
@@ -44,9 +41,7 @@ export default define(class TopOrder extends ElementBase {
         </span>
 
         <custom-selector multi="true" selected="[]" attr-for-selected="name">
-          ${items.map((item, i) => {
-              return `<span class="row selection" name="${i}">${item.name}<span class="flex" style="pointer-events: none;"></span>${item.aantal}</span>`
-          }).join(' ')}
+          ${result.join(' ')}
         </custom-selector>
         `;
       })()
