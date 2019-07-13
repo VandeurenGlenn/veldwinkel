@@ -120,24 +120,6 @@ export default define(class AddOffer extends ElementBase {
       headers: { 'Content-Type': 'application/json' }
     };
     await fetch(url, options)
-    // const e = await fetch(`http://localhost:5000/topveldwinkel/us-central1/api/add/offer`, { method: 'post', body: JSON.stringify({ image: base64.split(',')[1], name: '', price: '', type: '', public: false }), mode: 'cors', headers: { 'Content-Type': 'application/json' } });
-    // const inputs = Array.from(this.shadowRoot.querySelectorAll('custom-input'));
-    // const value = {};
-    // inputs.forEach((input) => value[input.getAttribute('name')] = input.value);
-    // const images = Array.from(this.shadowRoot.querySelector('.image-previews').children);
-    //
-    // // fetch(`http://localhost:5000/topveldwinkel/us-central1/api/add/offer`, { method: 'POST', body: { image: images[0].src } });
-    // const snap = await firebase.database().ref('offerDisplay').push({ name: value.name, price: value.price, public: this.public });
-    // window.snap = snap;
-    // delete value.name;
-    // delete value.price;
-    // await firebase.database().ref(`offers/${snap.key}`).set(value);
-    // // fetch(`http://localhost:5000/topveldwinkel/us-central1/api/add/offer`, { method: 'POST', body: { image: img } });
-    // images.forEach((img, i) => {
-    //   // fetch(`topveldwinkel/us-central1/api/add/offer`, { method: 'post', body: { image: img } });
-    //   if (i === 0) firebase.database().ref(`offerDisplay/${snap.key}/image`).push(img.src);
-    //   else firebase.database().ref(`offers/${snap.key}/image`).push(img.src);
-    // });
 
     adminGo('offers');
   }
