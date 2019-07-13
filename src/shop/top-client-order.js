@@ -5,7 +5,7 @@ import './../../node_modules/@vandeurenglenn/custom-date/custom-date.js';
 
 export default define(class TopClientOrder extends ElementBase {
   get selectors() {
-    return this.querySelectorAll('client-order-selector');
+    return Array.from(this.querySelectorAll('client-order-selector'));
   }
 
   get offerDisplay() {
@@ -20,20 +20,22 @@ export default define(class TopClientOrder extends ElementBase {
     super();
     this._onSelected = this._onSelected.bind(this);
     this._submit = this._submit.bind(this);
+    this._clear = this._clear.bind(this);
   }
 
   connectedCallback() {
     super.connectedCallback();
     this.shadowRoot.querySelector('custom-svg-icon[icon="done"]').addEventListener('click', this._submit);
     this.shadowRoot.querySelector('custom-svg-icon[icon="close"]').addEventListener('click', this._clear);
-    for (const selector of this.selectors) {
-      selector.addEventListener('selected', this._onSelected);
-    }
 
     (async () => {
       window.offerDisplay = await this.offerDisplay.get();
       if(Object.keys(offerDisplay).length === 0) window.offerDisplay = await this.offerDisplay.get()
       await this.stamp();
+      
+      for (const selector of this.selectors) {
+        selector.addEventListener('selected', this._onSelected);
+      }
     })();
 
     // import('./../../node_modules/custom-selector/src/index.js');
@@ -171,9 +173,9 @@ u kan deze afhalen met: ${snap.key}`,
     }
     for (const query of selected) {
       if (typeof query === 'string') {
-        const price = offers[query].price;
+        const price = offerDisplay[query].price;
         set.push([
-          Number(this.shadowRoot.querySelector(`client-order-selector-item[is="${query}"]`).pieces),
+          Number(this.querySelector(`client-order-selector-item[is="${query}"]`).pieces),
           Number(price)
         ]);
       }
