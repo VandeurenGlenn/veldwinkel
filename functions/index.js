@@ -345,7 +345,8 @@ exports.sendEmailConfirmation = functions.database.ref('/orders/{userUID}/{order
   const ready = val[0].ready;
   dateMan.value = new Date().getTime();
   dateMan.lang = 'nl';
-  dateMan.next(val[0].collectionTime)
+  if (val[0].collectionTime === 'tuesday') dateMan.next('dinsdag')
+  else if (val[0].collectionTime === 'friday') dateMan.next('vrijdag')
   // Building Email message.
   mailOptions.subject = `Bestelling ${snapshot.key} ${ready ? 'klaar' : 'ontvangen'}!`;
   mailOptions.text = `Bestelling ${ready ? ` ${snapshot.key} is klaar voor afhaling` : 'ontvangen,\nwij maken deze klaar voor afhaling'} op ${dateMan.days[dateMan.day]} ${dateMan.date}/${dateMan.month}`
@@ -358,44 +359,3 @@ exports.sendEmailConfirmation = functions.database.ref('/orders/{userUID}/{order
   }
   return null;
 });
-
-// const imageUpload = functions.database.ref('/offers/{offerId}/image/{imageId}').onCreate(async (snap) => {
-//   const timestamp = Math.floor(new Date().getTime() / 1000);
-//   // const path = snap.path.toString();
-//   return createThumbnail(snap);
-//
-//   // admin.database().ref(`/offers/${key}/timestamp`).set(timestamp);
-//   // admin.database().ref(`/offers/${key}/image`).set(null);
-//   // admin.database().ref(path).set(Buffer.from(snap, 'base64'));
-//
-//   // let i = 0;
-//   // for (const image of Object.keys(snap.image)) {
-//
-//   // ++i;
-//   // }
-//
-//   // snap.image[0];
-//   // firebase.database().ref(`/offers/${key}/'timestamp'`).set(timestamp);
-// });
-//
-// const imageUpdate = functions.database.ref('/offers/{offerId}/image/{imageId}').onUpdate(async (snap) => {
-//   const timestamp = Math.floor(new Date().getTime() / 1000);
-//   // const path = snap.path.toString();
-//   return createThumbnail(snap);
-//
-//   // admin.database().ref(`/offers/${key}/timestamp`).set(timestamp);
-//   // admin.database().ref(`/offers/${key}/image`).set(null);
-//   // admin.database().ref(path).set(Buffer.from(snap, 'base64'));
-//
-//   // let i = 0;
-//   // for (const image of Object.keys(snap.image)) {
-//
-//   // ++i;
-//   // }
-//
-//   // snap.image[0];
-//   // firebase.database().ref(`/offers/${key}/'timestamp'`).set(timestamp);
-// });
-//
-// exports.imageUpload = imageUpload;
-// exports.imageUpdate = imageUpdate;
