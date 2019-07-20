@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/admin/top-offers.js | veldwinkel</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/vandeurenglenn/veldwinkel"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/base.js~ElementBase.html">ElementBase</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb-manager.js~OADBManager.html">OADBManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb.js~OADB.html">OADB</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#admin">admin</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/admin/product-editor-mixin.js~ProductEditorMixin.html">ProductEditorMixin</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-compose">compose</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-displayModal">displayModal</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-offerModal">offerModal</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/admin/top-offers.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import { ElementBase, define } from &apos;./../base.js&apos;;
+import &apos;./top-offer-item.js&apos;;
+
+export default define(class TopOffers extends ElementBase {
+  get offerDisplay() {
+    return window.topstore.databases.get(&apos;offerDisplay&apos;);
+  }
+
+  get offers() {
+    return window.topstore.databases.get(&apos;offers&apos;);
+  }
+
+  get images() {
+    return window.topstore.databases.get(&apos;images&apos;);
+  }
+
+  constructor() {
+    super();
+    this._onClick = this._onClick.bind(this);
+    this._onFabClick = this._onFabClick.bind(this);
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    this.addEventListener(&apos;click&apos;, this._onClick);
+    this.shadowRoot.querySelector(&apos;.fab&apos;).addEventListener(&apos;click&apos;, this._onFabClick);
+
+    (async () =&gt; {
+      await import(&apos;./top-offer-item.js&apos;)
+      window.offerDisplay = await this.offerDisplay.get();
+      if(offerDisplay &amp;&amp; Object.keys(offerDisplay).length === 0) window.offerDisplay = await this.offerDisplay.get()
+      await this.stamp();
+    })();
+  }
+
+  _onClick(e) {
+    // this.selected =
+    const target = e.path[0];
+    if (target.localName === &apos;top-offer-item&apos;) this.selected = target.getAttribute(&apos;data-route&apos;)
+    if (this.selected !== this.previousSelected) {
+      if (this.previousSelected) this.querySelector(`[data-route=&quot;${this.selected}&quot;]`).classList.remove(&apos;custom-selected&apos;)
+      target.classList.add(&apos;custom-selected&apos;);
+      this.previousSelected = this.selected;
+      window.adminGo(&apos;offer&apos;, this.selected);
+    }
+
+  }
+
+  _onFabClick() {
+    console.log(&apos;e&apos;);
+    window.adminGo(&apos;add-offer&apos;);
+  }
+
+  async stamp() {
+    // if (!window.offers) await this.offers.get();
+    // if (!window.images) await this.images.get();
+    console.log(window.offers);
+    const jobs = [];
+    if (!window.offers) window.offers = {}
+    if (!window.images) window.images = {}
+    if (offerDisplay) {
+      for (const offer of Object.keys(offerDisplay)) {
+        jobs.push((async () =&gt; {
+          if (!offers[offer]) offers[offer] = await this.offers.get(offer);
+          if (!images[offer]) images[offer] = await this.images.get(offer);
+  
+          let item = this.querySelector(`data-route[offer]`);
+          if (!item) {
+            item = document.createElement(&apos;top-offer-item&apos;);
+            this.appendChild(item);
+          }
+          item.key = offer;
+          item.value = { ...offerDisplay[offer], ...offers[offer], image: {...images[offer]} };
+  
+          item.dataset.route = offer;
+        })())
+      }  
+    }
+    
+
+    Promise.all(jobs)
+  }
+
+  get template() {
+    return html`
+&lt;style&gt;
+  :host {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  .flex {
+    flex: 1;
+  }
+  header {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    min-width: 320px;
+    max-width: 640px;
+  }
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: auto;
+    width: 100%;
+  }
+  .name {
+    min-width: 240px;
+  }
+  .fab {
+    display: flex;
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 48px;
+    min-width: 110px;
+    border: 1px solid #888;
+    border-radius: 28px;
+    box-sizing: border-box;
+    padding: 12px;
+  }
+  ::slotted(:nth-of-type(odd)) {
+    background: #eee;
+  }
+&lt;/style&gt;
+&lt;span class=&quot;fab&quot;&gt;
+  &lt;custom-svg-icon icon=&quot;add&quot;&gt;&lt;/custom-svg-icon&gt;
+  &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+  add
+&lt;/span&gt;
+
+&lt;header&gt;
+  &lt;custom-svg-icon icon=&quot;filter-list&quot;&gt;&lt;/custom-svg-icon&gt;
+  &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+  &lt;custom-svg-icon icon=&quot;mode-edit&quot;&gt;&lt;/custom-svg-icon&gt;
+  &lt;custom-svg-icon icon=&quot;search&quot;&gt;&lt;/custom-svg-icon&gt;
+&lt;/header&gt;
+&lt;header&gt;
+  &lt;h4 class=&quot;name&quot;&gt;naam&lt;/h4&gt;
+  &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+  &lt;h4&gt;voorraad&lt;/h4&gt;
+  &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+  &lt;h4&gt;in pakket&lt;/h4&gt;
+&lt;/header&gt;
+&lt;span class=&quot;container&quot;&gt;
+  &lt;slot&gt;&lt;/slot&gt;
+&lt;/span&gt;`;
+  }
+});
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

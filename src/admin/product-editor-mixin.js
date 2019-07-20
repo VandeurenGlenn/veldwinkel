@@ -16,14 +16,23 @@ export default class ProductEditorMixin extends ElementBase {
     this._value = value;
     if (this.rendered) this.stamp();
   }
+  
+  isOnline() {
+    return navigator.onLine;
+  }
 
-  constructor() {
+  constructor(ref = 'products') {
     super();
     this._onNailUpload = this._onNailUpload.bind(this);
     this._onDelete = this._onDelete.bind(this);
     this._onPublic = this._onPublic.bind(this);
     this._onSave = this._onSave.bind(this);
-    this.ref = 'products';
+    this.runJobQue = this.runJobQue.bind(this);
+    this.ref = ref;
+    this.jobs = [];
+    
+    
+    window.addEventListener('online', this.runJobQue, false);
   }
 
   connectedCallback() {
@@ -33,6 +42,16 @@ export default class ProductEditorMixin extends ElementBase {
     this.publicIcon.addEventListener('click', this._onPublic);
     this.saveButton.addEventListener('click', this._onSave);
     this.deleteButton.addEventListener('click', this._onDelete);
+  }
+  
+  async runJobQue() {
+    if (this.jobs.length > 0 && this.isOnline()) {
+      const [url, options, name] = this.jobs.shift();
+      await fetch(url, options)
+      // notificationManager()
+      new Notification(name + ' updated in background', {tag: 'updated in background'})
+    }
+    if (this.jobs.length > 0 && this.isOnline()) this.runJobQue()
   }
 
   async _onSave() {
@@ -54,7 +73,8 @@ console.log(img.getAttribute('key'));
     const body = JSON.stringify({
       ...value,
       key: this._value,
-      public: pub
+      public: pub,
+      timestamp: new Date().getTime()
     });
     const url = `${window.functionsRoot}/api/${this.ref}`;
     const options = {
@@ -63,7 +83,9 @@ console.log(img.getAttribute('key'));
       mode: 'cors',
       headers: { 'Content-Type': 'application/json' }
     };
-    await fetch(url, options)
+    // await fetch(url, options)
+    this.jobs.push([url, options, value.name]);
+    this.runJobQue();
     history.back();
   }
 

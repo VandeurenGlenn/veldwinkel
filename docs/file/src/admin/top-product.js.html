@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/admin/top-product.js | veldwinkel</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/vandeurenglenn/veldwinkel"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/base.js~ElementBase.html">ElementBase</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb-manager.js~OADBManager.html">OADBManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb.js~OADB.html">OADB</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#admin">admin</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/admin/product-editor-mixin.js~ProductEditorMixin.html">ProductEditorMixin</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-compose">compose</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-displayModal">displayModal</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-offerModal">offerModal</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/admin/top-product.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import { ElementBase, define } from &apos;./../base.js&apos;;
+import &apos;./../image-nails.js&apos;;
+import &apos;./../custom-container.js&apos;;
+import &apos;./../translated-string&apos;;
+import &apos;./../../node_modules/custom-input/custom-input.js&apos;;
+
+export default define(class TopProduct extends ElementBase {
+  get deleteButton() {
+    return this.shadowRoot.querySelector(&apos;[icon=&quot;delete&quot;]&apos;);
+  }
+  get nails() {
+    return this.shadowRoot.querySelector(&apos;image-nails&apos;);
+  }
+  set value(value) {
+    this._value = value;
+    if (this.rendered) this.stamp();
+  }
+
+  constructor() {
+    super();
+    this._onNailSwipe = this._onNailSwipe.bind(this);
+    this._onDelete = this._onDelete.bind(this);
+  }
+
+  connectedCallback() {
+    if (super.connectedCallback) super.connectedCallback();
+    if (this._value) this.stamp();
+    this.nails.addEventListener(&apos;image-swiped&apos;, this._onNailSwipe);
+    this.deleteButton.addEventListener(&apos;click&apos;, this._onDelete);
+  }
+
+  async _onDelete() {
+    const answer = await confirm(&apos;are you sure you want to remove this product?&apos;);
+    if (answer) {
+      firebase.database().ref(`products/${this._value}`).set(null);
+      adminGo(&apos;products&apos;);
+    }
+  }
+
+  _onNailSwipe({ detail }) {
+    let key;
+    if (detail) key = detail.getAttribute(&apos;key&apos;);
+    if (key) {
+      firebase.database().ref(`products/${this._value}/image/${key}`).set(null);
+    }
+  }
+
+  stamp() {
+    this.innerHTML = &apos;&apos;;
+    this.nails.innerHTML = &apos;&apos;;
+    firebase.database().ref(`products/${this._value}`).once(&apos;value&apos;).then((snap) =&gt; {
+      const value = snap.val();
+      console.log({ value });
+      for (const item of Object.keys(value)) {
+        console.log(value[item]);
+        let val = value[item];
+        if (item === &apos;image&apos;) {
+          if (typeof val === &apos;object&apos;) val = [...Object.entries(val)];
+          if (!Array.isArray(val)) val = [val];
+          val.forEach(([key, src]) =&gt; {
+            console.log(key, src);
+            this.nails.add({ key, src });
+          });
+        } else {
+          if (item !== &apos;packageCount&apos;) {
+            const input = this.shadowRoot.querySelector(`custom-input[name=&quot;${item}&quot;]`);
+            input.value = val;
+          } else {
+            this.packageCount = val;
+          }
+        }
+
+        // this.innerHTML += `${item}: &lt;br&gt;${value[item]}&lt;br&gt;&lt;br&gt;`
+      }
+      // this.innerHTML = JSON.stringify(snap.val());
+      this.render({ packageCount: this.packageCount });
+    });
+  }
+  get template() {
+    return html`
+&lt;style&gt;
+  :host {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .column {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+&lt;/style&gt;
+&lt;custom-container&gt;
+&lt;header&gt;
+  &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+  &lt;custom-svg-icon icon=&quot;delete&quot;&gt;&lt;/custom-svg-icon&gt;
+&lt;/header&gt;
+
+&lt;image-nails&gt;&lt;/image-nails&gt;
+
+&lt;span class=&quot;column&quot;&gt;
+  &lt;h4&gt;&lt;translated-string&gt;name&lt;/translated-string&gt;&lt;/h4&gt;
+  &lt;custom-input name=&quot;name&quot; type=&quot;text&quot;&gt;&lt;/custom-input&gt;
+&lt;/span&gt;
+
+&lt;span class=&quot;column&quot;&gt;
+  &lt;h4&gt;&lt;translated-string&gt;description&lt;/translated-string&gt;&lt;/h4&gt;
+  &lt;custom-input name=&quot;description&quot; type=&quot;text&quot;&gt;&lt;/custom-input&gt;
+&lt;/span&gt;
+
+&lt;span class=&quot;column&quot;&gt;
+  &lt;h4&gt;&lt;translated-string&gt;portion&lt;/translated-string&gt;&lt;/h4&gt;
+  &lt;custom-input name=&quot;portion&quot; type=&quot;text&quot;&gt;&lt;/custom-input&gt;
+&lt;/span&gt;
+
+&lt;span class=&quot;column&quot;&gt;
+  &lt;h4&gt;&lt;translated-string&gt;stockCount&lt;/translated-string&gt;&lt;/h4&gt;
+  &lt;custom-input name=&quot;stockCount&quot; type=&quot;number&quot;&gt;&lt;/custom-input&gt;
+&lt;/span&gt;
+&lt;span class=&quot;column&quot;&gt;
+  &lt;h4&gt;&lt;translated-string&gt;packageCount&lt;/translated-string&gt;&lt;/h4&gt;
+  &lt;span name=&quot;packageCount&quot;&gt;${&apos;packageCount&apos;}&lt;/span&gt;
+&lt;/span&gt;
+&lt;/custom-container&gt;`;
+  }
+});
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

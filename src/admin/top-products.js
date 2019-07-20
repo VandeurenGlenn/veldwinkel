@@ -23,14 +23,15 @@ export default define(class TopProducts extends ElementBase {
         window.products = snap.val();
         this.stamp();
       });
-      this.addEventListener('click', this._onClick);
-      this.shadowRoot.querySelector('.fab').addEventListener('click', this._onFabClick);
     })();
+    this.addEventListener('click', this._onClick);
+    this.shadowRoot.querySelector('.fab').addEventListener('click', this._onFabClick);
   }
 
   _onClick(e) {
     // this.selected =
     const target = e.path[0];
+    console.log(e);
     if (target.localName === 'top-product-item') this.selected = target.getAttribute('data-route')
     if (this.selected !== this.previousSelected) {
       if (this.previousSelected) this.querySelector(`[data-route="${this.selected}"]`).classList.remove('custom-selected')

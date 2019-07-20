@@ -1,86 +1,9 @@
+import * as idb from './../node_modules/idb-keyval/dist/idb-keyval-cjs';
+const { Store, set, get, remove, keys } = idb;
 export default class OADB {
-  get localStorage() {
-    return {
-      get: (child) => new Promise((resolve, reject) => {
-        let data;
-        if (child) {
-          data = localStorage.getItem(this.name);
-          if (data) {
-            data = JSON.parse(data);
-            data = data[child];
-          } else {
-            data = null;
-          }
-        } else {
-          data = localStorage.getItem(this.name);
-          if (data) data = JSON.parse(data);
-          else data = null;
-          // if (!data) data = null;
-        }
-        resolve(data);
-      }),
-      set: (child, value) => new Promise((resolve, reject) => {
-        if (!value) {
-          value = child;
-          child = undefined;
-        }
-        if (child) {
-          let data = localStorage.getItem(this.name);
-          if (!data) data = {};
-          data = JSON.parse(data);
-          data[child] = value;
-          value = data;
-        }
-        localStorage.setItem(this.name, JSON.stringify(value));
-        resolve();
-      })
-    };
-  }
-
-  get localChanges() {
-    return {
-      get: (child) => new Promise((resolve, reject) => {
-        let data;
-        if (child) {
-          data = localStorage.getItem('localChanges');
-          data = JSON.parse(data);
-          if (data) data = data[child];
-          else data = null;
-        } else {
-          data = localStorage.getItem('localChanges');
-          if (data) data = JSON.parse(data);
-          else data = null;
-          // if (!data) data = null;
-        }
-        resolve(data);
-      }),
-      set: (value, child) => new Promise((resolve, reject) => {
-        if (child) {
-          let data = localStorage.getItem('localChanges');
-          data = JSON.parse(data);
-          data[child] = value;
-          value = data;
-        }
-        localStorage.setItem('localChanges', JSON.stringify(value));
-        resolve();
-      }),
-      remove: (child) => new Promise((resolve, reject) => {
-        if (child) {
-          let data = localStorage.getItem('localChanges');
-          data = JSON.parse(data);
-          delete data[child];
-          value = data;
-        } else {
-          value = {};
-        }
-        localStorage.setItem('localChanges', JSON.stringify(value));
-        resolve();
-      })
-    };
-  }
   constructor(ref) {
     this.sync = this.sync.bind(this);
-    this.name = ref;
+    this.name = ref;   
     window.addEventListener('online', function(e) {
       console.log('online');
       // Re-sync data with server.
@@ -105,40 +28,79 @@ export default class OADB {
   }
 
   async init() {
+    this.store = await new Store(`odb-${this.name}`, this.name);
+    this.localStore = await new Store(`odb-local-${this.name}`, this.name);
     this.ref = firebase.database().ref(this.name);
+    
+    
     await this.sync();
     this.ref.on('child_changed', this.sync);
   }
 
   async sync(data) {
+    
     if (this.ref && this.isOnline()) {
+      const localKeys = await keys(this.localStore)
       data = await this.ref.once('value');
       data = data.val();
-      for (const key of Object.keys(data)) {
-        const change = await this.localChanges.get(key);
-        if (change && change.timestamp > data[key].timestamp) {
-          await firebase.database().ref(`${this.name}/${key}`).set(change);
-          this.localChanges.remove(key);
+      
+      if (data) for (const key of Object.keys(data)) {
+        console.log(key);
+        const local = await get(key, this.localStore);
+        console.log({local});
+        if (!local && data[key].timestamp) {
+          const current = await get(key, this.store);
+          if (!current) await set(key, data[key], this.store);
+          else {
+            if (data[key].timestamp !== current.timestamp) {
+              if (data[key].timestamp > current.timestamp) {
+                await set(key, data[key], this.store)
+              }
+            }              
+          }
+        }  
+        if (local && local.timestamp > data[key].timestamp) {
+          await firebase.database().ref(`${this.name}/${key}`).set(local);
+          await remove(key, this.localStore);
         }
       }
-    }
-    await this.localStorage.set(data);
+    }   
   }
+    
+    
+    // set('foo', 'bar', customStore);
+    // await this.localStorage.set(data);
+  
 
   async set(child, value) {
     const online = this.isOnline();
     if (online) {
-      if (this.ref) return this.ref.set(value);
-    } else if (!online && child) {
-      await this.localChanges.set(child, value);
+      if (child) return firebase.database().ref(`${this.name}/${child}`).set(value);
+      else return firebase.database().ref(`${this.name}`).set(value);
     }
-    return this.localStorage.set(value);
+    if (!online && child) {
+      return await set(child, value, this.localStore);
+    }
+    const promises = [];
+    
+    for (const key of Object.keys(value)) {
+      promises.push(set(key, value[key], this.localStore))
+    }
+    return Promise.all(promises);
   }
 
   get(child) {
     return new Promise(async (resolve, reject) => {
       const online = this.isOnline();
-      const data = await this.localStorage.get(child);
+      console.log(child);
+      let data;
+      if (child) data = await get(child, this.store);
+      else {
+        const dataKeys = await keys(this.store);
+        if (dataKeys && dataKeys.length > 0) for (const key of dataKeys) {
+          data[key] = get(key, this.store)
+        }
+      }
       if (data) resolve(data);
       if (online && this.ref) {
         let snap;
@@ -147,17 +109,23 @@ export default class OADB {
         snap = snap.val();
         if (!data && snap) {
           resolve(snap);
-          if (child) await this.localStorage.set(child, snap);
-          else await this.localStorage.set(snap);
-        } else {
-          // TODO: introduce timestamps
-          if (snap && data && data.timestamp < snap.timestamp) {
-            if (child) await this.localStorage.set(child, snap);
-            else await this.localStorage.set(snap);
+          if (child) await set(child, snap, this.store);
+          else {
+            for (const key of Object.keys(snap)) {              
+              await set(key, snap[key], this.store);
+            }
+          }
+        } else if (snap && data && data.timestamp < snap.timestamp) {
+            if (child) await set(child, snap, this.store);
+            else {
+              for (const key of Object.keys(snap)) {              
+                await set(key, snap[key], this.store);
+              }
+            }
             document.dispatchEvent(new CustomEvent('storage-update', { detail: { child, snap } }));
           }
         }
-      }
+      
       resolve();
     });
   }

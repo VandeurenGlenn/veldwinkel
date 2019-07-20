@@ -39,17 +39,33 @@ export default define(class TopProductItem extends ElementBase {
   constructor() {
     super();
     this._onValue = this._onValue.bind(this);
+    this.runJobQue = this.runJobQue.bind(this);
+    this.jobs = [];
+    
+    
+    window.addEventListener('online', this.runJobQue, false);
   }
   connectedCallback() {
     super.connectedCallback();
     // this.inBoxEl.addEventListener('change', this._onValue);
     this.stockEl.addEventListener('change', this._onValue);
   }
+  
+  async runJobQue() {
+    if (this.jobs.length > 0 && navigator.onLine) {
+      const [key, value] = this.jobs.shift();
+      await firebase.database().ref(`products/${key}/stockCount`).set(value);
+    }
+    if (this.jobs.length > 0 && navigator.onLine) {
+      this.runJobQue();
+    }
+  }
 
   _onValue() {
-    const stockRef = firebase.database().ref(`products/${this._key}/stockCount`);
+    this.jobs.push([this._key, this.stockEl.value])
+    this.runJobQue();
     // const boxRef = firebase.database().ref(`products/${this._key}/aantal keren in pakket`);
-    stockRef.set(this.stockEl.value);
+    
     // boxRef.set(this.inBoxEl.value);
     // firebase.database().ref(`products/${this._name}`)
     // this.inBoxEl.value
@@ -82,13 +98,17 @@ export default define(class TopProductItem extends ElementBase {
     pointer-events: auto;
     cursor: pointer;
   }
+  
+  .name {
+    width: 100%;
+    max-width: 244px;
+  }
 
   .flex {
     flex: 1;
   }
   .filler {
-    display: block;
-    min-width: 240px;
+    min-width: 258px;
   }
   input {
     width: 100px;
@@ -104,13 +124,11 @@ export default define(class TopProductItem extends ElementBase {
 <span class="row">
   <h4 class="name center">${'name'}</h4>
   <span class="flex"></span>
-</span>
-<span class="row center">
-  <span class="filler"></span>
-  <span class="flex"></span>
-  <input type="number" name="stock"></input>
-  <span class="flex"></span>
-  <p name="in-box"></p>
+  <span class="row center filler">
+    <input type="number" name="stock"></input>
+    <span class="flex"></span>
+    <p name="in-box"></p>
+  </span>
 </span>`;
   }
 })

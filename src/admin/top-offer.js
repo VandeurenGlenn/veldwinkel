@@ -3,6 +3,7 @@ import ProductEditorMixin from './product-editor-mixin.js';
 import './../image-nails.js';
 import './../custom-container.js';
 import './../../node_modules/custom-input/custom-input.js';
+import './../../node_modules/@vandeurenglenn/custom-date/custom-date.js';
 
 export default define(class TopOffer extends ProductEditorMixin {
   get addFieldIcon() {
@@ -36,16 +37,19 @@ export default define(class TopOffer extends ProductEditorMixin {
   async stamp() {
     this.innerHTML = '';
     this.nails.clear()
-    const offer = {...window.offers[this._value], ...window.offerDisplay[this._value]};
-    offer.image = await firebase.database().ref(`images/${this._value}`).once('value');
-    offer.image = offer.image.val()
-    delete offer.thumb;
+    const offer = {...window.offers[this._value], ...window.offerDisplay[this._value], image: { ...window.images[this._value] }};
+
+    if (!offer.image) {
+      offer.image = await firebase.database().ref(`images/${this._value}`).once('value');
+      offer.image = offer.image.val();  
+    }
+    
+    delete offer.image.timestamp;
     // console.log(offer);
     for (const i of Object.keys(offer)) {
       if (i === 'image') {
         let val = offer[i];
         if (val) for (const key of Object.keys(val)) {
-          console.log(key);
           if (val[key] && key !== 'thumb' && key !== 'thumbm' && key !== 'placeholder') this.nails.add({ key, src: `${window.functionsRoot}/api/thumb/${val[key]}` });
         }
         // if (typeof val === 'object') val = [...Object.entries(val)];
@@ -56,6 +60,16 @@ export default define(class TopOffer extends ProductEditorMixin {
         // });
       } else if (i === 'public') {
         if (offer[i]) this.publicIcon.setAttribute('public', '')
+      } else if (i === 'timestamp') {
+        const span = document.createElement('span');
+        span.classList.add('timestamp');
+        span.setAttribute('slot', i)
+        span.innerHTML = `
+        <h4><translated-string>last edit</translated-string></h4>
+        <span class="flex"></span>
+        <custom-date lang="nl" value="${offer[i]}">${new Date(offer[i])}</custom-date>
+        `;
+        this.appendChild(span);
       } else {
         const span = document.createElement('span');
         span.classList.add('column');
@@ -85,6 +99,15 @@ export default define(class TopOffer extends ProductEditorMixin {
     width: 100%;
     min-height: 110px;
   }
+  ::slotted(.timestamp) {
+    mixin(--css-row)
+    mixin(--css-center)
+    width: 100%;
+    height: 54px;
+  }
+  ::slotted(*.flex) {
+    mixin(--css-flex)
+  }
   .toolbar {
     height: 72px;
     box-sizing: border-box;
@@ -113,6 +136,7 @@ export default define(class TopOffer extends ProductEditorMixin {
 </style>
 
 <custom-container>
+  <slot name="timestamp"></slot>
   <image-nails></image-nails>
   <slot></slot>
   <span class="wrapper">

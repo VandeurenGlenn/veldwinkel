@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/admin/add-product.js | veldwinkel</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/vandeurenglenn/veldwinkel"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/base.js~ElementBase.html">ElementBase</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb-manager.js~OADBManager.html">OADBManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb.js~OADB.html">OADB</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#admin">admin</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/admin/product-editor-mixin.js~ProductEditorMixin.html">ProductEditorMixin</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-compose">compose</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-displayModal">displayModal</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-offerModal">offerModal</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/admin/add-product.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import { define, ElementBase } from &apos;./../base.js&apos;;
+import &apos;./../top-button.js&apos;;
+import &apos;./../custom-container.js&apos;;
+import &apos;./../device-api.js&apos;;
+import &apos;./../../node_modules/custom-input/custom-input.js&apos;;
+import &apos;./../selectable-input.js&apos;;
+
+export default define(class AddProduct extends ElementBase {
+  // #camButton = this.shadowRoot.querySelector(&apos;top-icon-button[icon=&quot;photo-camera&quot;]&apos;);
+  get _submitButton() {
+    return this.shadowRoot.querySelector(&apos;custom-svg-icon[icon=&quot;done&quot;]&apos;);
+  }
+  get _frontCamButton() {
+    return this.shadowRoot.querySelector(&apos;custom-svg-icon[icon=&quot;camera-front&quot;]&apos;);
+  }
+  get _rearCamButton() {
+    return this.shadowRoot.querySelector(&apos;custom-svg-icon[icon=&quot;camera-rear&quot;]&apos;);
+  }
+  get _camButton() {
+    return this.shadowRoot.querySelector(&apos;top-button.camera&apos;);
+  }
+
+  get _previewEl() {
+    return this.shadowRoot.querySelector(&apos;.preview&apos;);
+  }
+
+  get _previewPhotoEl() {
+    return this.shadowRoot.querySelector(&apos;.preview-photo&apos;);
+  }
+
+  constructor() {
+    super();
+
+    this.takePhoto = this.takePhoto.bind(this);
+    this.submit = this.submit.bind(this);
+    this._switchCameraFront = this._switchCameraFront.bind(this);
+    this._switchCameraRear = this._switchCameraRear.bind(this);
+    this._closePreview = this._closePreview.bind(this);
+  }
+
+  connectedCallback() {
+    if (super.connectedCallback) super.connectedCallback();
+
+    deviceApi.camera.preview(this._previewEl);
+
+    this._camButton.addEventListener(&apos;click&apos;, this.takePhoto);
+    this._frontCamButton.addEventListener(&apos;click&apos;, this._switchCameraFront);
+    this._rearCamButton.addEventListener(&apos;click&apos;, this._switchCameraRear);
+    this._previewPhotoEl.addEventListener(&apos;click&apos;, this._closePreview);
+    this._submitButton.addEventListener(&apos;click&apos;, this.submit);
+  }
+
+  _closePreview() {
+    this._previewPhotoEl.src = &apos;&apos;;
+    this.classList.remove(&apos;has-close&apos;);
+  }
+
+  _switchCameraFront() {
+    this._rearCamButton.classList.remove(&apos;custom-selected&apos;);
+    this._frontCamButton.classList.add(&apos;custom-selected&apos;);
+    this._facingMode = &apos;user&apos;;
+    deviceApi.camera.preview(this._previewEl, this._facingMode);
+  }
+
+  _switchCameraRear() {
+    this._frontCamButton.classList.remove(&apos;custom-selected&apos;);
+    this._rearCamButton.classList.add(&apos;custom-selected&apos;);
+    this._facingMode = &apos;environment&apos;;
+    deviceApi.camera.preview(this._previewEl, this._facingMode);
+  }
+
+  async takePhoto() {
+    // this._previewEl.stop();
+    this._previewEl.srcObject = null;
+    const blob = await deviceApi.camera.takePhoto(this._facingMode);
+    const base64 = await readAsDataURL(blob);
+    this._previewPhotoEl.src = base64;
+    const clone = this._previewPhotoEl.cloneNode(true);
+    clone.classList.remove(&apos;preview-photo&apos;);
+    clone.classList.add(&apos;image-previews-image&apos;);
+    clone.onclick = ({ path }) =&gt; {
+      this._previewPhotoEl.onload = async () =&gt; {
+        // Classify the image.
+        // let response = await fetch(`${predictImage}?image=${}`);
+
+      };
+      this._previewPhotoEl.src = path[0].src;
+      this.classList.add(&apos;has-close&apos;);
+    };
+    this.shadowRoot.querySelector(&apos;.image-previews&apos;).appendChild(clone);
+    deviceApi.camera.preview(this._previewEl, this._facingMode);
+    this._previewPhotoEl.src = &apos;&apos;;
+
+    // const url = new URL(`http://localhost:3000/predictImage`);
+    // // params = {lat:35.696233, long:139.570431}
+    // let response = await fetch(url, {method: &apos;POST&apos;, body: JSON.stringify({image: base64}), headers: {&apos;Content-Type&apos;: &apos;application/json&apos;}});
+    // console.log(response);
+
+
+    // console.log(&apos;Predictions: &apos;);
+    // console.log(predicti/ons);
+    // for (const { className, probability } of predictions) {
+    //   const el = document.createElement(&apos;span&apos;);
+    //   el.classList.add(&apos;selectable&apos;);
+    //   el.innerHTML = className;
+    //   this.shadowRoot.querySelector(&apos;selectable-input[name=&quot;name&quot;]&apos;).add(el);
+    // }
+  }
+
+  async submit() {
+    const value = {};
+    const inputs = [
+      ...Array.from(this.shadowRoot.querySelectorAll(&apos;custom-input&apos;)),
+      ...Array.from(this.shadowRoot.querySelectorAll(&apos;selectable-input&apos;))
+    ];
+    inputs.forEach((input) =&gt; value[input.getAttribute(&apos;name&apos;)] = input.value);
+    let image = Array.from(this.shadowRoot.querySelector(&apos;.image-previews&apos;).children);
+    image = image.map((img) =&gt; img.src.split(&apos;,&apos;)[1]);
+    const body = JSON.stringify({
+      image,
+      ...value,
+      public: false
+    });
+    const url = `${window.functionsRoot}/api/product`;
+    const options = {
+      method: &apos;POST&apos;,
+      body,
+      mode: &apos;cors&apos;,
+      headers: { &apos;Content-Type&apos;: &apos;application/json&apos; }
+    };
+    await fetch(url, options)
+    adminGo(&apos;products&apos;);
+  }
+
+  get template() {
+    return html`
+&lt;style&gt;
+  :host {
+    apply(--css-column)
+  }
+  .preview-container {
+    position: relative;
+    display: flex;
+    overflow: hidden;
+    align-items: flex-end;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+
+    --svg-icon-size: 48px;
+    --svg-icon-color: #eee;
+  }
+
+  video, img {
+    position: absolute;
+    height: 100%;
+    pointer-events: none;
+  }
+  [icon=&quot;camera-front&quot;], [icon=&quot;camera-rear&quot;] {
+    --svg-icon-size: 32px;
+  }
+  [icon=&quot;camera-front&quot;].custom-selected, [icon=&quot;camera-rear&quot;].custom-selected {
+    --svg-icon-color: #9e9e9e;
+  }
+  .camera-bar {
+    align-items: flex-center;
+  }
+  .image-previews {
+    display: flex;
+    flex-direction: row;
+    height: 128px;
+    align-items: center;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .image-previews img {
+    height: 120px;
+    width: 120px;
+    pointer-events: auto;
+  }
+
+  .preview-photo {
+    pointer-events: none;
+  }
+
+  custom-svg-icon.close {
+    opacity: 0;
+    top: 10px;
+    position: absolute;
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  :host(.has-close) .preview-photo {
+    pointer-events: auto;
+  }
+
+  :host(.has-close) custom-svg-icon.close {
+    opacity: 1;
+  }
+
+  .selectable {
+    mixin(--css-row)
+  }
+
+  apply(--css-row)
+  @media (min-width: 720px) {
+    .preview-container {
+      height: calc(100% / 3);
+    }
+  }
+&lt;/style&gt;
+&lt;custom-container class=&quot;container&quot;&gt;
+  &lt;span class=&quot;preview-container&quot;&gt;
+    &lt;video class=&quot;preview&quot; autoplay&gt;&lt;/video&gt;
+    &lt;custom-svg-icon icon=&quot;close&quot; class=&quot;close&quot;&gt;&lt;/custom-svg-icon&gt;
+    &lt;img class=&quot;preview-photo&quot;&gt;&lt;/img&gt;
+    &lt;span class=&quot;row camera-bar&quot;&gt;
+      &lt;custom-svg-icon icon=&quot;camera-front&quot; class=&quot;custom-selected&quot; name=&quot;front&quot;&gt;&lt;/custom-svg-icon&gt;
+      &lt;top-button class=&quot;camera&quot;&gt;
+        &lt;custom-svg-icon icon=&quot;photo-camera&quot;&gt;&lt;/custom-svg-icon&gt;
+      &lt;/top-button&gt;
+      &lt;custom-svg-icon icon=&quot;camera-rear&quot; name=&quot;rear&quot;&gt;&lt;/custom-svg-icon&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  &lt;span class=&quot;image-previews&quot;&gt;
+
+  &lt;/span&gt;
+  &lt;selectable-input name=&quot;name&quot; placeholder=&quot;naam&quot;&gt;&lt;/selectable-input&gt;
+  &lt;!-- &lt;custom-input name=&quot;name&quot; placeholder=&quot;naam&quot;&gt;&lt;/custom-input&gt; --&gt;
+  &lt;custom-input name=&quot;description&quot; placeholder=&quot;beschrijving&quot;&gt;&lt;/custom-input&gt;
+  &lt;custom-input name=&quot;portion&quot; placeholder=&quot;portie&quot;&gt;&lt;/custom-input&gt;
+  &lt;h4&gt;aantal in stock&lt;/h4&gt;
+  &lt;custom-input type=&quot;number&quot; name=&quot;stockCount&quot; value=&quot;0&quot;&gt;&lt;/custom-input&gt;
+
+  &lt;span class=&quot;row&quot;&gt;
+    &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+    &lt;custom-svg-icon icon=&quot;done&quot;&gt;&lt;/custom-svg-icon&gt;
+  &lt;/span&gt;
+&lt;/custom-container&gt;
+    `;
+  }
+});
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

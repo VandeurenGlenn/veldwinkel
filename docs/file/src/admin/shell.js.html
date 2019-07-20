@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/admin/shell.js | veldwinkel</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/vandeurenglenn/veldwinkel"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/base.js~ElementBase.html">ElementBase</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb-manager.js~OADBManager.html">OADBManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb.js~OADB.html">OADB</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#admin">admin</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/admin/product-editor-mixin.js~ProductEditorMixin.html">ProductEditorMixin</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-compose">compose</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-displayModal">displayModal</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-offerModal">offerModal</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/admin/shell.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import { define, ElementBase } from &apos;./../base.js&apos;;
+import &apos;./../../node_modules/custom-svg-icon/src/custom-svg-icon.js&apos;;
+import &apos;./../../node_modules/custom-pages/src/custom-pages.js&apos;;
+import &apos;./../../node_modules/custom-tabs/src/custom-tabs.js&apos;;
+import &apos;./../../node_modules/custom-tabs/src/custom-tab.js&apos;;
+import &apos;./../../node_modules/custom-selector/src/index.js&apos;;
+import &apos;./../../node_modules/custom-drawer/custom-drawer.js&apos;;
+import &apos;./../translator.js&apos;;
+import &apos;./../translated-string.js&apos;;
+import OADBManager from &apos;./../oadb-manager.js&apos;;
+// import &apos;./top-products.js&apos;;
+// import &apos;./top-orders.js&apos;;
+// import &apos;./input-fields.js&apos;;
+
+
+
+export default define(class AdminShell extends ElementBase {
+  get pages() {
+    return this.querySelector(&apos;custom-pages&apos;);
+  }
+  get selector() {
+    return this.shadowRoot.querySelector(&apos;custom-selector&apos;);
+  }
+  get drawer() {
+    return this.shadowRoot.querySelector(&apos;custom-drawer&apos;);
+  }
+  get translatedTitle() {
+    return this.shadowRoot.querySelector(&apos;translated-string[name=&quot;title&quot;]&apos;);
+  }
+  set drawerOpened(value) {
+    if (value) this.setAttribute(&apos;drawer-opened&apos;, &apos;&apos;);
+    else this.removeAttribute(&apos;drawer-opened&apos;);
+  }
+  get drawerOpened() {
+    return this.hasAttribute(&apos;drawer-opened&apos;);
+  }
+
+  get menuIcon() {
+    return this.shadowRoot.querySelector(&apos;.menu&apos;);
+  }
+  constructor() {
+    super();
+    this._selectorChange = this._selectorChange.bind(this);
+    this._menuClick = this._menuClick.bind(this);
+    this._onPopstate = this._onPopstate.bind(this);
+    this.drawerOpened = false;
+    
+    window.onpopstate = this._onPopstate
+    window.topstore = window.topstore || {};
+    window.topstore.databases = window.topstore.databases || new OADBManager();
+    window.topstore.upgrade = async (target) =&gt; {
+      const url = &apos;http://localhost:5000/topveldwinkel/us-central1/api/add/offer&apos;;
+
+      let offers = await firebase.database().ref(&apos;offers&apos;).once(&apos;value&apos;);
+      offers = offers.val();
+      for (const o of Object.keys(offers)) {
+        let value = await firebase.database().ref(`offerDisplay/${o}`).once(&apos;value&apos;);
+        value = value.val();
+        const body = JSON.stringify({...value, ...offers[o]});
+
+        const options = {
+          method: &apos;POST&apos;,
+          body,
+          mode: &apos;cors&apos;,
+          headers: { &apos;Content-Type&apos;: &apos;application/json&apos; }
+        };
+        await fetch(url, options)
+      }
+
+    }
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    if (matchMedia(&apos;(min-width: 720px)&apos;).matches) this.drawerOpened = true;
+    document.addEventListener(&apos;mouseup&apos;, () =&gt; {
+      if (matchMedia(&apos;(max-width: 641px)&apos;).matches &amp;&amp; this.drawerOpened) this.drawerOpened = false;
+    });
+    this.translatedTitle.value = this.selector.selected;
+    this.selector.addEventListener(&apos;selected&apos;, this._selectorChange);
+    this.menuIcon.addEventListener(&apos;click&apos;, this._menuClick);
+    this.selector.selected = &apos;orders&apos;;
+    this._selectorChange();
+    this._preload()
+  }
+
+  async _preload() {
+    console.log(&apos;loaded&apos;);
+    try {
+      // window.exports = {};
+      // await importScript(&apos;https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.1&apos;);
+      // await importScript(&apos;https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@1.0.0&apos;);
+      // window.model = await mobilenet.load()
+
+      // await window.model
+    } catch (e) {
+      console.log(e);
+    } finally {
+
+    }
+  }
+
+  _onPopstate() {
+    console.log(&apos;pop&apos;);
+    if (history.state) this.selector.select(history.state.selected);
+    this._selectorChange();
+  }
+
+  _menuClick() {
+    this.drawerOpened = !this.drawerOpened;
+  }
+
+  async _selectorChange() {
+    const selected = this.selector.selected;
+    if (selected) {
+      if (selected === &apos;products&apos;) await import(&apos;./top-products.js&apos;);
+      if (selected === &apos;sheet&apos;) await import(&apos;./top-sheet.js&apos;);
+      if (selected === &apos;offers&apos;) await import(&apos;./top-offers.js&apos;);
+      if (selected === &apos;orders&apos;) await import(&apos;./top-orders.js&apos;);
+      if (selected === &apos;collections&apos;) await import(&apos;./top-collections.js&apos;);
+      this.translatedTitle.value = selected;
+      this.pages.select(selected);
+      history.pushState({selected}, selected, `#${selected}`);
+    }
+  }
+
+  get template() {
+    return html`
+    &lt;style&gt;
+      :host {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
+      custom-drawer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        transform: translateX(-105%);
+      }
+      ::slotted(custom-pages) {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        top: 0;
+        top: 56px;
+        left: 0;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        height: 56px;
+        background: transparent;
+        position: absolute;
+        right: 0;
+        width: 100%;
+      }
+      custom-drawer header {
+        position: relative;
+        justify-content: center;
+      }
+      :host([drawer-opened]) custom-drawer {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      header h3 {
+        margin: 0;
+        color: #616161;
+        font-size: 20px;
+      }
+      custom-drawer .selection {
+        height: 56px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        box-sizing: border-box;
+        padding: 12px;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+      custom-drawer .custom-selected {
+        background: #eee;
+      }
+      custom-drawer custom-svg-icon {
+        pointer-events: none;
+      }
+      custom-drawer {
+        position: fixed;
+        z-index: 100;
+      }
+      .flex {
+        flex: 1;
+      }
+
+      custom-selector {
+        height: 100%;
+      }
+      section {
+        display: flex;
+        flex-direction: column;
+      }
+      .container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+      }
+      @media (min-width: 720px) {
+        section {
+          align-items: center;
+          justify-content: center;
+        }
+        .container {
+          max-width: 640px;
+        }
+        custom-drawer {
+          position: absolute;
+        }
+        :host([drawer-opened]) ::slotted(custom-pages) {
+          left: var(--custom-drawer-width);
+          width: calc(100% - 256px);
+        }
+        :host([drawer-opened]) .main {
+          left: var(--custom-drawer-width);
+          width: calc(100% - 256px) !important;
+        }
+      }
+    &lt;/style&gt;
+
+    &lt;header class=&quot;main&quot;&gt;
+
+      &lt;custom-svg-icon icon=&quot;menu&quot; class=&quot;menu&quot;&gt;&lt;/custom-svg-icon&gt;
+      &lt;translated-string name=&quot;title&quot;&gt;&lt;/translated-string&gt;
+    &lt;/header&gt;
+
+    &lt;custom-drawer&gt;
+      &lt;header slot=&quot;header&quot;&gt;
+        &lt;h3&gt;Guldentop veldwinkel&lt;/h3&gt;
+      &lt;/header&gt;
+      &lt;custom-selector slot=&quot;content&quot; attr-for-selected=&quot;data-route&quot; selected=&quot;&quot;&gt;
+
+        &lt;span class=&quot;row selection&quot; data-route=&quot;orders&quot; &gt;
+          &lt;custom-svg-icon icon=&quot;menu&quot;&gt;&lt;/custom-svg-icon&gt;
+          &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+          bestellingen
+        &lt;/span&gt;
+
+        &lt;span class=&quot;row selection&quot; data-route=&quot;collections&quot; &gt;
+          &lt;custom-svg-icon icon=&quot;menu&quot;&gt;&lt;/custom-svg-icon&gt;
+          &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+          &lt;translated-string&gt;collections&lt;/translated-string&gt;
+        &lt;/span&gt;
+
+        &lt;span class=&quot;row selection&quot; data-route=&quot;offers&quot; &gt;
+          &lt;custom-svg-icon icon=&quot;info&quot;&gt;&lt;/custom-svg-icon&gt;
+          &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+          aanbiedingen
+        &lt;/span&gt;
+
+        &lt;span class=&quot;row selection&quot; data-route=&quot;products&quot; &gt;
+          &lt;custom-svg-icon icon=&quot;shopping-cart&quot;&gt;&lt;/custom-svg-icon&gt;
+          &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+          producten
+        &lt;/span&gt;
+
+        &lt;span class=&quot;row selection&quot; data-route=&quot;sheet&quot; &gt;
+          &lt;custom-svg-icon icon=&quot;info&quot;&gt;&lt;/custom-svg-icon&gt;
+          &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+          sheet
+        &lt;/span&gt;
+
+        &lt;span class=&quot;flex&quot; style=&quot;pointer-events: none;&quot;&gt;&lt;/span&gt;
+
+        &lt;span class=&quot;row selection&quot; data-route=&quot;info&quot; &gt;
+          &lt;custom-svg-icon icon=&quot;info&quot;&gt;&lt;/custom-svg-icon&gt;
+          &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+          info
+        &lt;/span&gt;
+
+      &lt;/custom-selector&gt;
+    &lt;/custom-drawer&gt;
+    &lt;slot&gt;&lt;/slot&gt;
+    `
+  }
+});
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

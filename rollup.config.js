@@ -1,5 +1,6 @@
 import { terser } from 'rollup-plugin-terser';
 import json from 'rollup-plugin-json';
+import cjs from 'rollup-plugin-commonjs';
 import { execSync } from 'child_process';
 import { mkdirSync, writeFileSync, readFileSync } from 'fs';
 
@@ -94,6 +95,7 @@ export default [{
   },
   plugins: [
     json(),
+    cjs(),
     terser({ keep_classnames: true })
   ]
 }];

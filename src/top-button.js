@@ -15,6 +15,8 @@ export default define(class TopButton extends ElementBase {
         align-items: center;
         height: var(--top-button-height);
         user-select: none;
+        pointer-events: auto;
+        cursor: pointer;
       }
       button {
         display: flex;
@@ -29,6 +31,8 @@ export default define(class TopButton extends ElementBase {
         cursor: pointer;
         border: var(--top-button-border, inherit);
         pointer-events: none;
+        cursor: pointer;
+        text-transform: uppercase;
       }
       custom-svg-icon {
         padding-right: 10px;

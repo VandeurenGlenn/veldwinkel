@@ -42,10 +42,12 @@ export default define(class AdminShell extends ElementBase {
     super();
     this._selectorChange = this._selectorChange.bind(this);
     this._menuClick = this._menuClick.bind(this);
+    this._onPopstate = this._onPopstate.bind(this);
     this.drawerOpened = false;
-
+    
+    window.onpopstate = this._onPopstate
     window.topstore = window.topstore || {};
-    window.topstore.databases = window.topstore.databases || new OADBManager();
+    window.topstore.databases = window.topstore.databases || new OADBManager(false);
     window.topstore.upgrade = async (target) => {
       const url = 'http://localhost:5000/topveldwinkel/us-central1/api/add/offer';
 
@@ -70,8 +72,8 @@ export default define(class AdminShell extends ElementBase {
   connectedCallback() {
     super.connectedCallback();
     if (matchMedia('(min-width: 720px)').matches) this.drawerOpened = true;
-    document.addEventListener('mouseup', () => {
-      if (matchMedia('(max-width: 641px)').matches && this.drawerOpened) this.drawerOpened = false;
+    document.addEventListener('mouseup', e => {
+      if (matchMedia('(max-width: 641px)').matches && this.drawerOpened && !e.path[0].hasAttribute('subber')) this.drawerOpened = false;
     });
     this.translatedTitle.value = this.selector.selected;
     this.selector.addEventListener('selected', this._selectorChange);
@@ -98,7 +100,8 @@ export default define(class AdminShell extends ElementBase {
   }
 
   _onPopstate() {
-    if (history.state) this.selector.selected = history.state.selected;
+    console.log('pop');
+    if (history.state) this.selector.select(history.state.selected);
     this._selectorChange();
   }
 
@@ -114,9 +117,26 @@ export default define(class AdminShell extends ElementBase {
       if (selected === 'offers') await import('./top-offers.js');
       if (selected === 'orders') await import('./top-orders.js');
       if (selected === 'collections') await import('./top-collections.js');
-      this.translatedTitle.value = selected;
-      this.pages.select(selected);
-      history.pushState({selected}, selected, `#${selected}`);
+      if (selected === 'categories') await import('./top-categories.js');
+      if (selected === 'catalog') {
+        let items = Array.from(this.shadowRoot.querySelectorAll('[menu-item="catalog"]'))
+        items = [ ...items, this.shadowRoot.querySelector('[data-route="catalog"]')]
+        if (items[0].hasAttribute('shown')) {
+          for (const item of items) {
+            item.removeAttribute('shown')
+          }
+        } else {
+          for (const item of items) {
+            item.setAttribute('shown', '')
+          }
+        }
+      }
+      if (selected !== 'catalog') {
+        this.translatedTitle.value = selected;
+        this.pages.select(selected);
+        history.pushState({selected}, selected, `#${selected}`);  
+      }
+      
     }
   }
 
@@ -203,6 +223,19 @@ export default define(class AdminShell extends ElementBase {
         flex-direction: column;
         width: 100%;
       }
+      [menu-item] {
+        transform: scale(0);
+        height: 0px !important;
+        padding: 0 !important;
+      }
+      [menu-item][shown] {
+        height: auto !important;
+        padding: 12px 12px 12px 36px !important;
+        transform: scale(1);
+      }
+      [data-route="catalog"][shown] custom-svg-icon {
+        transform: rotate(90deg)
+      }
       @media (min-width: 720px) {
         section {
           align-items: center;
@@ -238,34 +271,40 @@ export default define(class AdminShell extends ElementBase {
       <custom-selector slot="content" attr-for-selected="data-route" selected="">
 
         <span class="row selection" data-route="orders" >
-          <custom-svg-icon icon="menu"></custom-svg-icon>
-          <span class="flex"></span>
+          
+          
           bestellingen
         </span>
-
+        
         <span class="row selection" data-route="collections" >
-          <custom-svg-icon icon="menu"></custom-svg-icon>
-          <span class="flex"></span>
+          
+          
           <translated-string>collections</translated-string>
         </span>
-
-        <span class="row selection" data-route="offers" >
-          <custom-svg-icon icon="info"></custom-svg-icon>
-          <span class="flex"></span>
+                
+        <span class="row selection" data-route="catalog" subber>
+          <custom-svg-icon icon="chevron-right"></custom-svg-icon>
+          
+          <translated-string>catalog</translated-string>
+        </span>
+        
+        <span class="row selection" data-route="categories" menu-item="catalog">          
+          categories
+        </span>
+        
+        <span class="row selection" data-route="offers"  menu-item="catalog">          
           aanbiedingen
         </span>
 
-        <span class="row selection" data-route="products" >
-          <custom-svg-icon icon="shopping-cart"></custom-svg-icon>
-          <span class="flex"></span>
+        <span class="row selection" data-route="products" menu-item="catalog">
           producten
         </span>
 
-        <span class="row selection" data-route="sheet" >
+        <!-- <span class="row selection" data-route="sheet" >
           <custom-svg-icon icon="info"></custom-svg-icon>
           <span class="flex"></span>
           sheet
-        </span>
+        </span> -->
 
         <span class="flex" style="pointer-events: none;"></span>
 

@@ -11,6 +11,9 @@ import './../translated-tab.js';
 import './../translated-string.js';
 import './../translator.js';
 import OADBManager from './../oadb-manager.js';
+import './../../../custom-shop-cart/src/custom-shop-cart.js';
+import './../custom-fab.js';
+import './../shop-cart-action.js';
 
 export default define(class AppShell extends ElementBase {
   get pages() {
@@ -94,9 +97,10 @@ export default define(class AppShell extends ElementBase {
     })();
   }
   
-  _onResize() {
+  _onResize() {    
+    const {height, width} = this.pages.getClientRects()[0];
+    if (width > 720 && !this.drawerOpened) this.drawerOpened = true;
     requestAnimationFrame(() => {
-      const {height, width} = this.pages.getClientRects()[0];
       if (this.drawerOpened) this.map.width = width - 256;
       else this.map.width = width;
       
@@ -112,16 +116,44 @@ export default define(class AppShell extends ElementBase {
   _menuClick() {
     this.drawerOpened = !this.drawerOpened;
   }
+  
+  hideShopCartAction() {
+    this.shadowRoot.querySelector('shop-cart-action').classList.add('hide');
+    this.pages.style.bottom = 0;
+  }
+  
+  showShopCartAction() {
+    this.shadowRoot.querySelector('shop-cart-action').classList.remove('hide');
+    this.pages.style.bottom = '56px';
+  }
 
   async _selectorChange() {
     const selected = this.selector.selected;
     if (selected) {
-      if (selected === 'quick-order') await import('./top-client-order');
-      if (selected === 'stock') await import('./item-list');
-      if (selected === 'orders') await import('./order-list');
-      if (selected === 'order') await import('./client-order');
-      if (selected === 'products') await import('./client-products');
-      if (selected === 'product') await import('./client-product');
+      if (selected === 'quick-order') {
+        this.hideShopCartAction();
+        await import('./top-client-order');
+      }
+      if (selected === 'orders') {
+        this.hideShopCartAction()
+        await import('./order-list');
+      }
+      if (selected === 'stock') {
+        this.hideShopCartAction()
+        await import('./item-list');
+      }
+      if (selected === 'order') {
+        this.hideShopCartAction()
+        await import('./client-order');
+      }
+      if (selected === 'products') {
+        this.showShopCartAction();
+        await import('./client-products');
+      }
+      if (selected === 'product') {
+        this.showShopCartAction();
+        await import('./client-product');
+      }
       if (selected === 'directions') {
         this.selector.select(this.selector.previousSelected);
         window.open('https://www.google.com/maps/dir//50.9804131,4.7489457/@50.980413,4.748946,17z?hl=en-GB')
@@ -153,7 +185,7 @@ export default define(class AppShell extends ElementBase {
   custom-pages {
     position: absolute;
     right: 0;
-    bottom: 0;
+    bottom: 56px;
     top: 56px;
     left: 0;
   }
@@ -214,7 +246,20 @@ export default define(class AppShell extends ElementBase {
     flex-direction: column;
     width: 100%;
   }
-  @media (min-width: 720px) {
+  shop-cart-action {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+  }
+  .hide {
+    
+    height: 0;
+    overflow: hidden;
+    width: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+  @media (min-device-width: 720px) {
     section {
       align-items: center;
       justify-content: center;
@@ -225,13 +270,11 @@ export default define(class AppShell extends ElementBase {
     custom-drawer {
       position: absolute;
     }
-    :host([drawer-opened]) custom-pages {
+    :host([drawer-opened]) custom-pages,
+    :host([drawer-opened]) ::slotted(header),
+    :host([drawer-opened]) gesture-action-bar {
       left: var(--custom-drawer-width);
       width: calc(100% - 256px);
-    }
-    :host([drawer-opened]) ::slotted(header) {
-      left: var(--custom-drawer-width);
-      width: calc(100% - 256px) !important;
     }
   }
 </style>
@@ -291,6 +334,7 @@ export default define(class AppShell extends ElementBase {
   </custom-selector>
 </custom-drawer>
 <custom-pages attr-for-selected="route">
+  <custom-shop-cart route="cart"></custom-shop-cart>
   <top-client-order route="quick-order"></top-client-order>
   <client-products route="products"></client-products>
   <client-product route="product"></client-product>
@@ -300,6 +344,9 @@ export default define(class AppShell extends ElementBase {
   <section route="info">
       <iframe width="600" height="500" src="https://maps.google.com/maps?q=guldentopveldwinkel&t=&z=17&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
   </section>
-</custom-pages>`;
+</custom-pages>
+<shop-cart-action>
+  <top-icon-button slot="fab" icon="shopping-cart">shoplist</top-icon-button>
+</shop-cart-action>`;
   }
 })

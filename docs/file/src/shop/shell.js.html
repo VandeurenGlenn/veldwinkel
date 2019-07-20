@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/shop/shell.js | veldwinkel</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/vandeurenglenn/veldwinkel"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/base.js~ElementBase.html">ElementBase</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb-manager.js~OADBManager.html">OADBManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb.js~OADB.html">OADB</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#admin">admin</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/admin/product-editor-mixin.js~ProductEditorMixin.html">ProductEditorMixin</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-compose">compose</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-displayModal">displayModal</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-offerModal">offerModal</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/shop/shell.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import { define, ElementBase } from &apos;./../base.js&apos;;
+import &apos;./../../node_modules/custom-pages/src/custom-pages.js&apos;;
+import &apos;./../../node_modules/custom-selector/src/index.js&apos;;
+import &apos;./../../node_modules/custom-svg-icon/src/custom-svg-icon.js&apos;;
+import &apos;./../../node_modules/custom-tabs/src/custom-tabs.js&apos;;
+import &apos;./../../node_modules/custom-drawer/custom-drawer.js&apos;;
+import &apos;./../custom-container.js&apos;;
+import &apos;./../top-icon-button.js&apos;;
+import &apos;./../top-button.js&apos;;
+import &apos;./../translated-tab.js&apos;;
+import &apos;./../translated-string.js&apos;;
+import &apos;./../translator.js&apos;;
+import OADBManager from &apos;./../oadb-manager.js&apos;;
+import &apos;./../../../custom-shop-cart/src/custom-shop-cart.js&apos;;
+import &apos;./../custom-fab.js&apos;;
+import &apos;./../shop-cart-action.js&apos;;
+
+export default define(class AppShell extends ElementBase {
+  get pages() {
+    return this.shadowRoot.querySelector(&apos;custom-pages&apos;);
+  }
+  get map() {
+    return this.shadowRoot.querySelector(&apos;iframe&apos;);
+  }
+  get selector() {
+    return this.shadowRoot.querySelector(&apos;custom-selector&apos;);
+  }
+  get drawer() {
+    return this.shadowRoot.querySelector(&apos;custom-drawer&apos;);
+  }
+  get translatedTitle() {
+    return this.querySelector(&apos;translated-string&apos;);
+  }
+  set drawerOpened(value) {
+    if (value) {
+      this.setAttribute(&apos;drawer-opened&apos;, &apos;&apos;);
+      this.map.width -= 256;
+    }
+    else this.removeAttribute(&apos;drawer-opened&apos;);
+  }
+  get drawerOpened() {
+    return this.hasAttribute(&apos;drawer-opened&apos;);
+  }
+  constructor() {
+    super();
+    this._selectorChange = this._selectorChange.bind(this);
+    this._menuClick = this._menuClick.bind(this);
+    this._onPopstate = this._onPopstate.bind(this);
+    window.onpopstate = this._onPopstate;
+    this.drawerOpened = false;
+    window.topstore = window.topstore || {};
+    window.topstore.databases = window.topstore.databases || new OADBManager();
+    this._onResize = this._onResize.bind(this)
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    this.selector.addEventListener(&apos;selected&apos;, this._selectorChange);
+    window.addEventListener(&apos;resize&apos;, this._onResize);
+    this.querySelector(&apos;custom-svg-icon[icon=&quot;menu&quot;]&apos;).addEventListener(&apos;click&apos;, this._menuClick);
+    (async () =&gt; {
+      if (window.location.hash) {
+        console.log(window.location.hash);
+        let route = window.location.hash.split(&apos;#&apos;);
+        route = route[1].split(&apos;?=&apos;);
+        this.selector.select(route[0]);
+        console.log(route);
+        await this._selectorChange();
+        if (route[1]) {
+          this.shadowRoot.querySelector(`[route=&quot;${route[0]}&quot;]`).value = route[1]
+        }
+      } else {
+        this.selector.select(&apos;quick-order&apos;);
+        await this._selectorChange();
+      }
+      this.translatedTitle.value = this.selector.selected;
+      const loginButton = this.querySelector(&apos;.login-button&apos;);
+      
+      this._onResize();
+      firebase.auth().onAuthStateChanged(async user =&gt; {
+        if (user) {
+          window.ref = firebase.database().ref(`${user.uid}`);
+          window.user = user;
+          if (user.photoURL) {
+            loginButton.innerHTML = `&lt;img src=&quot;${user.photoURL}&quot;&gt;&lt;/img&gt;`;
+          }
+          // else localDevices = [&apos;light&apos;];
+        } else {
+          loginButton.innerHTML = `&lt;img style=&quot;margin-right: 8px;&quot;&gt;&lt;/img&gt;login`;
+
+          loginButton.addEventListener(&apos;click&apos;, async () =&gt; {
+            window.signin()
+              // firebase.auth()
+
+          });
+        }
+      });
+    })();
+  }
+  
+  _onResize() {    
+    const {height, width} = this.pages.getClientRects()[0];
+    if (width &gt; 720 &amp;&amp; !this.drawerOpened) this.drawerOpened = true;
+    requestAnimationFrame(() =&gt; {
+      if (this.drawerOpened) this.map.width = width - 256;
+      else this.map.width = width;
+      
+      this.map.height = height;
+    })
+  }
+
+  _onPopstate() {
+    if (history.state) this.selector.selected = history.state.selected;
+    this._selectorChange();
+  }
+
+  _menuClick() {
+    this.drawerOpened = !this.drawerOpened;
+  }
+  
+  hideShopCartAction() {
+    this.shadowRoot.querySelector(&apos;shop-cart-action&apos;).classList.add(&apos;hide&apos;);
+    this.pages.style.bottom = 0;
+  }
+  
+  showShopCartAction() {
+    this.shadowRoot.querySelector(&apos;shop-cart-action&apos;).classList.remove(&apos;hide&apos;);
+    this.pages.style.bottom = &apos;56px&apos;;
+  }
+
+  async _selectorChange() {
+    const selected = this.selector.selected;
+    if (selected) {
+      if (selected === &apos;quick-order&apos;) {
+        this.hideShopCartAction();
+        await import(&apos;./top-client-order&apos;);
+      }
+      if (selected === &apos;orders&apos;) {
+        this.hideShopCartAction()
+        await import(&apos;./order-list&apos;);
+      }
+      if (selected === &apos;stock&apos;) {
+        this.hideShopCartAction()
+        await import(&apos;./item-list&apos;);
+      }
+      if (selected === &apos;order&apos;) {
+        this.hideShopCartAction()
+        await import(&apos;./client-order&apos;);
+      }
+      if (selected === &apos;products&apos;) {
+        this.showShopCartAction();
+        await import(&apos;./client-products&apos;);
+      }
+      if (selected === &apos;product&apos;) {
+        this.showShopCartAction();
+        await import(&apos;./client-product&apos;);
+      }
+      if (selected === &apos;directions&apos;) {
+        this.selector.select(this.selector.previousSelected);
+        window.open(&apos;https://www.google.com/maps/dir//50.9804131,4.7489457/@50.980413,4.748946,17z?hl=en-GB&apos;)
+        return;
+      }
+      this.translatedTitle.value = selected;
+      this.pages.select(selected);
+      history.pushState({selected}, selected, `#${selected}`);
+    }
+    return
+  }
+  get template() {
+    return html`
+&lt;style&gt;
+  :host {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  custom-drawer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    transform: translateX(-105%);
+  }
+  custom-pages {
+    position: absolute;
+    right: 0;
+    bottom: 56px;
+    top: 56px;
+    left: 0;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 56px;
+    background: transparent;
+  }
+  ::slotted(header) {
+    position: absolute;
+    right: 0;
+  }
+  :host([drawer-opened]) custom-drawer {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  header h3 {
+    margin: 0;
+    color: #616161;
+    font-size: 20px;
+  }
+  custom-drawer .selection {
+    height: 56px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 12px;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  custom-drawer .custom-selected {
+    background: #eee;
+  }
+  custom-drawer custom-svg-icon {
+    pointer-events: none;
+  }
+  custom-drawer {
+    position: fixed;
+    z-index: 100;
+  }
+  .flex {
+    flex: 1;
+  }
+
+  custom-selector {
+    height: 100%;
+  }
+  section {
+    display: flex;
+    flex-direction: column;
+  }
+  .container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  shop-cart-action {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+  }
+  .hide {
+    
+    height: 0;
+    overflow: hidden;
+    width: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+  @media (min-device-width: 720px) {
+    section {
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      max-width: 640px;
+    }
+    custom-drawer {
+      position: absolute;
+    }
+    :host([drawer-opened]) custom-pages,
+    :host([drawer-opened]) ::slotted(header),
+    :host([drawer-opened]) gesture-action-bar {
+      left: var(--custom-drawer-width);
+      width: calc(100% - 256px);
+    }
+  }
+&lt;/style&gt;
+
+&lt;slot&gt;&lt;/slot&gt;
+&lt;custom-drawer&gt;
+  &lt;header slot=&quot;header&quot;&gt;
+    &lt;h3&gt;Guldentop veldwinkel&lt;/h3&gt;
+  &lt;/header&gt;
+
+  &lt;custom-selector slot=&quot;content&quot; attr-for-selected=&quot;data-route&quot; selected=&quot;order&quot;&gt;
+
+    &lt;span class=&quot;row selection&quot; data-route=&quot;quick-order&quot; &gt;
+      &lt;custom-svg-icon icon=&quot;shopping-cart&quot;&gt;&lt;/custom-svg-icon&gt;
+      &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+      snelle bestelling
+    &lt;/span&gt;
+
+    &lt;span class=&quot;row selection&quot; data-route=&quot;products&quot; &gt;
+      &lt;custom-svg-icon icon=&quot;shopping-basket&quot;&gt;&lt;/custom-svg-icon&gt;
+      &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+      producten
+    &lt;/span&gt;
+
+    &lt;span class=&quot;row selection&quot; data-route=&quot;stock&quot; &gt;
+      &lt;custom-svg-icon icon=&quot;dashboard&quot;&gt;&lt;/custom-svg-icon&gt;
+      &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+      veld overzicht
+    &lt;/span&gt;
+
+    &lt;span class=&quot;row selection&quot; data-route=&quot;orders&quot; &gt;
+      &lt;custom-svg-icon icon=&quot;orders&quot;&gt;&lt;/custom-svg-icon&gt;
+      &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+      bestellingen
+    &lt;/span&gt;
+
+    &lt;span class=&quot;flex&quot; style=&quot;pointer-events: none;&quot;&gt;&lt;/span&gt;
+
+    &lt;!-- &lt;span class=&quot;row selection&quot; data-route=&quot;about&quot; &gt;
+      &lt;custom-svg-icon icon=&quot;info&quot;&gt;&lt;/custom-svg-icon&gt;
+      &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+      about
+    &lt;/span&gt; --&gt;
+    
+    &lt;span class=&quot;row selection&quot; data-route=&quot;info&quot; &gt;
+      &lt;custom-svg-icon icon=&quot;map&quot;&gt;&lt;/custom-svg-icon&gt;
+      &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;      
+      &lt;translated-string&gt;location information&lt;/translated-string&gt;
+    &lt;/span&gt;
+    
+    &lt;span class=&quot;row selection&quot; data-route=&quot;directions&quot; &gt;
+      &lt;custom-svg-icon icon=&quot;directions&quot;&gt;&lt;/custom-svg-icon&gt;
+      &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+      &lt;translated-string&gt;directions&lt;/translated-string&gt;
+    &lt;/span&gt;
+
+  &lt;/custom-selector&gt;
+&lt;/custom-drawer&gt;
+&lt;custom-pages attr-for-selected=&quot;route&quot;&gt;
+  &lt;custom-shop-cart route=&quot;cart&quot;&gt;&lt;/custom-shop-cart&gt;
+  &lt;top-client-order route=&quot;quick-order&quot;&gt;&lt;/top-client-order&gt;
+  &lt;client-products route=&quot;products&quot;&gt;&lt;/client-products&gt;
+  &lt;client-product route=&quot;product&quot;&gt;&lt;/client-product&gt;
+  &lt;item-list route=&quot;stock&quot; type=&quot;stock&quot;&gt;&lt;/item-list&gt;
+  &lt;order-list route=&quot;orders&quot; type=&quot;orders&quot;&gt;&lt;/order-list&gt;
+  &lt;client-order route=&quot;order&quot; type=&quot;order&quot;&gt;&lt;/client-order&gt;
+  &lt;section route=&quot;info&quot;&gt;
+      &lt;iframe width=&quot;600&quot; height=&quot;500&quot; src=&quot;https://maps.google.com/maps?q=guldentopveldwinkel&amp;t=&amp;z=17&amp;ie=UTF8&amp;iwloc=&amp;output=embed&quot; frameborder=&quot;0&quot; scrolling=&quot;no&quot; marginheight=&quot;0&quot; marginwidth=&quot;0&quot;&gt;&lt;/iframe&gt;
+  &lt;/section&gt;
+&lt;/custom-pages&gt;
+&lt;shop-cart-action&gt;
+  &lt;top-icon-button slot=&quot;fab&quot; icon=&quot;shopping-cart&quot;&gt;shoplist&lt;/top-icon-button&gt;
+&lt;/shop-cart-action&gt;`;
+  }
+})
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

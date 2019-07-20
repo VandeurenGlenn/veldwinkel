@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/admin/top-order.js | veldwinkel</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/vandeurenglenn/veldwinkel"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/base.js~ElementBase.html">ElementBase</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb-manager.js~OADBManager.html">OADBManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb.js~OADB.html">OADB</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#admin">admin</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/admin/product-editor-mixin.js~ProductEditorMixin.html">ProductEditorMixin</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-compose">compose</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-displayModal">displayModal</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-offerModal">offerModal</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/admin/top-order.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import { define, ElementBase } from &apos;./../base.js&apos;;
+
+export default define(class TopOrder extends ElementBase {
+
+  get offerDisplay() {
+    return window.topstore.databases.get(&apos;offerDisplay&apos;);
+  }
+
+  get offers() {
+    return window.topstore.databases.get(&apos;offers&apos;);
+  }
+
+  set value({ user, uid }) {
+    if (user &amp;&amp; uid) {
+      const order = [...orders[user][uid]];
+      const info = order.shift();
+      this.order = order;
+      this.orderLength = order.length;
+      this.user = user;
+      this.uid = uid;
+      const promises = [];
+      (async () =&gt; {
+        for (const item of order) {
+          promises.push((async () =&gt; {
+            const { product, aantal } = item;
+            const { name } = await this.offerDisplay.get(product);
+            return `&lt;span class=&quot;row selection&quot; name=&quot;${product}&quot;&gt;${name}&lt;span class=&quot;flex&quot; style=&quot;pointer-events: none;&quot;&gt;&lt;/span&gt;${aantal}&lt;/span&gt;`
+          })());
+        }
+        const result = await Promise.all(promises);
+        this.innerHTML = `
+        &lt;style&gt;
+          h4 {
+            margin: 0;
+          }
+        &lt;/style&gt;
+        &lt;span class=&quot;row center&quot; slot=&quot;info&quot;&gt;        
+          &lt;h4 class=&quot;name&quot;&gt;&lt;translated-string&gt;name&lt;/translated-string&gt;:&lt;/h4&gt;
+          
+          &lt;p class=&quot;name&quot;&gt;${info.displayName}&lt;/p&gt;           
+        &lt;/span&gt;
+        
+        &lt;span class=&quot;row center&quot; slot=&quot;info&quot;&gt;        
+          &lt;h4 class=&quot;name&quot;&gt;email:&amp;nbsp;&lt;/h4&gt;
+          
+          &lt;p class=&quot;name&quot;&gt;${info.email}&lt;/p&gt;
+        &lt;/span&gt;
+        
+        
+        &lt;span class=&quot;row center&quot; slot=&quot;info&quot;&gt;
+          &lt;h4 class=&quot;name&quot;&gt;&lt;translated-string&gt;collection time&lt;/translated-string&gt;:&lt;/h4&gt;
+          &lt;translated-string&gt;${info.collectionTime}&lt;/translated-string&gt;
+        &lt;/span&gt;
+
+        &lt;custom-selector multi=&quot;true&quot; selected=&quot;[]&quot; attr-for-selected=&quot;name&quot;&gt;
+          ${result.join(&apos; &apos;)}
+        &lt;/custom-selector&gt;
+        `;
+      })()
+    }
+  }
+
+  constructor() {
+    super();
+  }
+  connectedCallback() {
+    if (super.connectedCallback) super.connectedCallback();
+    (async () =&gt; {
+      await import(&apos;./../top-button.js&apos;)
+    })();
+
+    this.addEventListener(&apos;click&apos;, async ({path}) =&gt; {
+      if (path[0].classList.contains(&apos;confirm&apos;)) {
+        const selected = this.querySelector(&apos;custom-selector&apos;).selected;
+        console.log(selected);
+        if (selected.length !== this.orderLength) {
+          const answer = await confirm(`are you sure?\n it seem&apos;s you haven&apos;t selected all products,\n\nIf everyting is in stock press cancel\n\npress confirm if item is out of stock (users will see this in their order list)`)
+
+          if (answer === true) {
+
+            let missing;
+            if (selected.length === 0) missing = this.order;
+            else {
+              missing = [];
+              this.order.map(o =&gt; {
+                if (selected.indexOf(o.product) === -1) missing.push(o.product);
+              })
+            };
+            firebase.database().ref(`orders/${this.user}/${this.uid}/0/missing`).set(missing);
+            firebase.database().ref(`orders/${this.user}/${this.uid}/0/ready`).set(&apos;true&apos;);
+            adminGo(&apos;orders&apos;)
+          }
+        } else {
+          firebase.database().ref(`orders/${this.user}/${this.uid}/0/ready`).set(&apos;true&apos;);
+          adminGo(&apos;orders&apos;)
+        }
+      }
+      if (path[0].classList.contains(&apos;cancel&apos;)) adminGo(&apos;orders&apos;);
+    })
+  }
+  get template() {
+    return html`&lt;style&gt;
+  :host {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+  }
+  ::slotted(*) {
+    user-select: none;
+    pointer-events: none;
+  }
+  .toolbar {
+    mixin(--css-row)
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    box-sizing: border-box;
+    padding: 12px;
+    align-items: center;
+    height: 52px;
+    border-top: 1px solid #0000004f;
+  }
+  .wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  ::slotted(*.row) {
+    mixin(--css-row)
+  }
+  ::slotted(*.center) {
+    mixin(--css-center)
+  }
+  ::slotted(*.flex) {
+    mixin(--css-flex)
+  }
+  ::slotted(* h4) {
+    margin: 0;
+  }
+  ::slotted(*) {
+    padding: 0 24px;
+    box-sizing: border-box;
+  }
+  apply(--css-flex)
+  @media (min-width: 640px) {
+    :host {
+      align-items: center;
+    }
+    .container {
+      align-items: center;
+      justify-content: center;
+      max-width: 640px;
+    }
+    .wrapper {
+      max-height: 640px;
+    }
+  }
+&lt;/style&gt;
+
+&lt;span class=&quot;container&quot;&gt;
+  &lt;slot name=&quot;info&quot;&gt;&lt;/slot&gt;
+  &lt;span class=&quot;wrapper&quot;&gt;
+    &lt;slot style=&quot;pointer-events: none;&quot;&gt;&lt;/slot&gt;
+  &lt;/span&gt;
+&lt;/span&gt;
+
+
+&lt;span class=&quot;toolbar&quot;&gt;
+  &lt;top-button class=&quot;cancel&quot;&gt;cancel&lt;/top-button&gt;
+  &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+  &lt;top-button class=&quot;confirm&quot;&gt;confirm&lt;/top-button&gt;
+&lt;/span&gt;
+`;
+  }
+})
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

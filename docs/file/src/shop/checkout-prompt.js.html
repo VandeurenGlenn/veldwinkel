@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/shop/checkout-prompt.js | veldwinkel</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/vandeurenglenn/veldwinkel"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/base.js~ElementBase.html">ElementBase</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb-manager.js~OADBManager.html">OADBManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb.js~OADB.html">OADB</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#admin">admin</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/admin/product-editor-mixin.js~ProductEditorMixin.html">ProductEditorMixin</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-compose">compose</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-displayModal">displayModal</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-offerModal">offerModal</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/shop/checkout-prompt.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import &apos;./../custom-prompt.js&apos;;
+
+export default define(class CheckoutPrompt extends ElementBase {
+  constructor() {
+    super();
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.dates = this.shadowRoot.querySelectorAll(&apos;custom-selectable-date&apos;);
+    this.selectors = this.shadowRoot.querySelectorAll(&apos;custom-selector&apos;);
+  }
+
+  get prompt() {
+    return this.shadowRoot.querySelector(&apos;custom-prompt&apos;);
+  }
+
+  get template() {
+    return html`
+    &lt;style&gt;
+      :host {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #33333355;
+        z-index: 100;
+      }
+
+      custom-prompt {
+        max-height: 100%;
+        max-width: 100%;
+      }
+      [disabled] {
+        color: #ddd;
+        pointer-events: none;
+      }
+      apply(--css-flex)
+      apply(--css-row)
+      @media (min-width: 720px) {
+        custom-prompt {
+          max-height: 600px;
+          max-width: 600px;
+        }
+      }
+    &lt;/style&gt;
+    &lt;custom-prompt&gt;
+      &lt;h2 slot=&quot;head&quot;&gt;&lt;translated-string&gt;checkout&lt;/translated-string&gt;&lt;/h2&gt;
+      &lt;h3 slot=&quot;subhead&quot;&gt;&lt;translated-string&gt;collection times&lt;/translated-string&gt;&lt;/h3&gt;
+      &lt;custom-selector attr-for-selected=&quot;name&quot; selected=&quot;tuesday&quot;&gt;
+        &lt;custom-selectable-date name=&quot;tuesday&quot;&gt;&lt;/custom-selectable-date&gt;
+        &lt;custom-selectable-date name=&quot;friday&quot;&gt;&lt;/custom-selectable-date&gt;
+      &lt;/custom-selector&gt;
+      &lt;h3&gt;&lt;translated-string&gt;delivery times&lt;/translated-string&gt;&lt;/h3&gt;
+      &lt;custom-selector attr-for-selected=&quot;name&quot; selected=&quot;null&quot;&gt;
+        &lt;custom-selectable-date name=&quot;tuesday&quot; disabled&gt;&lt;/custom-selectable-date&gt;
+        &lt;custom-selectable-date name=&quot;friday&quot; disabled&gt;&lt;/custom-selectable-date&gt;
+      &lt;/custom-selector&gt;
+      &lt;h3&gt;&lt;translated-string&gt;payment&lt;/translated-string&gt;&lt;/h3&gt;
+      &lt;custom-selector attr-for-selected=&quot;name&quot; selected=&quot;cash&quot;&gt;
+        &lt;custom-selectable-item name=&quot;cash&quot;&gt;cash&lt;/custom-selectable-item&gt;
+        &lt;custom-selectable-item title=&quot;coming soon&quot; name=&quot;googlepay&quot; disabled&gt;Google Pay&lt;/custom-selectable-item&gt;
+      &lt;/custom-selector&gt;
+
+      &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+
+      &lt;span class=&quot;row&quot;&gt;
+        &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+        &lt;custom-svg-icon icon=&quot;done&quot;&gt;&lt;/custom-svg-icon&gt;
+      &lt;/span&gt;
+    &lt;/custom-prompt&gt;
+    `;
+  }
+
+  show() {
+    this.dates[0].setAttribute(&apos;lang&apos;, &apos;nl&apos;);
+    this.dates[1].setAttribute(&apos;lang&apos;, &apos;nl&apos;);
+    this.dates[0].setAttribute(&apos;day&apos;, &apos;dinsdag&apos;);
+    this.dates[1].setAttribute(&apos;day&apos;, &apos;vrijdag&apos;);
+    this.dates[0].setAttribute(&apos;open&apos;, &apos;16.00 - 16.30&apos;);
+    this.dates[1].setAttribute(&apos;open&apos;, &apos;17.00 - 18.00&apos;);
+
+    this.dates[2].setAttribute(&apos;lang&apos;, &apos;nl&apos;);
+    this.dates[3].setAttribute(&apos;lang&apos;, &apos;nl&apos;);
+    this.dates[2].setAttribute(&apos;day&apos;, &apos;dinsdag&apos;);
+    this.dates[3].setAttribute(&apos;day&apos;, &apos;vrijdag&apos;);
+    this.dates[2].setAttribute(&apos;open&apos;, &apos;17.00 - 18.00&apos;);
+    this.dates[3].setAttribute(&apos;open&apos;, &apos;18.00 - 19.00&apos;);
+
+    this.prompt.show();
+    return new Promise((resolve, reject) =&gt; {
+      this.shadowRoot.querySelector(&apos;custom-svg-icon&apos;).addEventListener(&apos;click&apos;, () =&gt; {
+        const selected = [];
+        for (const selector of this.selectors) {
+          if (selector.selected !== &apos;null&apos;) selected.push(selector.selected);
+        }
+        resolve(selected);
+        document.body.removeChild(this);
+      });
+    });
+  }
+});
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

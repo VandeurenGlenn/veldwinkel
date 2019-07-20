@@ -17,7 +17,8 @@
     "serve:http": "firebase serve --only hosting --port 5001",
     "serve": "npm-run-parallel serve:http serve:functions",
     "start": "npm-run-parallel serve watch ",
-    "deploy": "npm run build && firebase deploy"
+    "deploy": "npm run build && firebase deploy",
+    "docs": "esdoc"
   },
   "repository": {
     "type": "git",
@@ -32,6 +33,29 @@
     "url": "https://github.com/vandeurenglenn/veldwinkel/issues"
   },
   "homepage": "https://github.com/vandeurenglenn/veldwinkel#readme",
+  "esdoc": {
+    "source": "./src",
+    "destination": "./docs",
+    "plugins": [
+      {
+        "name": "esdoc-standard-plugin"
+      },
+      {
+        "name": "esdoc-ecmascript-proposal-plugin",
+        "option": {
+          "classProperties": true,
+          "objectRestSpread": true,
+          "doExpressions": true,
+          "functionBind": true,
+          "functionSent": true,
+          "asyncGenerators": true,
+          "decorators": true,
+          "exportExtensions": true,
+          "dynamicImport": true
+        }
+      }
+    ]
+  },
   "dependencies": {
     "@tensorflow-models/mobilenet": "^1.0.1",
     "@tensorflow/tfjs": "^1.1.2",
@@ -47,6 +71,7 @@
     "custom-svg-iconset": "^0.9.2",
     "custom-tabs": "^0.11.0",
     "custom-template-if": "^1.0.0",
+    "idb-keyval": "^3.2.0",
     "nodemailer": "^6.2.1",
     "pica": "^5.0.0",
     "raw-body": "^2.4.0",
@@ -54,12 +79,15 @@
   },
   "devDependencies": {
     "acorn-class-fields": "^0.3.1",
+    "esdoc": "^1.1.0",
+    "esdoc-ecmascript-proposal-plugin": "^1.0.0",
+    "esdoc-standard-plugin": "^1.0.0",
     "eslint": "^5.16.0",
     "eslint-config-google": "^0.12.0",
     "eslint-plugin-html": "^5.0.5",
-    "firebase-tools": "^7.1.0",
     "npm-run-parallel": "^0.6.0",
     "rollup": "^1.15.1",
+    "rollup-plugin-commonjs": "^10.0.1",
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-terser": "^4.0.4",
     "sw-precache": "^5.2.1"

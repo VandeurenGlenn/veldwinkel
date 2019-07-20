@@ -29,14 +29,26 @@ export default define(class TopOrder extends ElementBase {
         }
         const result = await Promise.all(promises);
         this.innerHTML = `
-        <span class="row center" slot="info">
-          <h4 class="name">${info.displayName}</h4>
-          <span class="flex"></span>
-          <h4 class="name">${info.email}</h4>
+        <style>
+          h4 {
+            margin: 0;
+          }
+        </style>
+        <span class="row center" slot="info">        
+          <h4 class="name"><translated-string>name</translated-string>:</h4>
+          
+          <p class="name">${info.displayName}</p>           
         </span>
+        
+        <span class="row center" slot="info">        
+          <h4 class="name">email:&nbsp;</h4>
+          
+          <p class="name">${info.email}</p>
+        </span>
+        
+        
         <span class="row center" slot="info">
-          <h4 class="name"><translated-string>collection time</translated-string></h4>
-          <span class="flex"></span>
+          <h4 class="name"><translated-string>collection time</translated-string>:</h4>
           <translated-string>${info.collectionTime}</translated-string>
         </span>
 
@@ -130,6 +142,13 @@ export default define(class TopOrder extends ElementBase {
   ::slotted(*.flex) {
     mixin(--css-flex)
   }
+  ::slotted(* h4) {
+    margin: 0;
+  }
+  ::slotted(*) {
+    padding: 0 24px;
+    box-sizing: border-box;
+  }
   apply(--css-flex)
   @media (min-width: 640px) {
     :host {
@@ -150,13 +169,15 @@ export default define(class TopOrder extends ElementBase {
   <slot name="info"></slot>
   <span class="wrapper">
     <slot style="pointer-events: none;"></slot>
-
-    <span class="toolbar">
-      <top-button class="cancel">cancel</top-button>
-      <span class="flex"></span>
-      <top-button class="confirm">confirm</top-button>
-    </span>
   </span>
-</span>`;
+</span>
+
+
+<span class="toolbar">
+  <top-button class="cancel">cancel</top-button>
+  <span class="flex"></span>
+  <top-button class="confirm">confirm</top-button>
+</span>
+`;
   }
 })

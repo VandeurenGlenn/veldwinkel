@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">src/oadb.js | veldwinkel</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/vandeurenglenn/veldwinkel"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/base.js~ElementBase.html">ElementBase</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb-manager.js~OADBManager.html">OADBManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb.js~OADB.html">OADB</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#admin">admin</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/admin/product-editor-mixin.js~ProductEditorMixin.html">ProductEditorMixin</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-compose">compose</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-displayModal">displayModal</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-offerModal">offerModal</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/oadb.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import * as idb from &apos;./../node_modules/idb-keyval/dist/idb-keyval-cjs&apos;;
+const { Store, set, get, remove, keys } = idb;
+export default class OADB {
+  constructor(ref) {
+    this.sync = this.sync.bind(this);
+    this.name = ref;   
+    window.addEventListener(&apos;online&apos;, function(e) {
+      console.log(&apos;online&apos;);
+      // Re-sync data with server.
+    }, false);
+
+    window.addEventListener(&apos;offline&apos;, function(e) {
+      console.log(&apos;offline&apos;);
+      // Queue up events for server.
+    }, false);
+
+    if (this.isOnline()) {
+      this.init();
+    }
+
+    // listen onlinse
+    // if (!this.ref) this.init()
+    // this.sync()
+  }
+
+  isOnline() {
+    return navigator.onLine;
+  }
+
+  async init() {
+    this.store = await new Store(`odb-${this.name}`, this.name);
+    this.localStore = await new Store(`odb-local-${this.name}`, this.name);
+    this.ref = firebase.database().ref(this.name);
+    
+    
+    await this.sync();
+    this.ref.on(&apos;child_changed&apos;, this.sync);
+  }
+
+  async sync(data) {
+    
+    if (this.ref &amp;&amp; this.isOnline()) {
+      const localKeys = await keys(this.localStore)
+      data = await this.ref.once(&apos;value&apos;);
+      data = data.val();
+      for (const key of Object.keys(data)) {
+        console.log(key);
+        const local = await get(key, this.localStore);
+        console.log({local});
+        if (!local &amp;&amp; data[key].timestamp) {
+          const current = await get(key, this.store);
+          if (!current) await set(key, data[key], this.store);
+          else {
+            if (data[key].timestamp !== current.timestamp) {
+              if (data[key].timestamp &gt; current.timestamp) {
+                await set(key, data[key], this.store)
+              }
+            }              
+          }
+        }  
+        if (local &amp;&amp; local.timestamp &gt; data[key].timestamp) {
+          await firebase.database().ref(`${this.name}/${key}`).set(local);
+          await remove(key, this.localStore);
+        }
+      }
+    }   
+  }
+    
+    
+    // set(&apos;foo&apos;, &apos;bar&apos;, customStore);
+    // await this.localStorage.set(data);
+  
+
+  async set(child, value) {
+    const online = this.isOnline();
+    if (online) {
+      if (child) return firebase.database().ref(`${this.name}/${child}`).set(value);
+      else return firebase.database().ref(`${this.name}`).set(value);
+    }
+    if (!online &amp;&amp; child) {
+      return await set(child, value, this.localStore);
+    }
+    const promises = [];
+    
+    for (const key of Object.keys(value)) {
+      promises.push(set(key, value[key], this.localStore))
+    }
+    return Promise.all(promises);
+  }
+
+  get(child) {
+    return new Promise(async (resolve, reject) =&gt; {
+      const online = this.isOnline();
+      console.log(child);
+      let data;
+      if (child) data = await get(child, this.store);
+      else {
+        const dataKeys = await keys(this.store);
+        if (dataKeys &amp;&amp; dataKeys.length &gt; 0) for (const key of dataKeys) {
+          data[key] = get(key, this.store)
+        }
+      }
+      if (data) resolve(data);
+      if (online &amp;&amp; this.ref) {
+        let snap;
+        if (child) snap = await firebase.database().ref(`${this.name}/${child}`).once(&apos;value&apos;);
+        else snap = await this.ref.once(&apos;value&apos;);
+        snap = snap.val();
+        if (!data &amp;&amp; snap) {
+          resolve(snap);
+          if (child) await set(child, snap, this.store);
+          else {
+            for (const key of Object.keys(snap)) {              
+              await set(key, snap[key], this.store);
+            }
+          }
+        } else if (snap &amp;&amp; data &amp;&amp; data.timestamp &lt; snap.timestamp) {
+            if (child) await set(child, snap, this.store);
+            else {
+              for (const key of Object.keys(snap)) {              
+                await set(key, snap[key], this.store);
+              }
+            }
+            document.dispatchEvent(new CustomEvent(&apos;storage-update&apos;, { detail: { child, snap } }));
+          }
+        }
+      
+      resolve();
+    });
+  }
+}
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

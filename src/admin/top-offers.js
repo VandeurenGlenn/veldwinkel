@@ -27,7 +27,7 @@ export default define(class TopOffers extends ElementBase {
     (async () => {
       await import('./top-offer-item.js')
       window.offerDisplay = await this.offerDisplay.get();
-      if(Object.keys(offerDisplay).length === 0) window.offerDisplay = await this.offerDisplay.get()
+      if(offerDisplay && Object.keys(offerDisplay).length === 0) window.offerDisplay = await this.offerDisplay.get()
       await this.stamp();
     })();
   }
@@ -57,22 +57,25 @@ export default define(class TopOffers extends ElementBase {
     const jobs = [];
     if (!window.offers) window.offers = {}
     if (!window.images) window.images = {}
-    for (const offer of Object.keys(offerDisplay)) {
-      jobs.push((async () => {
-        if (!offers[offer]) offers[offer] = await this.offers.get(offer);
-        if (!images[offer]) images[offer] = await this.images.get(offer);
-
-        let item = this.querySelector(`data-route[offer]`);
-        if (!item) {
-          item = document.createElement('top-offer-item');
-          this.appendChild(item);
-        }
-        item.key = offer;
-        item.value = { ...offerDisplay[offer], ...offers[offer], image: {...images[offer]} };
-
-        item.dataset.route = offer;
-      })())
+    if (offerDisplay) {
+      for (const offer of Object.keys(offerDisplay)) {
+        jobs.push((async () => {
+          if (!offers[offer]) offers[offer] = await this.offers.get(offer);
+          if (!images[offer]) images[offer] = await this.images.get(offer);
+  
+          let item = this.querySelector(`data-route[offer]`);
+          if (!item) {
+            item = document.createElement('top-offer-item');
+            this.appendChild(item);
+          }
+          item.key = offer;
+          item.value = { ...offerDisplay[offer], ...offers[offer], image: {...images[offer]} };
+  
+          item.dataset.route = offer;
+        })())
+      }  
     }
+    
 
     Promise.all(jobs)
   }

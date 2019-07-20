@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/admin/top-collection.js | veldwinkel</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/vandeurenglenn/veldwinkel"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/base.js~ElementBase.html">ElementBase</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb-manager.js~OADBManager.html">OADBManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb.js~OADB.html">OADB</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#admin">admin</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/admin/product-editor-mixin.js~ProductEditorMixin.html">ProductEditorMixin</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-compose">compose</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-displayModal">displayModal</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-offerModal">offerModal</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/admin/top-collection.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import { define, ElementBase } from &apos;./../base.js&apos;;
+
+export default define(class TopCollection extends ElementBase {
+
+  set value({ user, uid }) {
+    console.log(user, {uid});
+    if (user &amp;&amp; uid) {
+      const order = collections[uid];
+      const info = order[0];
+      delete order[0];
+      this.order = order;
+      this.orderLength = order.length;
+      this.user = user;
+      this.uid = uid;
+      console.log({ info });
+      this.innerHTML = `
+      &lt;h4 class=&quot;name&quot; slot=&quot;info&quot;&gt;${info.displayName}&lt;/h4&gt;
+      &lt;h4 class=&quot;name&quot; slot=&quot;info&quot;&gt;${info.email}&lt;/h4&gt;
+        ${order.map(item =&gt; {
+          return `&lt;span class=&quot;row&quot; name=&quot;${item.product}&quot;&gt;${item.product}&lt;span class=&quot;flex&quot; style=&quot;pointer-events: none;&quot;&gt;&lt;/span&gt;${item.aantal}&lt;/span&gt;`
+        }).join(&apos; &apos;)}
+      `;
+      // if ()
+      // firebase.database().ref(`users/${user}/orders/${uid}`).once(&apos;value&apos;)
+    }
+  }
+
+  constructor() {
+    super();
+    this._onClick = this._onClick.bind(this);
+  }
+  connectedCallback() {
+    if (super.connectedCallback) super.connectedCallback();
+    (async () =&gt; {
+      await import(&apos;./../top-button.js&apos;)
+    })();
+
+    this.addEventListener(&apos;click&apos;, this._onClick)
+  }
+
+  async _onClick({path}) {
+    if (path[0].classList.contains(&apos;confirm&apos;)) {
+      await firebase.database().ref(`orders/${this.user}/${this.uid}/0/shipped`).set(&apos;true&apos;);
+      let orders = await firebase.database().ref(`orders/${this.user}`).once(&apos;value&apos;);
+      orders = orders.val();
+      const notShipped = Object.keys(orders).reduce((p, order) =&gt; {
+        console.log(order);
+        if (!orders[order][0].shipped) p+=1;
+        return p;
+      }, 0)
+      if (notShipped === 0) await firebase.database().ref(`orderKeys/${this.user}`).set(null);
+      adminGo(&apos;collections&apos;)
+    }
+    if (path[0].classList.contains(&apos;cancel&apos;)) adminGo(&apos;collections&apos;);
+  }
+  get template() {
+    return html`&lt;style&gt;
+  :host {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+  }
+  ::slotted(*) {
+    user-select: none;
+    pointer-events: none;
+  }
+  apply(--css-flex)
+  .toolbar {
+    mixin(--css-row)
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    box-sizing: border-box;
+    padding: 12px;
+    align-items: center;
+    height: 52px;
+    border-top: 1px solid #0000004f;
+  }
+  .wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  @media (min-width: 640px) {
+    :host {
+      align-items: center;
+    }
+    .container {
+      align-items: center;
+      justify-content: center;
+      max-width: 640px;
+    }
+    .wrapper {
+      max-height: 640px;
+    }
+  }
+&lt;/style&gt;
+
+&lt;span class=&quot;container&quot;&gt;
+  &lt;slot name=&quot;info&quot;&gt;&lt;/slot&gt;
+  &lt;span class=&quot;wrapper&quot;&gt;
+    &lt;slot style=&quot;pointer-events: none;&quot;&gt;&lt;/slot&gt;
+
+    &lt;span class=&quot;toolbar&quot;&gt;
+      &lt;top-button class=&quot;cancel&quot;&gt;cancel&lt;/top-button&gt;
+      &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+      &lt;top-button class=&quot;confirm&quot;&gt;confirm&lt;/top-button&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+&lt;/span&gt;`;
+  }
+})
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

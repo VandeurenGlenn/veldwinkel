@@ -1,0 +1,82 @@
+{
+  "coverage": "7.14%",
+  "expectCount": 42,
+  "actualCount": 3,
+  "files": {
+    "src/admin/modals.js": {
+      "expectCount": 3,
+      "actualCount": 0,
+      "undocumentLines": [
+        7,
+        1,
+        14
+      ]
+    },
+    "src/admin/product-editor-mixin.js": {
+      "expectCount": 14,
+      "actualCount": 0,
+      "undocumentLines": [
+        2,
+        3,
+        6,
+        9,
+        12,
+        15,
+        16,
+        20,
+        26,
+        29,
+        38,
+        70,
+        74,
+        79
+      ]
+    },
+    "src/base.js": {
+      "expectCount": 6,
+      "actualCount": 0,
+      "undocumentLines": [
+        7,
+        25,
+        26,
+        31,
+        35,
+        39
+      ]
+    },
+    "src/oadb-manager.js": {
+      "expectCount": 6,
+      "actualCount": 3,
+      "undocumentLines": [
+        3,
+        4,
+        17
+      ]
+    },
+    "src/oadb.js": {
+      "expectCount": 12,
+      "actualCount": 0,
+      "undocumentLines": [
+        2,
+        3,
+        4,
+        6,
+        26,
+        30,
+        31,
+        32,
+        33,
+        40,
+        74,
+        91
+      ]
+    },
+    "src/translator.js": {
+      "expectCount": 1,
+      "actualCount": 0,
+      "undocumentLines": [
+        3
+      ]
+    }
+  }
+}

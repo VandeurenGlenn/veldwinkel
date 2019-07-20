@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">src/image-nails.js | veldwinkel</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/vandeurenglenn/veldwinkel"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/base.js~ElementBase.html">ElementBase</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb-manager.js~OADBManager.html">OADBManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb.js~OADB.html">OADB</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#admin">admin</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/admin/product-editor-mixin.js~ProductEditorMixin.html">ProductEditorMixin</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-compose">compose</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-displayModal">displayModal</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-offerModal">offerModal</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/image-nails.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">
+import SelectorMixin from &apos;./../node_modules/custom-select-mixins/src/selector-mixin.js&apos;;
+
+export default customElements.define(&apos;image-nails&apos;, class ImageNails extends HTMLElement {
+  get input() {
+    return this.shadowRoot.querySelector(&apos;input&apos;);
+  }
+  constructor() {
+    super();
+    this.attachShadow({ mode: &apos;open&apos; });
+    this.shadowRoot.innerHTML = this.template;
+
+    this._onTouchStart = this._onTouchStart.bind(this);
+    this._onTouchMove = this._onTouchMove.bind(this);
+    this._onTouchEnd = this._onTouchEnd.bind(this);
+    this._ondragover = this._ondragover.bind(this);
+    this._ondrop = this._ondrop.bind(this);
+    this._addToPhotos = this._addToPhotos.bind(this);
+    // this.reset = this.reset.bind(this);
+    this.targetBCR = null;
+    this.target = null;
+    this.startY = 0;
+    this.currentY = 0;
+    this.screenY = 0;
+    this.targetY = 0;
+  }
+
+  connectedCallback() {
+    if (super.connectedCallback) super.connectedCallback();
+    this.addEventListener(&apos;touchstart&apos;, this._onTouchStart, { passive: true });
+
+    this.addEventListener(&apos;touchend&apos;, this._onTouchEnd, { passive: true });
+    this.addEventListener(&apos;mousedown&apos;, this._onTouchStart, { passive: true });
+
+    this.addEventListener(&apos;mouseup&apos;, this._onTouchEnd, { passive: true });
+
+    this.addEventListener(&apos;drop&apos;, this._ondrop);
+    this.addEventListener(&apos;dragover&apos;, this._ondragover);
+    this.shadowRoot.querySelector(&apos;[icon=&quot;add-to-photos&quot;]&apos;).addEventListener(&apos;click&apos;, this._addToPhotos);
+
+    this.input.onchange = () =&gt; {
+      for (let i = 0; i &lt; this.input.files.length; ++i) {
+        this._readFile(this.input.files[i]);
+      }
+    };
+  }
+
+  set currentY(value) {
+    this._currentY = value;
+    requestAnimationFrame(() =&gt; {
+      if (this.dragging === false &amp;&amp; this.lastDragging === false) return;
+      if (this.boundingClientRect) {
+        const height = this.boundingClientRect.height;
+        let y = this.screenY || 0;
+        if (this.dragging &amp;&amp; this.currentY) {
+          y = this.currentY - this.startY;
+        } else {
+          y += (this.y - y) / 2;
+        }
+        const normalizedDistance = (Math.abs(y) / height);
+        const opacity = 1 - Math.pow(normalizedDistance, 1.8);
+        this.selected.style.transform = `translateY(${y}px)`;
+        this.selected.style.opacity = opacity;
+        this.screenY = y;
+        if (this.dragging) return this.selected.classList.add(&apos;dragging&apos;);
+        const isNearlyInvisible = (opacity &lt; 0.50);
+        if (isNearlyInvisible) {
+          this.selected.classList.add(&apos;swiped&apos;);
+          const detail = this.selected;
+          this.dispatchEvent(new CustomEvent(&apos;image-swiped&apos;, { detail }));
+          this.removeChild(this.selected);
+          this.reset();
+        }	else {
+          this.reset();
+        }
+      }
+      this.lastDragging = this.dragging;
+    });
+  }
+
+  get currentY() {
+    return this._currentY;
+  }
+
+  /**
+    * @param {boolean} value
+    */
+  set dragging(value) {
+    this._dragging = value;
+  }
+  /**
+    * @param {object} value
+    */
+  set boundingClientRect(value) {
+    this._boundingClientRect = value;
+  }
+  /**
+    * @return {boolean}
+    * @default false
+    */
+  get dragging() {
+    return this._dragging || false;
+  }
+  /**
+    * @return {object}
+    */
+  get boundingClientRect() {
+    return this._boundingClientRect;
+  }
+  /**
+    * @return {number}
+    */
+  get threshold() {
+    return this.boundingClientRect.height * 0.35;
+  }
+  /**
+    * @param {object} event
+    */
+  _onTouchStart(event) {
+    this.selected = event.path[0];
+    if (this.selected.localName !== &apos;img&apos;) return;
+    this.reset();
+
+    this.addEventListener(&apos;touchmove&apos;, this._onTouchMove, { passive: true });
+    this.addEventListener(&apos;mousemove&apos;, this._onTouchMove, { passive: true });
+    this.boundingClientRect = this.getBoundingClientRect();
+    this.startY = event.pageY || event.touches[0].pageY;
+    this.currentY = this.startY;
+    this.selected.style.willChange = &apos;transform&apos;;
+    this.dragging = true;
+  }
+  /**
+    * @param {object} event
+    */
+  _onTouchMove(event) {
+    if (this.dragging) this.currentY = event.pageY || event.touches[0].pageY;
+  }
+  /**
+    * @param {object} event
+    */
+  _onTouchEnd(event) {
+    if (!this.selected) return;
+    const y = this.currentY - this.startY;
+    const height = this.boundingClientRect.height;
+    this.y = 0;
+    if (Math.abs(y) &gt; this.threshold) {
+      this.y = (y &gt; 0) ? height : -height;
+    }
+    this.currentY = 0;
+    this.lastDragging = this.dragging;
+    this.dragging = false;
+    this.removeEventListener(&apos;touchmove&apos;, this._onTouchMove, { passive: true });
+    this.removeEventListener(&apos;mousemove&apos;, this._onTouchMove, { passive: true });
+  }
+
+  reset() {
+    this.dragging = false;
+    this.selected.style.willChange = &apos;initial&apos;;
+    this.selected.style.transform = &apos;none&apos;;
+    this.selected.style.opacity = 1;
+    this.screenY = 0;
+    this.currentY = 0;
+    this.startY = 0;
+    this.y = 0;
+    this.selected.classList.remove(&apos;dragging&apos;);
+  }
+
+  add({ key, src }) {
+    const img = document.createElement(&apos;img&apos;);
+    img.src = src;
+    img.setAttribute(&apos;key&apos;, key);
+    this.appendChild(img);
+  }
+
+  _readFile(file) {
+    const reader = new FileReader();
+    reader.onload = () =&gt; this.upload(reader.result);
+    reader.readAsDataURL(file);
+  }
+
+  _ondragover(event) {
+    event.preventDefault();
+  }
+
+  _ondrop(event) {
+    console.log(&apos;File(s) dropped&apos;);
+    // Prevent default behavior (Prevent file from being opened)
+    event.preventDefault();
+
+    if (event.dataTransfer.items) {
+      // Use DataTransferItemList interface to access the file(s)
+      for (var i = 0; i &lt; event.dataTransfer.items.length; i++) {
+        // If dropped items aren&apos;t files, reject them
+        if (event.dataTransfer.items[i].kind === &apos;file&apos;) {
+          this._readFile(event.dataTransfer.items[i].getAsFile());
+        }
+      }
+    } else {
+      // Use DataTransfer interface to access the file(s)
+      for (var i = 0; i &lt; event.dataTransfer.files.length; i++) {
+        this._readFile(event.dataTransfer.files[i]);
+      }
+    }
+  }
+
+  _addToPhotos() {
+    this.input.click();
+  }
+
+  upload(dataURL) {
+    this.dispatchEvent(new CustomEvent(&apos;nail-upload&apos;, { detail: dataURL }));
+  }
+
+  remove() {
+
+  }
+
+  clear() {
+    Array.from(this.children).forEach((child) =&gt; this.removeChild(child));
+  }
+
+  get template() {
+    return `
+&lt;style&gt;
+  :host {
+    display: flex;
+    flex-direction: row;
+    height: 176px;
+    width: 100%;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+                0 1px 5px 0 rgba(0, 0, 0, 0.12),
+                0 3px 1px -2px rgba(0, 0, 0, 0.2);
+    user-select: none;
+    padding: 24px;
+    box-sizing: border-box;
+    }
+  ::slotted(.swiped) {
+    display: none;
+  }
+  ::slotted(.dragging) {
+    user-select: none;
+    pointer-events: none;
+  }
+  ::slotted(img) {
+    height: 120px;
+    width: 120px;
+    pointer-events: auto;
+    cursor: pointer;
+    user-select: none;
+    position: initial !important;
+  }
+  input {
+    opacity: 0;
+    position: fixed;
+
+  }
+&lt;/style&gt;
+&lt;slot&gt;&lt;/slot&gt;
+&lt;custom-svg-icon icon=&quot;add-to-photos&quot;&gt;&lt;/custom-svg-icon&gt;
+&lt;input type=&quot;file&quot; accept=&quot;image/*&quot;&gt;&lt;/input&gt;
+    `;
+  }
+});
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

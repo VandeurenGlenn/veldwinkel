@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/admin/top-orders.js | veldwinkel</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/vandeurenglenn/veldwinkel"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/base.js~ElementBase.html">ElementBase</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb-manager.js~OADBManager.html">OADBManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb.js~OADB.html">OADB</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#admin">admin</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/admin/product-editor-mixin.js~ProductEditorMixin.html">ProductEditorMixin</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-compose">compose</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-displayModal">displayModal</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-offerModal">offerModal</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/admin/top-orders.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import { define, ElementBase } from &apos;./../base.js&apos;;
+import &apos;./top-order-item.js&apos;;
+
+export default define(class TopOrders extends ElementBase {
+  constructor() {
+    super();
+    this._stampOrders = this._stampOrders.bind(this);
+    this._onClick = this._onClick.bind(this);
+  }
+  get orders() {
+    return this.oadb;
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    (async () =&gt; {
+      firebase.auth().onAuthStateChanged(async (user) =&gt; {
+        if (user) {
+          window.orders = {};
+          // if (orders) {
+          //   for (const uid of Object.keys(orders)) {
+          //   // const snap = await firebase.database().ref(`users/${uid}/orders`).once(&apos;value&apos;);
+          //   // let order = snap.val();
+          //     Object.keys(order).map((o) =&gt; {
+          //       order[o][0].user = uid;
+          //     });
+          //   // orders = { ...orders, ...order }
+          //   }
+          // }
+
+          // window.orders = orders;
+          firebase.database().ref(`orders`).on(&apos;child_changed&apos;, this._stampOrders);
+          // const snap = await firebase.database().ref(`users/${user.uid}/orders`).once(&apos;value&apos;);
+          // window.orders = snap.val();
+          this._stampOrders();
+        }
+      });
+    })();
+    this.addEventListener(&apos;click&apos;, this._onClick);
+  }
+  _onClick(e) {
+    // this.selected =
+    const target = e.path[0];
+    if (target.localName === &apos;top-order-item&apos;) this.selected = target.getAttribute(&apos;data-route&apos;);
+    if (this.selected !== this.previousSelected) {
+      if (this.previousSelected) this.querySelector(`[data-route=&quot;${this.previousSelected}&quot;]`).classList.remove(&apos;custom-selected&apos;);
+      target.classList.add(&apos;custom-selected&apos;);
+      this.previousSelected = this.selected;
+      window.adminGo(&apos;order&apos;, { uid: this.selected, user: target.user });
+    }
+  }
+
+  async _stampOrders() {
+    const snap = await firebase.database().ref(`orderKeys`).once(&apos;value&apos;);
+    window.orderKeys = snap.val();
+    this.innerHTML = &apos;&apos;;
+    if (orderKeys) {
+      for (const key of Object.keys(orderKeys)) {
+        let orders = await firebase.database().ref(`orders/${key}`).once(&apos;value&apos;);
+        orders = orders.val();
+        if (!window.orders[key]) window.orders[key] = {};
+
+        for (const order of Object.keys(orders)) {
+          if (!orders[order][0].ready) {
+            const item = document.createElement(&apos;top-order-item&apos;);
+            this.appendChild(item);
+            orders[order][0].user = key;
+
+            window.orders[key][order] = orders[order];
+
+            item.value = { key: order, order: orders[order] };
+          }
+        }
+      }
+    }
+  }
+  get template() {
+    return html`&lt;style&gt;
+  :host {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .container {
+    width: 100%;
+  }
+  ::slotted(span) {
+    mixin(--css-column)
+
+    min-height: 56px;
+    height: 56px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+  }
+  @media (min-width: 640px) {
+    :host {
+      align-items: center;
+    }
+    .container {
+      max-width: 640px;
+    }
+  }
+&lt;/style&gt;
+&lt;span class=&quot;container&quot;&gt;&lt;slot&gt;&lt;/slot&gt;&lt;/span&gt;`;
+  }
+});
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/admin/top-offer.js | veldwinkel</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/vandeurenglenn/veldwinkel"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/base.js~ElementBase.html">ElementBase</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb-manager.js~OADBManager.html">OADBManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb.js~OADB.html">OADB</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#admin">admin</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/admin/product-editor-mixin.js~ProductEditorMixin.html">ProductEditorMixin</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-compose">compose</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-displayModal">displayModal</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-offerModal">offerModal</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/admin/top-offer.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import { ElementBase, define } from &apos;./../base.js&apos;;
+import ProductEditorMixin from &apos;./product-editor-mixin.js&apos;;
+import &apos;./../image-nails.js&apos;;
+import &apos;./../custom-container.js&apos;;
+import &apos;./../../node_modules/custom-input/custom-input.js&apos;;
+import &apos;./../../node_modules/@vandeurenglenn/custom-date/custom-date.js&apos;;
+
+export default define(class TopOffer extends ProductEditorMixin {
+  get addFieldIcon() {
+    return this.shadowRoot.querySelector(&apos;[icon=&quot;add&quot;]&apos;);
+  }
+  constructor() {
+    super();
+    this.ref = &apos;offer&apos;;
+    this.addField = this.addField.bind(this);
+  }
+
+  connectedCallback() {
+    if (super.connectedCallback) super.connectedCallback();
+    this.addFieldIcon.addEventListener(&apos;click&apos;, this.addField);
+  }
+
+  async addField() {
+    const name = await prompt(&apos;please enter field name&apos;);
+    if (name) {
+      const span = document.createElement(&apos;span&apos;);
+      span.classList.add(&apos;column&apos;);
+      span.innerHTML = `
+      &lt;h4&gt;&lt;translated-string&gt;${name}&lt;/translated-string&gt;&lt;/h4&gt;
+      &lt;custom-input name=&quot;${name}&quot; type=&quot;text&quot; value=&quot;&quot;&gt;&lt;/custom-input&gt;
+      `;
+
+      this.appendChild(span);
+    }
+  }
+
+  async stamp() {
+    this.innerHTML = &apos;&apos;;
+    this.nails.clear()
+    const offer = {...window.offers[this._value], ...window.offerDisplay[this._value], image: { ...window.images[this._value] }};
+
+    if (!offer.image) {
+      offer.image = await firebase.database().ref(`images/${this._value}`).once(&apos;value&apos;);
+      offer.image = offer.image.val();  
+    }
+    
+    delete offer.image.timestamp;
+    // console.log(offer);
+    for (const i of Object.keys(offer)) {
+      if (i === &apos;image&apos;) {
+        let val = offer[i];
+        if (val) for (const key of Object.keys(val)) {
+          if (val[key] &amp;&amp; key !== &apos;thumb&apos; &amp;&amp; key !== &apos;thumbm&apos; &amp;&amp; key !== &apos;placeholder&apos;) this.nails.add({ key, src: `${window.functionsRoot}/api/thumb/${val[key]}` });
+        }
+        // if (typeof val === &apos;object&apos;) val = [...Object.entries(val)];
+        // if (!Array.isArray(val)) val = [val];
+        // val.forEach(([key, src]) =&gt; {
+        //   console.log(src);
+        //   this.nails.add({ key, src: `${window.functionsRoot}/api/thumb/${src}` });
+        // });
+      } else if (i === &apos;public&apos;) {
+        if (offer[i]) this.publicIcon.setAttribute(&apos;public&apos;, &apos;&apos;)
+      } else if (i === &apos;timestamp&apos;) {
+        const span = document.createElement(&apos;span&apos;);
+        span.classList.add(&apos;timestamp&apos;);
+        span.setAttribute(&apos;slot&apos;, i)
+        span.innerHTML = `
+        &lt;h4&gt;&lt;translated-string&gt;last edit&lt;/translated-string&gt;&lt;/h4&gt;
+        &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+        &lt;custom-date lang=&quot;nl&quot; value=&quot;${offer[i]}&quot;&gt;${new Date(offer[i])}&lt;/custom-date&gt;
+        `;
+        this.appendChild(span);
+      } else {
+        const span = document.createElement(&apos;span&apos;);
+        span.classList.add(&apos;column&apos;);
+        span.innerHTML = `
+        &lt;h4&gt;&lt;translated-string&gt;${i}&lt;/translated-string&gt;&lt;/h4&gt;
+        &lt;custom-input name=&quot;${i}&quot; type=&quot;text&quot; value=&quot;${offer[i]}&quot;&gt;&lt;/custom-input&gt;
+        `;
+        this.appendChild(span);
+      }
+    }
+  }
+
+  get template() {
+    return html`
+&lt;style&gt;
+  :host {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  custom-container {
+    overflow-y: auto;
+  }
+  ::slotted(.column) {
+    mixin(--css-column)
+    width: 100%;
+    min-height: 110px;
+  }
+  ::slotted(.timestamp) {
+    mixin(--css-row)
+    mixin(--css-center)
+    width: 100%;
+    height: 54px;
+  }
+  ::slotted(*.flex) {
+    mixin(--css-flex)
+  }
+  .toolbar {
+    height: 72px;
+    box-sizing: border-box;
+    padding: 24px;
+    width: 100%;
+    max-width: 640px;
+  }
+  [icon=&quot;add&quot;] {
+    margin-top: 24px;
+  }
+  .wrapper {
+    display: flex;
+    box-sizing: border-box;
+    padding: 12px 24px 24px;
+    width: 100%;
+  }
+  custom-svg-icon {
+    cursor: pointer;
+  }
+  [public] {
+    --svg-icon-color: #4caf50;
+  }
+  apply(--css-row)
+  apply(--css-center)
+  apply(--css-flex)
+&lt;/style&gt;
+
+&lt;custom-container&gt;
+  &lt;slot name=&quot;timestamp&quot;&gt;&lt;/slot&gt;
+  &lt;image-nails&gt;&lt;/image-nails&gt;
+  &lt;slot&gt;&lt;/slot&gt;
+  &lt;span class=&quot;wrapper&quot;&gt;
+    &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+    &lt;custom-svg-icon icon=&quot;add&quot; title=&quot;add info field&quot;&gt;&lt;/custom-svg-icon&gt;
+    &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+  &lt;/span&gt;
+&lt;/custom-container&gt;
+
+&lt;span class=&quot;row toolbar center&quot;&gt;
+  &lt;custom-svg-icon icon=&quot;delete&quot;&gt;&lt;/custom-svg-icon&gt;
+  &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+  &lt;custom-svg-icon icon=&quot;public&quot;&gt;&lt;/custom-svg-icon&gt;
+  &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+  &lt;custom-svg-icon icon=&quot;save&quot;&gt;&lt;/custom-svg-icon&gt;
+&lt;/span&gt;`;
+  }
+});
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

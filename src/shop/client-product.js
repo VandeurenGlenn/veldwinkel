@@ -26,10 +26,21 @@ export default define(class ClientProduct extends ElementBase {
   }
   constructor() {
     super();
+    
+    this._cartButtonClick = this._cartButtonClick.bind(this)
+  }
+  
+  get cartButton() {
+    return this.shadowRoot.querySelector('[icon="shopping-cart"]')
   }
 
   connectedCallback() {
     if (super.connectedCallback) super.connectedCallback();
+    this.cartButton.addEventListener('click', this._cartButtonClick)
+  }
+  
+  _cartButtonClick() {
+    
   }
 
   get template() {
@@ -48,6 +59,14 @@ export default define(class ClientProduct extends ElementBase {
   summary {
     width: 100%;
   }
+  top-button {
+    cursor: pointer;
+    pointer-events: auto;
+    text-transform: uppercase;
+  }
+  h5 {
+    font-size: 24px;
+  }
   apply(--css-flex)
 
   @media (max-width: 720px) {
@@ -65,13 +84,13 @@ export default define(class ClientProduct extends ElementBase {
 <custom-container>
   <img></img>
   <span class="row">
-    <h2>${'name'}</h2>
+    <h4>${'name'}</h4>
     <span class="flex"></span>
     <top-price>${'price'}</top-price>
   </span>
   <summary>${'description'}</summary>
   <span class="flex"></span>
-  <top-icon-button icon="shopping-cart">add to cart</top-icon-button>
+  <top-button icon="shopping-cart">add to cart</top-button>
 </custom-container>
     `;
   }

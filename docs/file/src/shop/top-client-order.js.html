@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/shop/top-client-order.js | veldwinkel</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/vandeurenglenn/veldwinkel"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/base.js~ElementBase.html">ElementBase</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb-manager.js~OADBManager.html">OADBManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb.js~OADB.html">OADB</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#admin">admin</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/admin/product-editor-mixin.js~ProductEditorMixin.html">ProductEditorMixin</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-compose">compose</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-displayModal">displayModal</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-offerModal">offerModal</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/shop/top-client-order.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import &apos;./../top-price.js&apos;;
+import &apos;./client-order-selector.js&apos;;
+import &apos;./../custom-container.js&apos;;
+import &apos;./../../node_modules/@vandeurenglenn/custom-date/custom-date.js&apos;;
+
+export default define(class TopClientOrder extends ElementBase {
+  get selectors() {
+    return Array.from(this.querySelectorAll(&apos;client-order-selector&apos;));
+  }
+
+  get offerDisplay() {
+    return window.topstore.databases.get(&apos;offerDisplay&apos;);
+  }
+
+  get offers() {
+    return window.topstore.databases.get(&apos;offers&apos;);
+  }
+
+  constructor() {
+    super();
+    this._onSelected = this._onSelected.bind(this);
+    this._submit = this._submit.bind(this);
+    this._clear = this._clear.bind(this);
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.shadowRoot.querySelector(&apos;custom-svg-icon[icon=&quot;done&quot;]&apos;).addEventListener(&apos;click&apos;, this._submit);
+    this.shadowRoot.querySelector(&apos;custom-svg-icon[icon=&quot;close&quot;]&apos;).addEventListener(&apos;click&apos;, this._clear);
+
+    (async () =&gt; {
+      window.offerDisplay = await this.offerDisplay.get();
+      if(Object.keys(offerDisplay).length === 0) window.offerDisplay = await this.offerDisplay.get()
+      await this.stamp();
+      
+      for (const selector of this.selectors) {
+        selector.addEventListener(&apos;selected&apos;, this._onSelected);
+      }
+    })();
+
+    // import(&apos;./../../node_modules/custom-selector/src/index.js&apos;);
+  }
+
+  async stamp() {
+    if (!window.offers) window.offers = await this.offers.get();
+    for (const offer of Object.keys(offerDisplay)) {
+      if (!offers[offer]) offers[offer] = await this.offers.get(offer);
+      const pub = offerDisplay[offer].public || false;
+      if (pub) {
+        const el = document.createElement(&apos;span&apos;);
+        el.classList.add(&apos;selection&apos;);
+        el.setAttribute(&apos;data-key&apos;, offer);
+
+        const { type } = offers[offer];
+        let sel = this.querySelector(`client-order-selector[is=&quot;${type}&quot;]`);
+
+        if (!sel) {
+          sel = document.createElement(&apos;client-order-selector&apos;, type);
+          this.appendChild(sel);
+        }
+        sel.add(offer);
+      }
+    }
+  }
+
+  // async paymentOption() {
+  // TODO: dialog
+  // await ask
+  // await import(&apos;./../custom-prompt.js&apos;);
+  // const prompt = document.createElement(&apos;custom-prompt&apos;);
+  // prompt.innerHTML = `
+  // &lt;span slot=&quot;pages&quot;&gt;
+  //   &lt;section data-route=&quot;paymentOption&quot;&gt;
+  //     &lt;selectable-input&gt;&lt;/selectable-input&gt;
+  //   &lt;/section&gt;
+  //   &lt;section data-route=&quot;paymentRequest&quot;&gt;&lt;/section&gt;
+  // &lt;/span&gt;`;
+  // document.body.appendChild(prompt);
+  // await prompt.prompt()
+  // document.removeChild(document.querySelector(&apos;custom-prompt&apos;));
+  // return null;
+  // }
+
+  async checkout(set) {
+    const snap = await firebase.database().ref(`orders/${user.uid}`).push(set);
+    firebase.database().ref(`orderKeys/${user.uid}`).set(true);
+    console.log(snap.key);
+    // document.dispatchEvent(new CustomEvent(&apos;order-placed&apos;, { detail: snap.key }));
+    const answer = await Notification.requestPermission();
+    if (answer === &apos;granted&apos;) {
+      navigator.serviceWorker.ready.then((registration) =&gt; {
+        registration.showNotification(&apos;Guldentop Veldwinkel&apos;, {
+          body: `order geplaatst
+u kan deze afhalen met: ${snap.key}`,
+          link: &apos;https://guldentopveldwinkel.be&apos;,
+          data: snap.key,
+          actions: [{
+            action: &apos;location&apos;,
+            title: &apos;afhaallocatie&apos;
+          }, {
+            action: &apos;checkOrder&apos;,
+            title: &apos;bekijk bestelling&apos;
+          }]
+        });
+        this._clear();
+      });
+    }
+  }
+
+  async _submit() {
+    if (!window.user) {
+      await window.signin();
+    }
+    await import(&apos;./checkout-prompt.js&apos;)
+    let prompt = document.createElement(&apos;checkout-prompt&apos;);
+    document.body.appendChild(prompt)
+    const prompted = await prompt.show();
+
+    const set = [{
+      collectionTime: prompted[0],
+      payment: prompted[1],
+      referentie: this.shadowRoot.querySelector(&apos;input[name=&quot;reference&quot;]&apos;).value,
+      displayName: user.displayName,
+      email: user.email,
+      phoneNumber: user.phoneNumber
+    }];
+    let selected = [];
+    for (const selector of this.selectors) {
+      if (Array.isArray(selector.selected)) {
+        selected = [...selected, ...selector.selected];
+      }
+    }
+    console.log(selected);
+    for (const query of selected) {
+      if (typeof query === &apos;string&apos;) {
+        const pieces = this.querySelector(`client-order-selector-item[is=&quot;${query}&quot;]`).pieces;
+        set.push({
+          product: query,
+          aantal: Number(pieces)
+        });
+      }
+    }
+
+
+    if (set.length &gt; 1) {
+      // let paymentResult;
+      // const paymentMethod = await this.paymentOption();
+      // if (paymentMethod) paymentResult = await import(&apos;./shop-checkout&apos;);
+      // else return this.checkout()
+
+
+      // if (paymentResult) {
+      this.checkout(set);
+      // }
+    }
+  }
+
+  _clear() {
+    requestAnimationFrame(() =&gt; {
+      for (let i = 0; i&lt;this.selectors.length; ++i) {
+        this.selectors[i].selected = [];
+      }
+    });
+  }
+
+  _onSelected(event) {
+    const set = [];
+    let selected = [];
+    for (const selector of this.selectors) {
+      if (Array.isArray(selector.selected)) {
+        selected = [...selected, ...selector.selected];
+      }
+    }
+    for (const query of selected) {
+      if (typeof query === &apos;string&apos;) {
+        const price = offerDisplay[query].price;
+        set.push([
+          Number(this.querySelector(`client-order-selector-item[is=&quot;${query}&quot;]`).pieces),
+          Number(price)
+        ]);
+      }
+    }
+    const price = set.reduce((p, c) =&gt; {
+      c = c[0] * c[1];
+      return p + c;
+    }, 0);
+
+    this.shadowRoot.querySelector(&apos;.total&apos;).innerHTML = String(price);
+  }
+
+  get template() {
+    return html`&lt;style&gt;
+  :host {
+    mixin(--css-column)
+    overflow-y: auto;
+    align-items: center;
+  }
+  summary, span {
+    user-select: none;
+    pointer-events: none;
+  }
+  custom-container {
+    overflow-y: auto;
+    overflow-x: hidden;
+    pointer-events: auto;
+    height: calc(100% - 54px);
+  }
+  .toolbar {
+    box-sizing: border-box;
+    padding: 24px;
+    align-items: center;
+    height: 52px;
+    border-top: 1px solid #0000004f;
+    max-width: 640px;
+    width: 100%;
+  }
+  custom-svg-icon {
+    cursor: pointer;
+    pointer-events: auto;
+  }
+  input {
+    margin-right: 8px;
+    padding: 12px 0px 12px 6px;
+    box-sizing: border-box;
+    width: 42px;
+    outline: none;
+    border: none;
+    background: transparent;
+    pointer-events: auto;
+  }
+  input[name=&quot;reference&quot;] {
+    height: 48px;
+    width: 100%;
+    border-top: 1px solid #0000004f;
+    padding: 12px 24px;
+  }
+  /* custom-selector {
+    padding: 24px;
+    box-sizing: border-box;
+  } */
+  apply(--css-row)
+  apply(--css-center)
+  apply(--css-flex)
+&lt;/style&gt;
+&lt;custom-container&gt;
+  &lt;slot&gt;&lt;/slot&gt;
+  &lt;input name=&quot;reference&quot; type=&quot;text&quot; placeholder=&quot;referentie of opmerking&quot;&gt;&lt;/input&gt;
+  &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+&lt;/custom-container&gt;
+
+&lt;span class=&quot;row toolbar&quot;&gt;
+  &lt;custom-svg-icon icon=&quot;close&quot;&gt;&lt;/custom-svg-icon&gt;
+  &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+  &lt;top-price class=&quot;total&quot;&gt;0&lt;/top-price&gt;
+  &lt;span class=&quot;flex&quot;&gt;&lt;/span&gt;
+  &lt;custom-svg-icon icon=&quot;done&quot;&gt;&lt;/custom-svg-icon&gt;
+&lt;/span&gt;`;
+  }
+});
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

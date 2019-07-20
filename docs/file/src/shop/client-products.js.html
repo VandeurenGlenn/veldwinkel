@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/shop/client-products.js | veldwinkel</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+<a style="position:relative; top:3px;" href="https://github.com/vandeurenglenn/veldwinkel"><img width="20px" src="./image/github.png"></a></header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/base.js~ElementBase.html">ElementBase</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb-manager.js~OADBManager.html">OADBManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/oadb.js~OADB.html">OADB</a></span></span></li>
+<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#admin">admin</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/admin/product-editor-mixin.js~ProductEditorMixin.html">ProductEditorMixin</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-compose">compose</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-displayModal">displayModal</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-offerModal">offerModal</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/shop/client-products.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import &apos;./../top-price.js&apos;;
+import { Renderer, SelectorMixin } from &apos;./../base.js&apos;;
+define(class ClientProductItem extends ElementBase {
+  set key(value) {
+    this.setAttribute(&apos;key&apos;, value);
+  }
+  get img() {
+    return this.shadowRoot.querySelector(&apos;img&apos;);
+  }
+  set value({ name, price, thumb, placeholder }) {
+    this.render({ name, price });
+    const promises = [];
+    const job = (key, data) =&gt; new Promise((resolve, reject) =&gt; {
+      const img = document.createElement(&apos;img&apos;)
+      img.onload = () =&gt; {
+        this.img.onload = () =&gt; {
+        resolve(key)  
+        }
+        this.img.src = `${window.functionsRoot}/api/${key}/${this.getAttribute(&apos;key&apos;)}-${key}.webp`;        
+      };
+      img.src = `${window.functionsRoot}/api/${key}/${this.getAttribute(&apos;key&apos;)}-${key}.webp`;
+    });
+    
+    job(&apos;thumbm&apos;)
+  }
+  constructor() {
+    super();
+  }
+  connectedCallback() {
+    if (super.connectedCallback) super.connectedCallback();
+  }
+
+  get template() {
+    return html`
+&lt;style&gt;
+  :host {
+    /* display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; */
+    flex-direction: column;
+    flex: 1 1;
+    max-width: 25%;
+    flex-basis: 25%;
+    width: 25%;
+    padding: 0 12px;
+    box-sizing: border-box;
+    overflow: hidden;
+    cursor: pointer;   
+    max-height: calc(100% / 2.4);
+    min-height: calc(100% / 2.4);
+    height: 100%;
+  }
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 0;
+    box-sizing: border-box;
+    pointer-events: none;
+    border-radius: 30px;
+  }
+  .img {
+    border-radius: 30px;
+    max-height: 250px;
+    max-width: 100%;
+    background: var(--product-photo);
+    min-height: 146px;
+  }
+  .img::before {
+    content: &quot;&quot;;
+    display: block;
+    padding-top: 100%;
+  }
+  .text {
+    padding-top: 12px;
+    font-weight: bold;
+    font-size: 13px;
+    line-height: 19.5px;
+  }
+  .name {
+    font-weight: 700;
+  }
+  @media (max-width: 960px) {
+    :host {
+      max-width: 50%;
+      flex-basis: 50%;
+      width: 50%;
+    }
+  }
+  @media (min-width: 1400px) {
+    :host {
+      max-width: calc(100% / 5);
+      flex-basis: calc(100% / 5);
+      width: calc(100% / 5);
+    }
+  }
+  @media (min-width: 1920px) {
+    :host {
+      max-width: calc(100% / 6);
+      flex-basis: calc(100% / 6);
+      width: calc(100% / 6);
+    }
+  }
+&lt;/style&gt;
+&lt;span class=&quot;container&quot;&gt;
+  &lt;img class=&quot;img&quot;&gt;&lt;/img&gt;
+  &lt;span class=&quot;text name&quot;&gt;${&apos;name&apos;}&lt;/span&gt;
+  &lt;top-price class=&quot;text&quot;&gt;${&apos;price&apos;}&lt;/top-price&gt;
+&lt;/span&gt;
+    `;
+  }
+});
+
+export default define(class ClientProducts extends Renderer(SelectorMixin(HTMLElement)) {
+  constructor() {
+    super();
+    this.attachShadow({ mode: &apos;open&apos; });
+  }
+  connectedCallback() {
+    if (super.connectedCallback) super.connectedCallback();
+    this.attrForSelected = &apos;key&apos;;
+    // get photo, name &amp; price
+    this._stamp();
+    this.addEventListener(&apos;selected&apos;, () =&gt; {
+      go(&apos;product&apos;, this.selected);
+    });
+  }
+
+  async _stamp() {
+    const snap = await firebase.database().ref(`offerDisplay`).once(&apos;value&apos;);
+    const offers = snap.val();
+    const promises = []
+    for (const [key, value] of Object.entries(offers)) {
+      if (value.public) {
+        promises.push((() =&gt; {
+          const el = document.createElement(&apos;client-product-item&apos;);
+          this.appendChild(el);
+          el.key = key;
+          el.value = value;
+        })())
+      }
+    }
+    Promise.all(promises)
+  }
+
+  get template() {
+    return html`
+&lt;style&gt;
+  :host {
+    display: flex;
+    flex-direction: column;
+    flex-flow: wrap;
+    overflow-y: auto;
+  }
+&lt;/style&gt;
+&lt;slot&gt;&lt;/slot&gt;
+    `;
+  }
+});
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(1.1.0)</span><img src="./image/esdoc-logo-mini-black.png"></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>
