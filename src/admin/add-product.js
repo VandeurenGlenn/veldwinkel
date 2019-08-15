@@ -121,14 +121,14 @@ export default define(class AddProduct extends ElementBase {
       ...value,
       public: false
     });
-    const url = `${window.functionsRoot}/api/product`;
-    const options = {
-      method: 'POST',
-      body,
-      mode: 'cors',
-      headers: { 'Content-Type': 'application/json' }
-    };
-    await fetch(url, options)
+    // const url = `${window.functionsRoot}/api/product`;
+    // const options = {
+    //   method: 'POST',
+    //   body,
+    //   mode: 'cors',
+    //   headers: { 'Content-Type': 'application/json' }
+    // };
+    // await fetch(url, options)
     adminGo('products');
   }
 

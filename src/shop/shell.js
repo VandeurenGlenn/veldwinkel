@@ -13,9 +13,19 @@ import './../translator.js';
 import OADBManager from './../oadb-manager.js';
 import './../../../custom-shop-cart/src/custom-shop-cart.js';
 import './../custom-fab.js';
-import './../shop-cart-action.js';
+import ShopCartController from './../shop-cart-controller.js';
+import './../top-button.js';
 
 export default define(class AppShell extends ElementBase {
+  get badge() {
+    return this.selector.querySelector('.badge')
+  }
+  get cart() {
+    return this.shadowRoot.querySelector('shop-cart');
+  }
+  get cartAction() {
+    return this.shadowRoot.querySelector('shop-cart-action');
+  }
   get pages() {
     return this.shadowRoot.querySelector('custom-pages');
   }
@@ -46,6 +56,7 @@ export default define(class AppShell extends ElementBase {
     this._selectorChange = this._selectorChange.bind(this);
     this._menuClick = this._menuClick.bind(this);
     this._onPopstate = this._onPopstate.bind(this);
+    this._onCounterChange = this._onCounterChange.bind(this);
     window.onpopstate = this._onPopstate;
     this.drawerOpened = false;
     window.topstore = window.topstore || {};
@@ -61,22 +72,30 @@ export default define(class AppShell extends ElementBase {
       if (window.location.hash) {
         console.log(window.location.hash);
         let route = window.location.hash.split('#');
-        route = route[1].split('?=');
+        route = route[1].split('?');
+        if (route[1])
         this.selector.select(route[0]);
-        console.log(route);
-        await this._selectorChange();
+        console.log(route[1]);
         if (route[1]) {
-          this.shadowRoot.querySelector(`[route="${route[0]}"]`).value = route[1]
+          const parts = route[1].split('=');
+
+          this.pages.querySelector(`[route="${route[0]}"]`).value = parts[1]
+          this.select(route[0], parts[1])
+        } else {
+          this.select(route[0])
         }
+
       } else {
-        this.selector.select('quick-order');
+        this.selector.select('products');
         await this._selectorChange();
       }
       this.translatedTitle.value = this.selector.selected;
       const loginButton = this.querySelector('.login-button');
-      
+
       this._onResize();
+
       firebase.auth().onAuthStateChanged(async user => {
+        console.log(user);
         if (user) {
           window.ref = firebase.database().ref(`${user.uid}`);
           window.user = user;
@@ -85,7 +104,7 @@ export default define(class AppShell extends ElementBase {
           }
           // else localDevices = ['light'];
         } else {
-          loginButton.innerHTML = `<img style="margin-right: 8px;"></img>login`;
+          loginButton.innerHTML = `login`;
 
           loginButton.addEventListener('click', async () => {
             window.signin()
@@ -94,16 +113,20 @@ export default define(class AppShell extends ElementBase {
           });
         }
       });
+      await import('./../shop-cart-action.js');
+      await import('./../shop-cart.js');
+      new ShopCartController(this.cart, this.cartAction)
     })();
+    document.addEventListener('counter-change', this._onCounterChange)
   }
-  
-  _onResize() {    
+
+  _onResize() {
     const {height, width} = this.pages.getClientRects()[0];
     if (width > 720 && !this.drawerOpened) this.drawerOpened = true;
     requestAnimationFrame(() => {
       if (this.drawerOpened) this.map.width = width - 256;
       else this.map.width = width;
-      
+
       this.map.height = height;
     })
   }
@@ -116,19 +139,26 @@ export default define(class AppShell extends ElementBase {
   _menuClick() {
     this.drawerOpened = !this.drawerOpened;
   }
-  
+
   hideShopCartAction() {
     this.shadowRoot.querySelector('shop-cart-action').classList.add('hide');
     this.pages.style.bottom = 0;
   }
-  
+
   showShopCartAction() {
     this.shadowRoot.querySelector('shop-cart-action').classList.remove('hide');
     this.pages.style.bottom = '56px';
   }
 
-  async _selectorChange() {
-    const selected = this.selector.selected;
+  _onCounterChange({detail}) {
+    if (detail === 0) this.badge.classList.remove('active')
+    else {
+      if (!this.badge.classList.contains('active')) this.badge.classList.add('active')
+    }
+  }
+
+  async select(selected, subselected) {
+    console.log(selected);
     if (selected) {
       if (selected === 'quick-order') {
         this.hideShopCartAction();
@@ -142,9 +172,14 @@ export default define(class AppShell extends ElementBase {
         this.hideShopCartAction()
         await import('./item-list');
       }
+      if (selected === 'cart') {
+        this.hideShopCartAction()
+        await import('./../shop-cart');
+      }
       if (selected === 'order') {
         this.hideShopCartAction()
         await import('./client-order');
+        this.pages.querySelector('client-order').value = subselected;
       }
       if (selected === 'products') {
         this.showShopCartAction();
@@ -153,6 +188,7 @@ export default define(class AppShell extends ElementBase {
       if (selected === 'product') {
         this.showShopCartAction();
         await import('./client-product');
+        this.pages.querySelector('client-product').key = subselected;
       }
       if (selected === 'directions') {
         this.selector.select(this.selector.previousSelected);
@@ -161,10 +197,16 @@ export default define(class AppShell extends ElementBase {
       }
       this.translatedTitle.value = selected;
       this.pages.select(selected);
-      history.pushState({selected}, selected, `#${selected}`);
+      const url = subselected ? `#${selected}?uid=${subselected}` : `#${selected}`;
+      history.pushState({selected}, selected, url);
     }
     return
   }
+
+  _selectorChange() {
+    return this.select(this.selector.selected);
+  }
+
   get template() {
     return html`
 <style>
@@ -174,6 +216,8 @@ export default define(class AppShell extends ElementBase {
     position: relative;
     width: 100%;
     height: 100%;
+
+    --svg-icon-color: #535353;
   }
   custom-drawer {
     position: absolute;
@@ -252,12 +296,25 @@ export default define(class AppShell extends ElementBase {
     right: 0;
   }
   .hide {
-    
+
     height: 0;
     overflow: hidden;
     width: 0;
     opacity: 0;
     pointer-events: none;
+  }
+
+  .badge {
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #2f6c12c9;
+    margin-left: 4px;
+  }
+  .badge.active {
+    height: 14px;
+    width: 14px;
   }
   @media (min-device-width: 720px) {
     section {
@@ -287,12 +344,6 @@ export default define(class AppShell extends ElementBase {
 
   <custom-selector slot="content" attr-for-selected="data-route" selected="order">
 
-    <span class="row selection" data-route="quick-order" >
-      <custom-svg-icon icon="shopping-cart"></custom-svg-icon>
-      <span class="flex"></span>
-      snelle bestelling
-    </span>
-
     <span class="row selection" data-route="products" >
       <custom-svg-icon icon="shopping-basket"></custom-svg-icon>
       <span class="flex"></span>
@@ -305,10 +356,22 @@ export default define(class AppShell extends ElementBase {
       veld overzicht
     </span>
 
-    <span class="row selection" data-route="orders" >
-      <custom-svg-icon icon="orders"></custom-svg-icon>
+    <!-- <span class="row selection" data-route="quick-order" >
+      <custom-svg-icon icon="shopping-cart"></custom-svg-icon>
       <span class="flex"></span>
-      bestellingen
+      snelle bestelling
+    </span> -->
+
+    <span class="row selection" data-route="info" >
+      <custom-svg-icon icon="map"></custom-svg-icon>
+      <span class="flex"></span>
+      <translated-string>location information</translated-string>
+    </span>
+
+    <span class="row selection" data-route="directions" >
+      <custom-svg-icon icon="directions"></custom-svg-icon>
+      <span class="flex"></span>
+      <translated-string>directions</translated-string>
     </span>
 
     <span class="flex" style="pointer-events: none;"></span>
@@ -318,23 +381,24 @@ export default define(class AppShell extends ElementBase {
       <span class="flex"></span>
       about
     </span> -->
-    
-    <span class="row selection" data-route="info" >
-      <custom-svg-icon icon="map"></custom-svg-icon>
-      <span class="flex"></span>      
-      <translated-string>location information</translated-string>
-    </span>
-    
-    <span class="row selection" data-route="directions" >
-      <custom-svg-icon icon="directions"></custom-svg-icon>
+
+    <span class="row selection" data-route="cart" >
+      <custom-svg-icon icon="shopping-cart"></custom-svg-icon>
+      <span class="badge"></span>
       <span class="flex"></span>
-      <translated-string>directions</translated-string>
+      <translated-string>shopping cart</translated-string>
+    </span>
+
+    <span class="row selection" data-route="orders" >
+      <custom-svg-icon icon="orders"></custom-svg-icon>
+      <span class="flex"></span>
+      bestellingen
     </span>
 
   </custom-selector>
 </custom-drawer>
 <custom-pages attr-for-selected="route">
-  <custom-shop-cart route="cart"></custom-shop-cart>
+  <shop-cart route="cart"></shop-cart>
   <top-client-order route="quick-order"></top-client-order>
   <client-products route="products"></client-products>
   <client-product route="product"></client-product>

@@ -3,18 +3,29 @@ import './../custom-container.js';
 import './../translated-string.js';
 
 export default define(class ClientOrder extends ElementBase {
+  get value() {
+    return this._value
+  }
   set value(value) {
+    this._value = value
+  }
+  constructor() {
+    super();
+  }
+
+  connectedCallback() {
+    if (super.connectedCallback) super.connectedCallback();
     ( async () => {
       firebase.auth().onAuthStateChanged(async (user) => {
         if (user) {
           this.innerHTML = '';
-          let snap = await firebase.database().ref(`orders/${user.uid}/${value}`).once('value');
+          let snap = await firebase.database().ref(`orders/${user.uid}/${this.value}`).once('value');
           snap = snap.val();
           const { collectionTime, payment } = snap[0];
           const el = document.createElement('span');
           el.classList.add('column', 'heading');
           el.innerHTML = `
-          <span class="row"><strong>order</strong>: ${value}</span><br>
+          <span class="row"><strong>order</strong>: ${this.value}</span><br>
           <span class="row"><strong><translated-string>collection time</translated-string></strong>: <translated-string>${collectionTime}</translated-string></span><br>
           <span class="row"><strong><translated-string>payment</translated-string></strong>: ${payment}</span><br>
           `;
@@ -37,17 +48,10 @@ export default define(class ClientOrder extends ElementBase {
           // if (photo) this.shadowRoot.querySelector('img').src = photo;
           // this.render({ name, description, price, photo, type, portion, pieces });
         } else {
-          await signin();
+          signin();
         }
       });
     })();
-  }
-  constructor() {
-    super();
-  }
-
-  connectedCallback() {
-    if (super.connectedCallback) super.connectedCallback();
   }
 
   get template() {

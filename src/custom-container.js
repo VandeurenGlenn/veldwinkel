@@ -17,7 +17,7 @@ export default define(class CustomContainer extends ElementBase {
     height: 100%;
     overflow-y: auto;
     box-sizing: border-box;
-    padding: 6px;
+    padding: 24px 24px 48px;
   }
   :host([row]) {
     flex-direction: column;

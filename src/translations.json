@@ -1,10 +1,11 @@
 {
   "nl": {
     "between": "tussen",
-    "description": "Omschrijving",
+    "description": "omschrijving",
     "products": "producten",
     "name": "naam",
     "order": "bestelling",
+    "orders": "bestellingen",
     "stock": "veldoverzicht",
     "stockCount": "voorraad",
     "payment": "betaling",

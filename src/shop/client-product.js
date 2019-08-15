@@ -1,13 +1,19 @@
 import './../custom-container.js';
 
 export default define(class ClientProduct extends ElementBase {
+  set value(value) {
+    console.log(value);
+    this._key = value;
+    this.key = value;
+  }
   set key(value) {
+    console.log(value);
     ( async () => {
       firebase.database().ref(`images/${value}`).once('value').then(images => {
         images = images.val();
         if (images) {
           for (const img of Object.keys(images)) {
-            if (img !== 'thumb') {
+            if (img !== 'thumb' && img !== 'timestamp') {
               if (images[img]) this.shadowRoot.querySelector('img').src = `${functionsRoot}/api/thumb/${images[img]}`;
             }
           }
@@ -17,7 +23,9 @@ export default define(class ClientProduct extends ElementBase {
       snap = snap.val();
       let snapd = await firebase.database().ref(`offerDisplay/${value}`).once('value');
       snapd = snapd.val();
-      const { name, description, price, photo, type, portion, pieces } = {...snapd, ...snap};
+      this.item = {...snapd, ...snap};
+      this.item.uid = value;
+      const { name, description, price, photo, type, portion, pieces } = this.item;
 
 
 
@@ -37,10 +45,12 @@ export default define(class ClientProduct extends ElementBase {
   connectedCallback() {
     if (super.connectedCallback) super.connectedCallback();
     this.cartButton.addEventListener('click', this._cartButtonClick)
+    if (this.item) this.render(this.item);
   }
   
   _cartButtonClick() {
-    
+    this.item.image = this.shadowRoot.querySelector('img').src;
+    shoppingCart.add(this.item)
   }
 
   get template() {
@@ -67,6 +77,9 @@ export default define(class ClientProduct extends ElementBase {
   h5 {
     font-size: 24px;
   }
+  img {
+    border-radius: 30px;
+  }
   apply(--css-flex)
 
   @media (max-width: 720px) {
@@ -83,12 +96,14 @@ export default define(class ClientProduct extends ElementBase {
 </style>
 <custom-container>
   <img></img>
-  <span class="row">
-    <h4>${'name'}</h4>
-    <span class="flex"></span>
-    <top-price>${'price'}</top-price>
-  </span>
-  <summary>${'description'}</summary>
+  <section class="column">
+    <span class="row">
+      <h4>${'name'}</h4>
+      <span class="flex"></span>
+      <top-price>${'price'}</top-price>
+    </span>
+    <summary>${'description'}</summary>
+  </section>
   <span class="flex"></span>
   <top-button icon="shopping-cart">add to cart</top-button>
 </custom-container>

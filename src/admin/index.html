@@ -15,16 +15,15 @@
     <meta name="msapplication-TileColor" content="#009688">
     <meta name="msapplication-config" content="assets/icons/browserconfig.xml">
     <link rel="manifest" href="manifest.json">
+
+    <meta name="google-signin-client_id" content="467877680173-hfg5bu8j1coknisvtsc99b74b13e9958.apps.googleusercontent.com">
     <script>
       (async () => {
         @build:sw
-        @build:functionsRoot
       })();
     </script>
-    <script defer src="/__/firebase/6.1.1/firebase-app.js"></script>
-    <script defer src="/__/firebase/6.1.1/firebase-auth.js"></script>
-    <script defer src="/__/firebase/6.1.1/firebase-database.js"></script>
-    <script defer src="/__/firebase/init.js"></script>
+
+
 
     <style media="screen">
       body {
@@ -95,53 +94,25 @@
         --svg-icon-color: #fff;
       }
     </style>
+
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
   </head>
   <script>
     const onload = () => {
-      // window.functions = firebase.functions();
       const loginButton = document.querySelector('.login-button');
-      const login = async () => {
-        const link = document.createElement('link');
-        link.href = 'https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css';
-        link.rel = 'stylesheet';
-        document.head.appendChild(link);
-        const script = document.createElement('script');
-        script.onload = () => {
-          const ui = new firebaseui.auth.AuthUI(firebase.auth());
-          const uiconfig = {
-            callbacks: {
-              signInSuccessWithAuthResult: (authResult, redirectUrl) => {
-                document.querySelector('.firebaseui-auth-container').classList.add('hidden');
-                return false;
-              },
-              uiShown: () => {
-                document.querySelector('.firebaseui-auth-container').classList.remove('hidden');
-              }
-            },
-            signInFlow: 'popup',
-            signInOptions: [
-              firebase.auth.EmailAuthProvider.PROVIDER_ID
-            ]
-          };
-          ui.start('.firebaseui-auth-container', uiconfig);
-        };
-        script.src = 'https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js';
-        document.head.appendChild(script);
-        // firebase.auth()
-      };
-      firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-          window.ref = firebase.database().ref(`${user.uid}`);
-          window.user = user;
-          // else localDevices = ['light'];
-        } else {
-          login();
-        }
-      });
-    };
+    }
+    function onSignIn(googleUser) {
+  var profile = googleUser.getBasicProfile();
+  console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+  console.log('Name: ' + profile.getName());
+  console.log('Image URL: ' + profile.getImageUrl());
+  console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+}
   </script>
   <body onload="onload()">
-    <span class="firebaseui-auth-container"></span>
+
+<div class="g-signin2" data-onsuccess="onSignIn"></div>
+
     <top-iconset></top-iconset>
 
     <admin-shell>
