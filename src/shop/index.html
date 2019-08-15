@@ -125,6 +125,10 @@
         display: flex;
         align-items: center;
         --top-button-border: none;
+        
+        top: 0;
+        right: 0;
+        position: fixed;
       }
       header custom-svg-icon {
         margin-right: 8px;
@@ -248,16 +252,7 @@
         });
 
         window.go = async (view, selection) => {
-          console.log(view);
-          if (selection && view === 'product') {
-            await import('./client-product.js');
-            shell.shadowRoot.querySelector('client-product').key = selection;
-          }
-          if (selection && view === 'order') {
-            await import('./client-order.js');
-            shell.shadowRoot.querySelector('client-order').value = selection;
-          }
-          pages.select(view);
+          shell.select(view, selection);
         }
       })();
     </script>

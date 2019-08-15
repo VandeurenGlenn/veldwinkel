@@ -1,6 +1,6 @@
-import * as idb from './../node_modules/idb-keyval/dist/idb-keyval-cjs';
+import * as idb from './../node_modules/idb-keyval/dist/idb-keyval.mjs';
 const { Store, set, get, remove, keys } = idb;
-
+console.log(idb);
 /**
  * a trimmed version of OADB, only syncs the database to local.
  */

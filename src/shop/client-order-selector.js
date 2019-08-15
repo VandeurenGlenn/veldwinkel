@@ -26,10 +26,10 @@ export default define(class ClientOrderSelector extends RenderMixin(SelectorMixi
     let el = this.querySelector(`[data-key="${key}"]`);
     if (!el) {
       el = document.createElement('client-order-selector-item', key);
+      el.setAttribute('data-key', key);
       el.classList.add('selection');
       this.appendChild(el);
     }
-    el.setAttribute('data-key', key);
   }
 
   get template() {

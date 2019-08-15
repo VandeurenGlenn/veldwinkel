@@ -1,3 +1,4 @@
+import './../../node_modules/@vandeurenglenn/custom-date/custom-date.js';
 import './../custom-prompt.js';
 
 export default define(class CheckoutPrompt extends ElementBase {

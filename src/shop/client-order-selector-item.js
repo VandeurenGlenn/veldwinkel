@@ -11,7 +11,7 @@ export default define(class ClientOrderSelectorItem extends ElementBase {
 
   connectedCallback() {
     super.connectedCallback();
-    const is = this.getAttribute('is');
+    const is = this.getAttribute('data-key');
     const { type, description, price, name } = { ...offers[is], ...offerDisplay[is] };;
     this.render({ name, price, description, is });
   }

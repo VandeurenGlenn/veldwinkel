@@ -47,9 +47,9 @@ define(class ClientProductItem extends ElementBase {
     box-sizing: border-box;
     overflow: hidden;
     cursor: pointer;   
-    max-height: calc(100% / 2.4);
+    /* max-height: calc(100% / 1.92);
     min-height: calc(100% / 2.4);
-    height: 100%;
+    height: 100%; */
   }
   .container {
     display: flex;

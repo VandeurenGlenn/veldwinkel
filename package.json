@@ -65,7 +65,7 @@
     "custom-input": "git+https://github.com/andrewvanardennen/custom-input.git",
     "custom-pages": "^0.12.0",
     "custom-renderer-mixin": "^1.1.2",
-    "custom-select-mixins": "^0.12.2",
+    "custom-select-mixins": "^0.13.0",
     "custom-selector": "^0.2.0",
     "custom-svg-icon": "^0.10.2",
     "custom-svg-iconset": "^0.9.2",
