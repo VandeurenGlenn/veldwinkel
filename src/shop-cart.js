@@ -61,14 +61,16 @@ export default customElements.define('shop-cart', class ShopCart extends HTMLEle
     shoppingCart.submit()
   }
   
-  add(item) {
-    
+  add(item) {    
     const innerItem = document.createElement('shop-cart-item');
-    innerItem.setAttribute('name', item.name);
-    innerItem.setAttribute('uid', item.uid);
-    innerItem.setAttribute('price', item.price);
-    innerItem.setAttribute('image', item.image.replace('thumbm', 'thumb'));
-    innerItem.setAttribute('count', item.count || 1)
     this.appendChild(innerItem);
+    innerItem.value = item;
+  }
+  
+  change(item) {
+    this.querySelector(`[uid="${item.uid}"]`).item = item;
+  }
+  remove(uid) {
+    this.removeChild(this.querySelector(`[uid="${uid}"]`))
   }
 });

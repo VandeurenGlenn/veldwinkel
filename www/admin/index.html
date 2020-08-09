@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#23ac56">
+    <meta name="description" content="Een jong kleinschalig en dynamisch landbouwbedrijf op het knooppunt van Baal, Werchter en Betekom, gespecialiseerd in het telen van seizoensgebonden groenten en fruit.">
+    <title>Veldwinkel</title>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
+    <link rel="mask-icon" href="assets/icons/safari-pinned-tab.svg" color="#009688">
+    <link rel="shortcut icon" href="assets/icons/favicon.ico">
+    <meta name="msapplication-TileColor" content="#009688">
+    <meta name="msapplication-config" content="assets/icons/browserconfig.xml">
+    <link rel="manifest" href="manifest.json">
+    <script>
+      (async () => {
+        
+      })();
+    </script>
+    <script defer src="https://www.gstatic.com/firebasejs/7.17.1/firebase-app.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/7.17.1/firebase-database.js"></script>
+
+    <style media="screen">
+      body {
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        margin: 0;
+
+        position: absolute;
+        --toolbar-height: 48px;
+        --custom-drawer-width: 256px;
+        
+        font-family: 'roboto', sans-serif;
+      }
+      
+      top-offer .column custom-input {
+        color: #eee;
+        /* box-shadow: 0px 1px 3px 1px #eee; */
+        border: 1px solid #38464e;
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+      }
+      section {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        align-items: center;
+        justify-content: center;
+      }
+      .column {
+        display: flex;
+        flex-direction: column;
+      }
+      .row {
+        display: flex;
+        flex-direction: row;
+      }
+      .flex {
+        flex: 1;
+      }
+      .firebaseui-auth-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+      }
+      app-shell {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+        width: 100%;
+      }
+      header {
+        width: 100%;
+      }
+      custom-svg-icon[icon="menu"] {
+        pointer-events: auto;
+      }
+
+      .selection {
+        display: flex;
+        flex-direction: row;
+        padding: 24px;
+        box-sizing: border-box;
+        min-height: 82px;
+        height: fit-content;
+        cursor: pointer;
+        pointer-events: auto;
+      }
+
+      custom-selector .custom-selected {
+        background: #1b5e20a6;
+        color: #fff;
+        --svg-icon-color: #fff;
+      }
+    </style>
+  </head>
+  <script>
+  </script>
+  <body>
+    <span class="firebaseui-auth-container"></span>
+    <top-iconset></top-iconset>
+
+    <admin-shell>
+      <custom-pages attr-for-selected="route">
+        <top-products route="products"></top-products>
+        <top-product route="product"></top-product>
+        <top-orders route="orders"></top-orders>
+        <top-order route="order"></top-order>
+        <top-offers route="offers"></top-offers>
+        <top-offer route="offer"></top-offer>
+        <top-sheet route="sheet"></top-sheet>
+        <top-collections route="collections"></top-collections>
+        <top-collection route="collection"></top-collection>
+        <top-categories route="categories"></top-categories>
+        <add-product route="add-product"></add-product>
+        <add-offer route="add-offer"></add-offer>
+      </custom-pages>
+    </admin-shell>
+    <script type="module">
+      (async () => {
+        await import('./../iconset.js');
+          
+        const firebaseConfig = {
+          apiKey: "AIzaSyAgSXxNo6LSsBHxa4El3MWbPjqfDgcD0h0",
+          authDomain: "topveldwinkel.firebaseapp.com",
+          databaseURL: "https://topveldwinkel.firebaseio.com",
+          projectId: "topveldwinkel",
+          storageBucket: "topveldwinkel.appspot.com",
+          messagingSenderId: "467877680173",
+          appId: "1:467877680173:web:1781bc21aadaef72"
+        }
+        
+        firebase.initializeApp(firebaseConfig);
+        await import('./shell.js');
+          
+        const loginButton = document.querySelector('.login-button');
+        const login = async () => {
+          const link = document.createElement('link');
+          link.href = 'https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css';
+          link.rel = 'stylesheet';
+          document.head.appendChild(link);
+          const script = document.createElement('script');
+          script.onload = () => {
+            const ui = new firebaseui.auth.AuthUI(firebase.auth());
+            const uiconfig = {
+              callbacks: {
+                signInSuccessWithAuthResult: (authResult, redirectUrl) => {
+                  document.querySelector('.firebaseui-auth-container').classList.add('hidden');
+                  return false;
+                },
+                uiShown: () => {
+                  document.querySelector('.firebaseui-auth-container').classList.remove('hidden');
+                }
+              },
+              signInFlow: 'popup',
+              signInOptions: [
+                {
+                  provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+                  scopes: [
+                    'https://www.googleapis.com/auth/user.addresses.read',
+                    'https://www.googleapis.com/auth/user.phonenumbers.read',
+                    'https://www.googleapis.com/auth/userinfo.email',
+                    'https://www.googleapis.com/auth/userinfo.profile'
+                  ]
+                },
+                firebase.auth.EmailAuthProvider.PROVIDER_ID
+              ]
+            };
+            ui.start('.firebaseui-auth-container', uiconfig);
+          };
+          script.src = 'https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js';
+          document.head.appendChild(script);
+          // firebase.auth()
+        };
+        firebase.auth().onAuthStateChanged((user) => {
+          if (user) {
+            window.ref = firebase.database().ref(`${user.uid}`);
+            window.user = user;
+            // else localDevices = ['light'];
+          } else {
+            login();
+          }
+        });
+          
+        const pages = document.querySelector('custom-pages');
+        const shell = document.querySelector('admin-shell');
+
+        window.adminGo = async (view, selection) => {
+          console.log(view);
+        if (selection && view === 'product') {
+          await import('./top-product.js');
+          const product = document.querySelector('top-product');
+          product.value = selection;
+        } else if (selection && view === 'offer') {
+          await import('./top-offer.js');
+          const offer = document.querySelector('top-offer');
+          offer.value = selection;
+        } else if (selection && view === 'order') {
+          await import('./top-order.js');
+          const order = document.querySelector('top-order');
+          order.value = selection;
+        } else if (view === 'add-product' || view === 'add-offer') {
+          await import(`./${view}.js`);
+        } else if (view === 'collection') {
+          await import('./top-collection.js');
+          const collection = document.querySelector('top-collection');
+          collection.value = selection;
+        }
+
+        history.pushState({selected: view}, view, `#${view}`);
+        pages.select(view);
+        }
+        
+        await import('https://cdn.jsdelivr.net/npm/ipfs@0.48.1/dist/index.min.js')
+        // globalThis.gvw = globalThis.gvw || {}
+        globalThis.ipfs = await Ipfs.create({
+          config: {
+            bootstrap: ['/dns4/star.leofcoin.org/tcp/4003/wss/p2p/QmbBM3idU5h5Gw73YoncGfjXJhzxveNvefpYwMbLAZWvk4']
+          }
+        })
+      })();
+    </script>
+  </body>
+</html>

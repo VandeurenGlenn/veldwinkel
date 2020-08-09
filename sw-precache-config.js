@@ -1,10 +1,12 @@
 module.exports = {
   staticFileGlobs: [
-    'public/www/assets/**',
-    '!public/www/service-worker.js',
-    'public/www/*.js',
-    'public/www/*.html'
+    'www/assets/**',
+    '!www/service-worker.js',
+    '!www/admin',
+    '!www/shop',
+    'www/*.js',
+    'www/*.html'
   ],
-  root: 'public/www',
-  stripPrefix: 'public/www'
+  root: 'www',
+  stripPrefix: 'www'
 };

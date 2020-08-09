@@ -3,16 +3,27 @@
     "default": "topveldwinkel"
   },
   "targets": {
+    "hosting": {
+      "admin": [
+        "guldentopveldwinkel-admin"
+      ],
+      "default": [
+        "topveldwinkel"
+      ],
+      "shop": [
+        "guldentopveldwinkel-shop"
+      ]
+    },
     "topveldwinkel": {
       "hosting": {
-        "admin": [
-          "guldentopveldwinkel-admin"
-        ],
-        "default": [
-          "topveldwinkel"
+        "topveldwinkel": [
+          "default"
         ],
         "shop": [
           "guldentopveldwinkel-shop"
+        ],
+        "admin": [
+          "guldentopveldwinkel-admin"
         ]
       }
     }

@@ -1,0 +1,1 @@
+export default(async()=>{import("./custom-tabs-6a8aee62.js"),import("./custom-pages-576d78fe.js"),import("./translated-tab-62956cf5.js"),import("./summary-panel-3319f4ed.js"),import("./summary-panel-mirror-40134cfc.js"),import("./top-box-c52da552.js")})();

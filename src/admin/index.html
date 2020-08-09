@@ -18,13 +18,11 @@
     <script>
       (async () => {
         @build:sw
-        @build:functionsRoot
       })();
     </script>
-    <script defer src="/__/firebase/6.1.1/firebase-app.js"></script>
-    <script defer src="/__/firebase/6.1.1/firebase-auth.js"></script>
-    <script defer src="/__/firebase/6.1.1/firebase-database.js"></script>
-    <script defer src="/__/firebase/init.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/7.17.1/firebase-app.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/7.17.1/firebase-database.js"></script>
 
     <style media="screen">
       body {
@@ -37,6 +35,15 @@
         position: absolute;
         --toolbar-height: 48px;
         --custom-drawer-width: 256px;
+        
+        font-family: 'roboto', sans-serif;
+      }
+      
+      top-offer .column custom-input {
+        color: #eee;
+        /* box-shadow: 0px 1px 3px 1px #eee; */
+        border: 1px solid #38464e;
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
       }
       section {
         display: flex;
@@ -97,50 +104,8 @@
     </style>
   </head>
   <script>
-    const onload = () => {
-      // window.functions = firebase.functions();
-      const loginButton = document.querySelector('.login-button');
-      const login = async () => {
-        const link = document.createElement('link');
-        link.href = 'https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css';
-        link.rel = 'stylesheet';
-        document.head.appendChild(link);
-        const script = document.createElement('script');
-        script.onload = () => {
-          const ui = new firebaseui.auth.AuthUI(firebase.auth());
-          const uiconfig = {
-            callbacks: {
-              signInSuccessWithAuthResult: (authResult, redirectUrl) => {
-                document.querySelector('.firebaseui-auth-container').classList.add('hidden');
-                return false;
-              },
-              uiShown: () => {
-                document.querySelector('.firebaseui-auth-container').classList.remove('hidden');
-              }
-            },
-            signInFlow: 'popup',
-            signInOptions: [
-              firebase.auth.EmailAuthProvider.PROVIDER_ID
-            ]
-          };
-          ui.start('.firebaseui-auth-container', uiconfig);
-        };
-        script.src = 'https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js';
-        document.head.appendChild(script);
-        // firebase.auth()
-      };
-      firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-          window.ref = firebase.database().ref(`${user.uid}`);
-          window.user = user;
-          // else localDevices = ['light'];
-        } else {
-          login();
-        }
-      });
-    };
   </script>
-  <body onload="onload()">
+  <body>
     <span class="firebaseui-auth-container"></span>
     <top-iconset></top-iconset>
 
@@ -163,7 +128,69 @@
     <script type="module">
       (async () => {
         await import('./../iconset.js');
+          
+        const firebaseConfig = {
+          apiKey: "AIzaSyAgSXxNo6LSsBHxa4El3MWbPjqfDgcD0h0",
+          authDomain: "topveldwinkel.firebaseapp.com",
+          databaseURL: "https://topveldwinkel.firebaseio.com",
+          projectId: "topveldwinkel",
+          storageBucket: "topveldwinkel.appspot.com",
+          messagingSenderId: "467877680173",
+          appId: "1:467877680173:web:1781bc21aadaef72"
+        }
+        
+        firebase.initializeApp(firebaseConfig);
         await import('./shell.js');
+          
+        const loginButton = document.querySelector('.login-button');
+        const login = async () => {
+          const link = document.createElement('link');
+          link.href = 'https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css';
+          link.rel = 'stylesheet';
+          document.head.appendChild(link);
+          const script = document.createElement('script');
+          script.onload = () => {
+            const ui = new firebaseui.auth.AuthUI(firebase.auth());
+            const uiconfig = {
+              callbacks: {
+                signInSuccessWithAuthResult: (authResult, redirectUrl) => {
+                  document.querySelector('.firebaseui-auth-container').classList.add('hidden');
+                  return false;
+                },
+                uiShown: () => {
+                  document.querySelector('.firebaseui-auth-container').classList.remove('hidden');
+                }
+              },
+              signInFlow: 'popup',
+              signInOptions: [
+                {
+                  provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+                  scopes: [
+                    'https://www.googleapis.com/auth/user.addresses.read',
+                    'https://www.googleapis.com/auth/user.phonenumbers.read',
+                    'https://www.googleapis.com/auth/userinfo.email',
+                    'https://www.googleapis.com/auth/userinfo.profile'
+                  ]
+                },
+                firebase.auth.EmailAuthProvider.PROVIDER_ID
+              ]
+            };
+            ui.start('.firebaseui-auth-container', uiconfig);
+          };
+          script.src = 'https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js';
+          document.head.appendChild(script);
+          // firebase.auth()
+        };
+        firebase.auth().onAuthStateChanged((user) => {
+          if (user) {
+            window.ref = firebase.database().ref(`${user.uid}`);
+            window.user = user;
+            // else localDevices = ['light'];
+          } else {
+            login();
+          }
+        });
+          
         const pages = document.querySelector('custom-pages');
         const shell = document.querySelector('admin-shell');
 
@@ -190,8 +217,16 @@
         }
 
         history.pushState({selected: view}, view, `#${view}`);
-          pages.select(view);
+        pages.select(view);
         }
+        
+        await import('https://cdn.jsdelivr.net/npm/ipfs@0.48.1/dist/index.min.js')
+        // globalThis.gvw = globalThis.gvw || {}
+        globalThis.ipfs = await Ipfs.create({
+          config: {
+            bootstrap: ['/dns4/star.leofcoin.org/tcp/4003/wss/p2p/QmbBM3idU5h5Gw73YoncGfjXJhzxveNvefpYwMbLAZWvk4']
+          }
+        })
       })();
     </script>
   </body>

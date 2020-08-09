@@ -11,7 +11,6 @@ import './../translated-tab.js';
 import './../translated-string.js';
 import './../translator.js';
 import OADBManager from './../oadb-manager.js';
-import './../../../custom-shop-cart/src/custom-shop-cart.js';
 import './../custom-fab.js';
 import ShopCartController from './../shop-cart-controller.js';
 import './../top-button.js';
@@ -51,16 +50,20 @@ export default define(class AppShell extends ElementBase {
   get drawerOpened() {
     return this.hasAttribute('drawer-opened');
   }
+  get routeInfo() {
+    return this.shadowRoot.querySelector('.route-info')
+  }
   constructor() {
     super();
     this._selectorChange = this._selectorChange.bind(this);
     this._menuClick = this._menuClick.bind(this);
     this._onPopstate = this._onPopstate.bind(this);
     this._onCounterChange = this._onCounterChange.bind(this);
+    this.select = this.select.bind(this);
     window.onpopstate = this._onPopstate;
     this.drawerOpened = false;
     window.topstore = window.topstore || {};
-    window.topstore.databases = window.topstore.databases || new OADBManager();
+    window.topstore.databases = window.topstore.databases || new OADBManager(true);
     this._onResize = this._onResize.bind(this)
   }
   connectedCallback() {
@@ -70,7 +73,6 @@ export default define(class AppShell extends ElementBase {
     this.querySelector('custom-svg-icon[icon="menu"]').addEventListener('click', this._menuClick);
     (async () => {
       if (window.location.hash) {
-        console.log(window.location.hash);
         let route = window.location.hash.split('#');
         route = route[1].split('?');
         if (route[1])
@@ -118,6 +120,9 @@ export default define(class AppShell extends ElementBase {
       new ShopCartController(this.cart, this.cartAction)
     })();
     document.addEventListener('counter-change', this._onCounterChange)
+    
+
+    window.go = this.select;
   }
   
   _onResize() {    
@@ -160,10 +165,15 @@ export default define(class AppShell extends ElementBase {
   async select(selected, subselected) {
     console.log(selected);
     if (selected) {
-      if (selected === 'quick-order') {
-        this.hideShopCartAction();
-        await import('./top-client-order');
-      }
+        this.selector.select(selected)
+    this.translatedTitle.value = selected;
+    this.pages.select(selected);
+    const url = subselected ? `#${selected}?uid=${subselected}` : `#${selected}`;
+    history.pushState({selected}, selected, url);
+      // if (selected === 'quick-order') {
+      //   this.hideShopCartAction();
+      //   await import('./top-client-order');
+      // }
       if (selected === 'orders') {
         this.hideShopCartAction()
         await import('./order-list');
@@ -174,12 +184,15 @@ export default define(class AppShell extends ElementBase {
       }
       if (selected === 'cart') {
         this.hideShopCartAction()
-        await import('./../shop-cart');
+        if (!this.pages.querySelector('shop-cart')) await import('./../shop-cart');
       }
       if (selected === 'order') {
         this.hideShopCartAction()
-        await import('./client-order');
+        if (!this.pages.querySelector('client-order').shadowRoot) await import('./client-order');
+        console.log(subselected);
         this.pages.querySelector('client-order').value = subselected;
+        this.pages.querySelector('client-order')._stamp()
+        console.log(this.pages.querySelector('client-order'));
       }
       if (selected === 'products') {
         this.showShopCartAction();
@@ -187,18 +200,17 @@ export default define(class AppShell extends ElementBase {
       }
       if (selected === 'product') {
         this.showShopCartAction();
-        await import('./client-product');        
+        if (!this.pages.querySelector('client-product').shadowRoot) await import('./client-product');        
         this.pages.querySelector('client-product').key = subselected;
       }
       if (selected === 'directions') {
         this.selector.select(this.selector.previousSelected);
-        window.open('https://www.google.com/maps/dir//50.9804131,4.7489457/@50.980413,4.748946,17z?hl=en-GB')
+        window.open('https://www.google.com/maps/dir//Guldentop+Veldwinkel+Veldlocatie,+Laakweg,+3118+Werchter.+Parkeren+langs+de+grote+serre+op+het+veld+of+Guldentop+23.+Dit+is+een+zijwegje+van+de+Varentstraat+tussen+Geetsvondelweg+en,+Preterstraat,+3118+Werchter/@50.9785324,4.7525245,17z/data=!4m8!4m7!1m0!1m5!1m1!1s0x47c15d4466cd3215:0xfe59ae34b619fab4!2m2!1d4.7488689!2d50.9798556')
         return;
       }
-      this.translatedTitle.value = selected;
-      this.pages.select(selected);
-      const url = subselected ? `#${selected}?uid=${subselected}` : `#${selected}`;
-      history.pushState({selected}, selected, url);
+      if (selected === 'info') {
+        this.routeInfo.src = 'https://maps.google.com/maps?q=guldentopveldwinkel&t=&z=17&ie=UTF8&iwloc=&output=embed';
+      }
     }
     return
   }
@@ -406,7 +418,7 @@ export default define(class AppShell extends ElementBase {
   <order-list route="orders" type="orders"></order-list>
   <client-order route="order" type="order"></client-order>
   <section route="info">
-      <iframe width="600" height="500" src="https://maps.google.com/maps?q=guldentopveldwinkel&t=&z=17&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+    <iframe class="route-info" width="600" height="500" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
   </section>
 </custom-pages>
 <shop-cart-action>

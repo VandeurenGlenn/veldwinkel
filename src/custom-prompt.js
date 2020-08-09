@@ -76,6 +76,7 @@ define(class customSelectableDate extends ElementBase {
 
   set value(value) {
     this._date.value = value;
+    // this._date.next(this.day);
   }
   get value() {
     return this._date._value;
@@ -87,7 +88,10 @@ define(class customSelectableDate extends ElementBase {
     return this._date.lang;
   }
   set day(value) {
-    this._date.next(value);
+    this._day = value
+  }
+  get day() {
+    return this._day
   }
   set open(value) {
     this.shadowRoot.querySelector('strong').innerHTML = value;

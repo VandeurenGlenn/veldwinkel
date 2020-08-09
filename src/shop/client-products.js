@@ -7,21 +7,21 @@ define(class ClientProductItem extends ElementBase {
   get img() {
     return this.shadowRoot.querySelector('img');
   }
+  get images() {
+    return window.topstore.databases.get('images');
+  }
   set value({ name, price, thumb, placeholder }) {
     this.render({ name, price });
-    const promises = [];
-    const job = (key, data) => new Promise((resolve, reject) => {
-      const img = document.createElement('img')
-      img.onload = () => {
-        this.img.onload = () => {
-        resolve(key)  
+    (async () => {
+      const images = await this.images.get(this.getAttribute('key'))
+      if (images) {
+        if (this.clientWidth > 320) {
+          this.img.src = `https://guldentopveldwinkel.be/ipfs/${images[0]}`;
+        } else {
+          this.img.src = `https://guldentopveldwinkel.be/ipfs/${images['thumbm']}`;
         }
-        this.img.src = `${window.functionsRoot}/api/${key}/${this.getAttribute('key')}-${key}.webp`;        
-      };
-      img.src = `${window.functionsRoot}/api/${key}/${this.getAttribute('key')}-${key}.webp`;
-    });
-    
-    job('thumbm')
+      }
+    })();    
   }
   constructor() {
     super();
@@ -126,22 +126,34 @@ export default define(class ClientProducts extends Renderer(SelectorMixin(HTMLEl
       go('product', this.selected);
     });
   }
+  
+  get offerDisplay() {
+    return window.topstore.databases.get('offerDisplay');
+  }
+
+  get offers() {
+    return window.topstore.databases.get('offers');
+  }
+
 
   async _stamp() {
-    const snap = await firebase.database().ref(`offerDisplay`).once('value');
-    const offers = snap.val();
-    const promises = []
-    for (const [key, value] of Object.entries(offers)) {
-      if (value.public) {
-        promises.push((() => {
-          const el = document.createElement('client-product-item');
-          this.appendChild(el);
-          el.key = key;
-          el.value = value;
-        })())
+    window.offerDisplay = await this.offerDisplay.get();
+    if(offerDisplay && Object.keys(offerDisplay).length === 0) window.offerDisplay = await this.offerDisplay.get()
+    const _offerDisplay = []
+    for (const offer of Object.keys(offerDisplay)) {
+      const index = offerDisplay[offer].index
+      _offerDisplay[index] = offerDisplay[offer]
+      _offerDisplay[index].key = offer
+    }
+    _offerDisplay
+    for (let {key} of _offerDisplay) {
+      if (offerDisplay[key].public) {
+        const el = document.createElement('client-product-item');
+        el.setAttribute('key', key);
+        this.appendChild(el);
+        el.value = offerDisplay[key];
       }
     }
-    Promise.all(promises)
   }
 
   get template() {

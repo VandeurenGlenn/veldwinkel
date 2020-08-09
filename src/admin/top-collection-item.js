@@ -11,6 +11,7 @@ export default define(class TopCollectionItem extends ElementBase {
     const total = order.length - 1;
     // this.stamp();
     this.render({ name: this.name, total });
+    this.setAttribute('key', key)
 
     // <span style="display: flex;">${orders[order][0].referentie}<span style="flex"></span>${order}<span style="flex: 1;"></span>producten: ${orders[order].length - 1}</span>
   }

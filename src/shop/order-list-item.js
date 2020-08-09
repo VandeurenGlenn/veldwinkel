@@ -4,7 +4,7 @@ export default define(class OrderListItem extends ElementBase {
   }
   set value(value) {
     this.dataset.key = value;
-    this.render({ length: orders[value].length, order: value });
+    this.render({ length: Number(orders[value].length) - 1, order: value });
   }
   get template() {
     return html`

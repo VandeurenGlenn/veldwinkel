@@ -1,4 +1,13 @@
 export default define(class TopCollections extends ElementBase {
+  
+  get orders() {
+    return globalThis.topstore.databases.get('orders');
+  }
+  
+  get collectionKeys() {
+    return globalThis.topstore.databases.get('collectionKeys');
+  }
+  
   constructor() {
     super();
     this._onClick = this._onClick.bind(this);
@@ -8,27 +17,65 @@ export default define(class TopCollections extends ElementBase {
   connectedCallback() {
     if (super.connectedCallback) super.connectedCallback();
     (async () => {
-      if (user) {
-        await import('./top-collection-item.js');
-        window.collections = {};
-        const snap = await firebase.database().ref(`orders`).once('value');
-        window.orders = snap.val();
-        if (orders) for (const uid of Object.keys(orders)) {
-          Object.keys(orders[uid]).map(order => {
-            if (orders[uid][order][0].ready && !orders[uid][order][0].shipped) {
-              orders[uid][order][0].user = uid;
-              collections[order] = orders[uid][order];
-            }
-          });
-
+      firebase.auth().onAuthStateChanged(async (user) => {
+        if (user) {
+          await import('./top-collection-item.js');
+          globalThis.collectionKeys = await this.collectionKeys.get()
+          globalThis.orders = await this.orders.get()
+          
+          window.collections = {};
+          
+          if (collectionKeys) for (const uid of Object.keys(collectionKeys)) {
+            console.log(uid, collectionKeys[uid]);
+            Object.keys(orders[collectionKeys[uid]]).map(order => {
+              if (orders[collectionKeys[uid]][order][0].ready && !orders[collectionKeys[uid]][order][0].shipped) {
+                orders[collectionKeys[uid]][order][0].user = collectionKeys[uid];
+                collections[order] = orders[collectionKeys[uid]][order];
+              }
+            });
+  
+          }
+          
+          
+          // firebase.database().ref(`users/${user.uid}/orders`).on('child_changed', this._stampOrders);
+          // const snap = await firebase.database().ref(`users/${user.uid}/orders`).once('value');
+          // window.orders = snap.val();
+          // this._stamp();
+          pubsub.subscribe('collectionKeys.added', async (key) => {
+            
+            globalThis.collectionKeys = await this.collectionKeys.get()
+            globalThis.orders = await this.orders.get()
+            Object.keys(orders[collectionKeys[key]]).map(order => {
+              if (orders[collectionKeys[key]][order][0].ready && !orders[collectionKeys[key]][order][0].shipped) {
+                orders[collectionKeys[key]][order][0].user = collectionKeys[key];
+                collections[order] = orders[collectionKeys[key]][order];
+                
+                let item = this.querySelector(`[key=${collection}]`);
+                if (!item) {
+                  item = document.createElement('top-collection-item');
+                  this.appendChild(item);
+                }
+                item.value = { key: key, order: collections[key] };
+              }
+            });
+            
+            // if (collections) for (const collection of Object.keys(collections)) {
+            //   let item = this.querySelector(`[key=${collection}]`);
+            //   if (!item) {
+            //     item = document.createElement('top-collection-item');
+            //     this.appendChild(item);
+            //   }
+            //   console.log({collection});
+            //   item.value = { key: collection, order: collections[collection] };
+            // }
+          })
+          
+          pubsub.subscribe('collectionKeys.remove', key => {
+            this.removeChild(this.querySelector(`[key=${key}]`))
+          })
+          // firebase.database().ref('collectionKeys').on('child_changed', this._stamp);
         }
-        // firebase.database().ref(`users/${user.uid}/orders`).on('child_changed', this._stampOrders);
-        // const snap = await firebase.database().ref(`users/${user.uid}/orders`).once('value');
-        // window.orders = snap.val();
-        this._stamp();
-
-        firebase.database().ref('orders').on('child_changed', this._stamp);
-      }
+      });
       this.addEventListener('click', this._onClick);
     })();
   }
@@ -51,9 +98,8 @@ export default define(class TopCollections extends ElementBase {
     let index = 0;
     this.innerHTML = '';
     if (change) {
-      window.collection = {}
-      const snap = await firebase.database().ref(`orders`).once('value');
-      window.orders = snap.val();
+      window.collections = {}
+      globalThis.orders = await this.orders.get()
       if (orders) for (const uid of Object.keys(orders)) {
         Object.keys(orders[uid]).map(order => {
           if (orders[uid][order][0].ready && !orders[uid][order][0].shipped) {
@@ -66,7 +112,7 @@ export default define(class TopCollections extends ElementBase {
     }
     for (const collection of Object.keys(collections)) {
       console.log(collection);
-      let item = this.querySelector('index[index]');
+      let item = this.querySelector(`key[${collection}]`);
       if (!item) {
         item = document.createElement('top-collection-item');
         this.appendChild(item);

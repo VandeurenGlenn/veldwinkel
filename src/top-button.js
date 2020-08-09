@@ -21,7 +21,6 @@ export default define(class TopButton extends ElementBase {
       button {
         display: flex;
         flex-direction: row;
-        border-radius: 14px;
         padding: 10px 14px;
         width: 100%;
         background: transparent;
@@ -29,7 +28,7 @@ export default define(class TopButton extends ElementBase {
         box-sizing: border-box;
         outline: none;
         cursor: pointer;
-        border: var(--top-button-border, inherit);
+        border: none;
         pointer-events: none;
         cursor: pointer;
         text-transform: uppercase;

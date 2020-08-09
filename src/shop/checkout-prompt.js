@@ -61,7 +61,7 @@ export default define(class CheckoutPrompt extends ElementBase {
       <h3><translated-string>payment</translated-string></h3>
       <custom-selector attr-for-selected="name" selected="cash">
         <custom-selectable-item name="cash">cash</custom-selectable-item>
-        <custom-selectable-item title="coming soon" name="googlepay" disabled>Google Pay</custom-selectable-item>
+        <custom-selectable-item name="googlepay">Google Pay</custom-selectable-item>
       </custom-selector>
 
       <span class="flex"></span>
@@ -81,6 +81,10 @@ export default define(class CheckoutPrompt extends ElementBase {
     this.dates[1].setAttribute('day', 'vrijdag');
     this.dates[0].setAttribute('open', '16.00 - 16.30');
     this.dates[1].setAttribute('open', '17.00 - 18.00');
+    this.dates[0].setAttribute('value', new Date().getTime());
+    this.dates[1].setAttribute('value', new Date().getTime());
+    this.dates[0]._date.next('dinsdag')
+    this.dates[1]._date.next('vrijdag')
 
     this.dates[2].setAttribute('lang', 'nl');
     this.dates[3].setAttribute('lang', 'nl');
@@ -88,14 +92,21 @@ export default define(class CheckoutPrompt extends ElementBase {
     this.dates[3].setAttribute('day', 'vrijdag');
     this.dates[2].setAttribute('open', '17.00 - 18.00');
     this.dates[3].setAttribute('open', '18.00 - 19.00');
+    this.dates[2].setAttribute('value', new Date().getTime());
+    this.dates[3].setAttribute('value', new Date().getTime());
+    this.dates[2]._date.next('dinsdag')
+    this.dates[3]._date.next('vrijdag')
 
     this.prompt.show();
     return new Promise((resolve, reject) => {
       this.shadowRoot.querySelector('custom-svg-icon').addEventListener('click', () => {
         const selected = [];
         for (const selector of this.selectors) {
-          if (selector.selected !== 'null') selected.push(selector.selected);
+          if (selector.selected !== 'null')
+           if (selector.selected !== 'cash' && selector.selected !== 'googlepay') selected.push([selector.selected, this.shadowRoot.querySelector(`[name="${selector.selected}"]`).value]);
+           else selected.push(selector.selected)
         }
+        console.log(selected);
         resolve(selected);
         document.body.removeChild(this);
       });

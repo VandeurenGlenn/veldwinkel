@@ -16,6 +16,71 @@
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/brands.css" integrity="sha384-i2PyM6FMpVnxjRPi0KW/xIS7hkeSznkllv+Hx/MtYDaHA5VcF0yL3KVlvzp8bWjQ" crossorigin="anonymous" defer>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/fontawesome.css" integrity="sha384-sri+NftO+0hcisDKgr287Y/1LVnInHJ1l+XC7+FOabmTTIK0HnE2ID+xxvJ21c5J" crossorigin="anonymous" defer>
+    
+    <!-- <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "name": "Shop",
+          "@id": "https://shop.guldentopveldwinkel.be/#products"
+        }
+      },{
+        "@type": "ListItem",
+        "position": 2,
+        "item": {
+          "name": "Bestellingen",
+          "@id": "https://shop.guldentopveldwinkel.be/#orders"
+        }
+      },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "name": "Locatie informatie",
+          "@id": "https://maps.google.com/maps?q=guldentopveldwinkel&t=&z=17&ie=UTF8&iwloc="
+        }
+      },{
+        "@type": "ListItem",
+        "position": 4,
+        "item": {
+          "@id": "https://www.google.com/maps/dir//Guldentop+Veldwinkel+Veldlocatie,+Laakweg,+3118+Werchter.+Parkeren+langs+de+grote+serre+op+het+veld+of+Guldentop+23.+Dit+is+een+zijwegje+van+de+Varentstraat+tussen+Geetsvondelweg+en,+Preterstraat,+3118+Werchter/@50.9785324,4.7525245,17z/data=!4m8!4m7!1m0!1m5!1m1!1s0x47c15d4466cd3215:0xfe59ae34b619fab4!2m2!1d4.7488689!2d50.9798556",          
+          "name": "Routebeschrijving"
+        }
+      }]
+    }
+
+    </script> -->
+    <!-- 
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "url": "https://guldentopveldwinkel.be"
+      }  
+    </script> -->
+    
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "logo": "https://guldentopveldwinkel.be/images/veldwinkel-top-dark.png",
+        "url": "https://guldentopveldwinkel.be/",
+        "contactPoint": [{
+          "@type": "ContactPoint",
+          "telephone": "+32-495124115",
+          "contactType": "customer service"
+        }],
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://shop.guldentopveldwinkel.be/products?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
+    
     <script>
       (async () => {
         try {
@@ -373,15 +438,6 @@
           <p>Uiteraard kunnen ook restaurants genieten van onze verse lokale producten!</p>
         </span>
       </summary-panel-mirror>
-        <!-- <p>Bio.</p> -->
-
-
-        <!-- <h3>wat we te bieden hebben</h3>
-        <p>Wekelijks stellen we voor jou een groentenbak samen dat je kan aanpassen naar behoefte en smaak,</p>
-        <p>deze kan je komen ophalen aan ons veld op vrijdag tussen 17.00 en 18.00 u.</p>
-        <br></br>
-        <p>Uiteraard kunnen ook restaurants genieten van onze verse lokale producten!</p> -->
-        <!-- <p></p> -->
 
       <section class="pickup-moments">
         <h3>afhaalmomenten</h3>
@@ -410,7 +466,7 @@
           </span>
           <span class="features column">
             <span class="flex"></span>
-            <span class="info"><custom-svg-icon icon="email" class="fas"></custom-svg-icon>veltwinkel@gmail.com</span>
+            <span class="info"><custom-svg-icon icon="email" class="fas"></custom-svg-icon>guldentopveldwinkel@gmail.com</span>
             <span class="info"><custom-svg-icon icon="phone" class="fas"></custom-svg-icon>0495124115</span>
           </span>
           <span class="features column">

@@ -27,27 +27,41 @@ export default define(class AddProduct extends ElementBase {
   get _previewPhotoEl() {
     return this.shadowRoot.querySelector('.preview-photo');
   }
+  
+  get nails() {
+    return this.shadowRoot.querySelector('image-nails');
+  }
 
   constructor() {
     super();
-
+    this.ref = 'products'
     this.takePhoto = this.takePhoto.bind(this);
     this.submit = this.submit.bind(this);
     this._switchCameraFront = this._switchCameraFront.bind(this);
     this._switchCameraRear = this._switchCameraRear.bind(this);
     this._closePreview = this._closePreview.bind(this);
+    this.nailUpload = this.nailUpload.bind(this)
   }
 
   connectedCallback() {
     if (super.connectedCallback) super.connectedCallback();
 
-    deviceApi.camera.preview(this._previewEl);
-
-    this._camButton.addEventListener('click', this.takePhoto);
-    this._frontCamButton.addEventListener('click', this._switchCameraFront);
-    this._rearCamButton.addEventListener('click', this._switchCameraRear);
-    this._previewPhotoEl.addEventListener('click', this._closePreview);
+    this._init()
+  }
+  
+  async _init() {
+    if (await deviceApi.hasFrontCam() || await deviceApi.hasBackCam()) {
+      deviceApi.camera.preview(this._previewEl)
+      this._camButton.addEventListener('click', this.takePhoto);
+      this._frontCamButton.addEventListener('click', this._switchCameraFront);
+      this._rearCamButton.addEventListener('click', this._switchCameraRear);
+      this._previewPhotoEl.addEventListener('click', this._closePreview);
+    } else {
+      // TODO: hide _previewEl
+    }  
     this._submitButton.addEventListener('click', this.submit);
+    
+    this.nails.addEventListener('nail-upload', this.nailUpload)
   }
 
   _closePreview() {
@@ -73,40 +87,31 @@ export default define(class AddProduct extends ElementBase {
     // this._previewEl.stop();
     this._previewEl.srcObject = null;
     const blob = await deviceApi.camera.takePhoto(this._facingMode);
+
+    const fd = new FormData();
+    fd.append('image', blob);
+
     const base64 = await readAsDataURL(blob);
-    this._previewPhotoEl.src = base64;
-    const clone = this._previewPhotoEl.cloneNode(true);
-    clone.classList.remove('preview-photo');
-    clone.classList.add('image-previews-image');
-    clone.onclick = ({ path }) => {
-      this._previewPhotoEl.onload = async () => {
-        // Classify the image.
-        // let response = await fetch(`${predictImage}?image=${}`);
+    const key = Number(this.nails.children.length) > 0 ? Number(this.nails.children.length) - 1 : 0
+    this.nails.add( {key, src: base64});
 
-      };
-      this._previewPhotoEl.src = path[0].src;
-      this.classList.add('has-close');
-    };
-    this.shadowRoot.querySelector('.image-previews').appendChild(clone);
     deviceApi.camera.preview(this._previewEl, this._facingMode);
-    this._previewPhotoEl.src = '';
-
-    // const url = new URL(`http://localhost:3000/predictImage`);
-    // // params = {lat:35.696233, long:139.570431}
-    // let response = await fetch(url, {method: 'POST', body: JSON.stringify({image: base64}), headers: {'Content-Type': 'application/json'}});
-    // console.log(response);
-
-
-    // console.log('Predictions: ');
-    // console.log(predicti/ons);
-    // for (const { className, probability } of predictions) {
-    //   const el = document.createElement('span');
-    //   el.classList.add('selectable');
-    //   el.innerHTML = className;
-    //   this.shadowRoot.querySelector('selectable-input[name="name"]').add(el);
-    // }
   }
-
+  
+  nailUpload({detail}) {
+    const key = Number(this.nails.children.length) > 0 ? Number(this.nails.children.length) - 1 : 0
+    this.nails.add({key, src: detail})
+  }
+  
+  async addImage(key, name, img, size, quality) {
+    img = await webpEncoder.encode(img, size, quality)
+    const value = await ipfs.add(img)
+    const hash = value.cid.toString()
+    if (name === 0) await firebase.database().ref(`images/${key}`).set({timestamp: new Date().getTime()});
+    
+    await firebase.database().ref(`images/${key}/${name}`).set(hash);
+  }
+  
   async submit() {
     const value = {};
     const inputs = [
@@ -114,22 +119,33 @@ export default define(class AddProduct extends ElementBase {
       ...Array.from(this.shadowRoot.querySelectorAll('selectable-input'))
     ];
     inputs.forEach((input) => value[input.getAttribute('name')] = input.value);
-    let image = Array.from(this.shadowRoot.querySelector('.image-previews').children);
-    image = image.map((img) => img.src.split(',')[1]);
-    const body = JSON.stringify({
-      image,
-      ...value,
-      public: false
-    });
-    const url = `${window.functionsRoot}/api/product`;
-    const options = {
-      method: 'POST',
-      body,
-      mode: 'cors',
-      headers: { 'Content-Type': 'application/json' }
-    };
-    await fetch(url, options)
-    adminGo('products');
+    let image = Array.from(this.nails.children);    
+    image = image.map((img) => img.src)
+    
+    const snap = await firebase.database().ref(this.ref).push({...value});
+    let i = 0
+    for await (const img of image) {
+      await this.addImage(snap.key, i, img, 960, 95)
+      if (i === 0) {
+        await this.addImage(snap.key, 'thumbm', img, 320, 95)
+        await this.addImage(snap.key, 'thumb', img, 120, 85)
+        await this.addImage(snap.key, 'placeholder', img, 5, 25)
+      }
+    }
+    
+    const answer = await Notification.requestPermission();
+    if (answer === 'granted') {
+      navigator.serviceWorker.ready.then((registration) => {
+        registration.showNotification('Guldentop Veldwinkel', {
+          body: `Product ${value.name} saved as: ${snap.key}`,
+          link: 'https://guldentopveldwinkel.be',
+          data: snap.key
+        })
+      });
+    }
+    
+    globalThis.pubsub.publish(`event.${this.ref}`, { type: 'add', key: snap.key, value })
+    history.back()
   }
 
   get template() {
@@ -212,6 +228,7 @@ export default define(class AddProduct extends ElementBase {
   }
 </style>
 <custom-container class="container">
+  <slot name="timestamp"></slot>
   <span class="preview-container">
     <video class="preview" autoplay></video>
     <custom-svg-icon icon="close" class="close"></custom-svg-icon>
@@ -224,9 +241,8 @@ export default define(class AddProduct extends ElementBase {
       <custom-svg-icon icon="camera-rear" name="rear"></custom-svg-icon>
     </span>
   </span>
-  <span class="image-previews">
-
-  </span>
+  <image-nails></image-nails>
+  
   <selectable-input name="name" placeholder="naam"></selectable-input>
   <!-- <custom-input name="name" placeholder="naam"></custom-input> -->
   <custom-input name="description" placeholder="beschrijving"></custom-input>

@@ -7,35 +7,58 @@ export default define(class TopOrders extends ElementBase {
     this._stampOrders = this._stampOrders.bind(this);
     this._onClick = this._onClick.bind(this);
   }
+  get orderKeys() {
+    return window.topstore.databases.get('orderKeys');
+  }
   get orders() {
-    return this.oadb;
+    return window.topstore.databases.get('orders');
   }
   connectedCallback() {
     super.connectedCallback();
-    (async () => {
+    // (async () => {
       firebase.auth().onAuthStateChanged(async (user) => {
         if (user) {
-          window.orders = {};
-          // if (orders) {
-          //   for (const uid of Object.keys(orders)) {
-          //   // const snap = await firebase.database().ref(`users/${uid}/orders`).once('value');
-          //   // let order = snap.val();
-          //     Object.keys(order).map((o) => {
-          //       order[o][0].user = uid;
-          //     });
-          //   // orders = { ...orders, ...order }
-          //   }
-          // }
+          globalThis.orders = globalThis.orders || {}
+          globalThis.orderKeys = await this.orderKeys.get();
+          if(orderKeys && Object.keys(orderKeys).length === 0) globalThis.orderKeys = await this.orderKeys.get()
+          // await this._stampOrders();
+          pubsub.subscribe('orderKeys.added', async (key) => {
+            console.log({key}, 'added');
+            const user = await this.orderKeys.get(key);
+            console.log({user});
+            setTimeout(async () => {
+              let orders = await this.orders.get(user)
+              orders = await this.orders.get(user)
+              orders = await this.orders.get(user)
+              if (!globalThis.orders[user]) globalThis.orders[user] = {};
 
-          // window.orders = orders;
-          firebase.database().ref(`orders`).on('child_changed', this._stampOrders);
-          // const snap = await firebase.database().ref(`users/${user.uid}/orders`).once('value');
-          // window.orders = snap.val();
-          this._stampOrders();
+              for (const order of Object.keys(orders)) {
+                if (!orders[order][0].ready) {
+                  let item = this.querySelector(`[data-route="${order}"]`)
+                  if (!item) {
+                    item = document.createElement('top-order-item');
+                    this.appendChild(item);  
+                  }                
+                  orders[order][0].user = user;
+
+                  globalThis.orders[user][order] = orders[order];
+                  item.value = { key: order, order: orders[order] }
+                }
+              }
+            }, 1000);
+            
+          })
+          
+          pubsub.subscribe('orderKeys.remove', async (key) => {
+            console.log({key});
+            this.removeChild(this.querySelector(`[key=${key}]`))
+          })
         }
       });
-    })();
+    // })();
     this.addEventListener('click', this._onClick);
+    
+    
   }
   _onClick(e) {
     // this.selected =
@@ -50,14 +73,11 @@ export default define(class TopOrders extends ElementBase {
   }
 
   async _stampOrders() {
-    const snap = await firebase.database().ref(`orderKeys`).once('value');
-    window.orderKeys = snap.val();
-    this.innerHTML = '';
+    // this.innerHTML = '';
     if (orderKeys) {
       for (const key of Object.keys(orderKeys)) {
-        let orders = await firebase.database().ref(`orders/${key}`).once('value');
-        orders = orders.val();
-        if (!window.orders[key]) window.orders[key] = {};
+        let orders = await this.orders.get(key)
+        if (!globalThis.orders[key]) globalThis.orders[key] = {};
 
         for (const order of Object.keys(orders)) {
           if (!orders[order][0].ready) {
@@ -65,9 +85,8 @@ export default define(class TopOrders extends ElementBase {
             this.appendChild(item);
             orders[order][0].user = key;
 
-            window.orders[key][order] = orders[order];
-
-            item.value = { key: order, order: orders[order] };
+            globalThis.orders[key][order] = orders[order];
+            item.value = { key: order, order: orders[order] }
           }
         }
       }
@@ -92,6 +111,10 @@ export default define(class TopOrders extends ElementBase {
     box-sizing: border-box;
     padding: 12px;
     border-bottom: 1px solid #eee;
+  }
+  
+  ::slotted(:nth-of-type(odd)) {
+    background: #38464e;
   }
   @media (min-width: 640px) {
     :host {

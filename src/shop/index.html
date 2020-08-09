@@ -53,14 +53,12 @@
           });
         };
         @build:sw
-        @build:functionsRoot
       })();
       // comment
     </script>
-    <script defer src="/__/firebase/6.1.1/firebase-app.js"></script>
-    <script defer src="/__/firebase/6.1.1/firebase-auth.js"></script>
-    <script defer src="/__/firebase/6.1.1/firebase-database.js"></script>
-    <script defer src="/__/firebase/init.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/7.17.1/firebase-app.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/7.17.1/firebase-database.js"></script>
 
     <style media="screen">
       body {
@@ -75,6 +73,7 @@
         overflow: hidden;
         --toolbar-height: 48px;
         --custom-drawer-width: 256px;
+        font-family: 'roboto', sans-serif;
       }
       header {
         height: 56px;
@@ -242,18 +241,24 @@
     </app-shell>
     <script type="module">
       (async () => {
+        const firebaseConfig = {
+          apiKey: "AIzaSyAgSXxNo6LSsBHxa4El3MWbPjqfDgcD0h0",
+          authDomain: "topveldwinkel.firebaseapp.com",
+          databaseURL: "https://topveldwinkel.firebaseio.com",
+          projectId: "topveldwinkel",
+          storageBucket: "topveldwinkel.appspot.com",
+          messagingSenderId: "467877680173",
+          appId: "1:467877680173:web:1781bc21aadaef72"
+        }
+        
+        firebase.initializeApp(firebaseConfig);
         await import('./../iconset.js');
         await import('./shell.js');
-
         const shell = document.querySelector('app-shell');
         const pages = shell.shadowRoot.querySelector('custom-pages');
         document.addEventListener('mouseup', () => {
           if (matchMedia('(max-width: 641px)').matches && shell.drawerOpened) shell.drawerOpened = false;
         });
-
-        window.go = async (view, selection) => {
-          shell.select(view, selection);
-        }
       })();
     </script>
   </body>

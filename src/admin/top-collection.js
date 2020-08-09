@@ -41,6 +41,7 @@ export default define(class TopCollection extends ElementBase {
   async _onClick({path}) {
     if (path[0].classList.contains('confirm')) {
       await firebase.database().ref(`orders/${this.user}/${this.uid}/0/shipped`).set('true');
+      await firebase.database().ref(`collectionKeys/${this.uid}`).remove();
       let orders = await firebase.database().ref(`orders/${this.user}`).once('value');
       orders = orders.val();
       const notShipped = Object.keys(orders).reduce((p, order) => {

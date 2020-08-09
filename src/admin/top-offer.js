@@ -5,32 +5,54 @@ import './../custom-container.js';
 import './../../node_modules/custom-input/custom-input.js';
 import './../../node_modules/@vandeurenglenn/custom-date/custom-date.js';
 
+import './input-field.js'
+
 export default define(class TopOffer extends ProductEditorMixin {
   get addFieldIcon() {
     return this.shadowRoot.querySelector('[icon="add"]');
   }
   constructor() {
     super();
-    this.ref = 'offer';
+    this.ref = 'offers';
     this.addField = this.addField.bind(this);
   }
 
   connectedCallback() {
     if (super.connectedCallback) super.connectedCallback();
     this.addFieldIcon.addEventListener('click', this.addField);
+    
+    pubsub.subscribe(`event.${this.ref}`, async ({value, name, key, type}) => {
+      if (type === 'edit') {
+        let ref
+        if (name === 'name' || name === 'price') ref = `offerDisplay/${key}/${name}`
+        else ref = `offers/${key}/${name}`;  
+        
+        console.log(name, value);
+        offer[name] = value
+        await firebase.database().ref(ref).set(value)
+        
+      if (timeout) clearTimeout(timeout)
+      
+        timeout = setTimeout(() => {
+          console.log('changeeeee');
+          pubsub.publish(`event.${this.ref}`, {type: 'change', key, value: offer})
+          timeout = false
+        }, 2000);
+        
+      }
+      
+    })
   }
 
   async addField() {
     const name = await prompt('please enter field name');
     if (name) {
-      const span = document.createElement('span');
-      span.classList.add('column');
-      span.innerHTML = `
-      <h4><translated-string>${name}</translated-string></h4>
-      <custom-input name="${name}" type="text" value=""></custom-input>
-      `;
-
-      this.appendChild(span);
+      const field = document.createElement('input-field');
+      field.name = name
+      field.value = ''
+      field.ref = 'offers'
+      field.key = this._value
+      this.appendChild(field)
     }
   }
 
@@ -38,26 +60,21 @@ export default define(class TopOffer extends ProductEditorMixin {
     this.innerHTML = '';
     this.nails.clear()
     const offer = {...window.offers[this._value], ...window.offerDisplay[this._value], image: { ...window.images[this._value] }};
-
-    if (!offer.image) {
-      offer.image = await firebase.database().ref(`images/${this._value}`).once('value');
-      offer.image = offer.image.val();  
-    }
+    console.log({offer}, this._value);
     
+    offer.image = await firebase.database().ref(`images/${this._value}`).once('value');
+    
+    offer.image = offer.image.val() || [];  
+    console.log({offer}, this._value);
     delete offer.image.timestamp;
-    // console.log(offer);
+console.log(Object.keys(offer));
+    let timeout;
     for (const i of Object.keys(offer)) {
-      if (i === 'image') {
+      if (i === 'image' && offer[i]) {
         let val = offer[i];
         if (val) for (const key of Object.keys(val)) {
-          if (val[key] && key !== 'thumb' && key !== 'thumbm' && key !== 'placeholder') this.nails.add({ key, src: `${window.functionsRoot}/api/thumb/${val[key]}` });
+          if (val[key] && key !== 'thumb' && key !== 'thumbm' && key !== 'placeholder') this.nails.add({ key, src: `https://guldentopveldwinkel.be/ipfs/${val[key]}` });
         }
-        // if (typeof val === 'object') val = [...Object.entries(val)];
-        // if (!Array.isArray(val)) val = [val];
-        // val.forEach(([key, src]) => {
-        //   console.log(src);
-        //   this.nails.add({ key, src: `${window.functionsRoot}/api/thumb/${src}` });
-        // });
       } else if (i === 'public') {
         if (offer[i]) this.publicIcon.setAttribute('public', '')
       } else if (i === 'timestamp') {
@@ -71,13 +88,12 @@ export default define(class TopOffer extends ProductEditorMixin {
         `;
         this.appendChild(span);
       } else {
-        const span = document.createElement('span');
-        span.classList.add('column');
-        span.innerHTML = `
-        <h4><translated-string>${i}</translated-string></h4>
-        <custom-input name="${i}" type="text" value="${offer[i]}"></custom-input>
-        `;
-        this.appendChild(span);
+        const field = document.createElement('input-field');
+        field.name = i
+        field.value = offer[i]
+        field.ref = 'offers'
+        field.key = this._value
+        this.appendChild(field)
       }
     }
   }
@@ -146,12 +162,6 @@ export default define(class TopOffer extends ProductEditorMixin {
   </span>
 </custom-container>
 
-<span class="row toolbar center">
-  <custom-svg-icon icon="delete"></custom-svg-icon>
-  <span class="flex"></span>
-  <custom-svg-icon icon="public"></custom-svg-icon>
-  <span class="flex"></span>
-  <custom-svg-icon icon="save"></custom-svg-icon>
-</span>`;
+<shop-admin-action-bar></shop-admin-action-bar>`;
   }
 });

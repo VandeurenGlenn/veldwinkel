@@ -8,6 +8,9 @@ import './../../node_modules/custom-drawer/custom-drawer.js';
 import './../translator.js';
 import './../translated-string.js';
 import OADBManager from './../oadb-manager.js';
+import PubSub from './../../node_modules/@vandeurenglenn/little-pubsub/src/index.js'
+
+globalThis.pubsub = new PubSub()
 // import './top-products.js';
 // import './top-orders.js';
 // import './input-fields.js';
@@ -78,7 +81,50 @@ export default define(class AdminShell extends ElementBase {
     this.translatedTitle.value = this.selector.selected;
     this.selector.addEventListener('selected', this._selectorChange);
     this.menuIcon.addEventListener('click', this._menuClick);
-    this.selector.selected = 'orders';
+    
+    
+    globalThis.adminGo = async (view, selection) => {
+    if (selection && view === 'product') {
+      await import('./top-product.js');
+      const product = document.querySelector('top-product');
+      product.value = selection;
+    } else if (selection && view === 'offer') {
+      await import('./top-offer.js');
+      const offer = document.querySelector('top-offer');
+      offer.value = selection;
+    } else if (selection && view === 'order') {
+      await import('./top-order.js');
+      const order = document.querySelector('top-order');
+      order.value = selection;
+    } else if (view === 'add-product' || view === 'add-offer') {
+      await import(`./${view}.js`);
+    } else if (view === 'collection') {
+      await import('./top-collection.js');
+      const collection = document.querySelector('top-collection');
+      collection.value = selection;
+    }
+
+    history.pushState({selected: view}, view, `#${view}`);
+    this.pages.select(view);
+    }
+    
+    if (window.location.hash) {
+      let route = window.location.hash.split('#');
+      route = route[1].split('?');
+      this.selector.select(route[0]);
+      if (route[1]) {
+        const parts = route[1].split('=');
+        
+        this.pages.querySelector(`[route="${route[0]}"]`).value = parts[1]
+        globalThis.adminGo(route[0], parts[1])
+      } else {
+        globalThis.adminGo(route[0])
+      }
+      
+    } else {
+      this.selector.select('orders');
+      
+    }
     this._selectorChange();
     this._preload()
   }
@@ -112,24 +158,33 @@ export default define(class AdminShell extends ElementBase {
   async _selectorChange() {
     const selected = this.selector.selected;
     if (selected) {
-      if (selected === 'products') await import('./top-products.js');
-      if (selected === 'sheet') await import('./top-sheet.js');
-      if (selected === 'offers') await import('./top-offers.js');
-      if (selected === 'orders') await import('./top-orders.js');
-      if (selected === 'collections') await import('./top-collections.js');
-      if (selected === 'categories') await import('./top-categories.js');
-      if (selected === 'catalog') {
+      const prefix = './'
+      if (selected === 'products') await import(`${prefix}top-products.js`);
+      if (selected === 'sheet') await import(`${prefix}top-sheet.js`);
+      if (selected === 'offers') await import(`${prefix}top-offers.js`);
+      if (selected === 'orders') await import(`${prefix}top-orders.js`);
+      if (selected === 'collections') await import(`${prefix}top-collections.js`);
+      if (selected === 'categories') await import(`${prefix}top-categories.js`);
+      if (selected === 'catalog' || selected === 'offers' ||
+          selected === 'products' || selected === 'categories') {
         let items = Array.from(this.shadowRoot.querySelectorAll('[menu-item="catalog"]'))
         items = [ ...items, this.shadowRoot.querySelector('[data-route="catalog"]')]
-        if (items[0].hasAttribute('shown')) {
-          for (const item of items) {
-            item.removeAttribute('shown')
-          }
+        if (selected === 'catalog') {
+          if (items[0].hasAttribute('shown')) {
+            for (const item of items) {
+              item.removeAttribute('shown')
+            }
+          } else {
+            for (const item of items) {
+              item.setAttribute('shown', '')
+            }
+          }  
         } else {
           for (const item of items) {
             item.setAttribute('shown', '')
           }
         }
+        
       }
       if (selected !== 'catalog') {
         this.translatedTitle.value = selected;
@@ -149,6 +204,9 @@ export default define(class AdminShell extends ElementBase {
         position: relative;
         width: 100%;
         height: 100%;
+        color: #eee;
+        background: #445c68;
+        --svg-icon-color: #eee;
       }
       custom-drawer {
         position: absolute;
@@ -156,6 +214,7 @@ export default define(class AdminShell extends ElementBase {
         left: 0;
         bottom: 0;
         transform: translateX(-105%);
+        background: #1a1f229e;
       }
       ::slotted(custom-pages) {
         position: absolute;
@@ -164,15 +223,24 @@ export default define(class AdminShell extends ElementBase {
         top: 0;
         top: 56px;
         left: 0;
+        background: #1a1f229e;
+      }
+      translated-string[name="title"] {
+        padding-left: 12px;
+        text-transform: uppercase;
       }
       header {
         display: flex;
         align-items: center;
         height: 56px;
-        background: transparent;
+        min-height: 56px;
+        background: #38464e;
         position: absolute;
+        box-sizing: border-box;
         right: 0;
         width: 100%;
+        padding: 24px;
+        color: #eee;
       }
       custom-drawer header {
         position: relative;
@@ -184,7 +252,6 @@ export default define(class AdminShell extends ElementBase {
       }
       header h3 {
         margin: 0;
-        color: #616161;
         font-size: 20px;
       }
       custom-drawer .selection {
@@ -196,9 +263,12 @@ export default define(class AdminShell extends ElementBase {
         padding: 12px;
         text-transform: uppercase;
         cursor: pointer;
+        color: #eee;
       }
       custom-drawer .custom-selected {
         background: #eee;
+        color: #616161;
+        --svg-icon-color: #616161;
       }
       custom-drawer custom-svg-icon {
         pointer-events: none;
@@ -210,7 +280,7 @@ export default define(class AdminShell extends ElementBase {
       .flex {
         flex: 1;
       }
-
+      
       custom-selector {
         height: 100%;
       }
@@ -259,7 +329,6 @@ export default define(class AdminShell extends ElementBase {
     </style>
 
     <header class="main">
-
       <custom-svg-icon icon="menu" class="menu"></custom-svg-icon>
       <translated-string name="title"></translated-string>
     </header>
@@ -271,8 +340,6 @@ export default define(class AdminShell extends ElementBase {
       <custom-selector slot="content" attr-for-selected="data-route" selected="">
 
         <span class="row selection" data-route="orders" >
-          
-          
           bestellingen
         </span>
         
@@ -289,15 +356,15 @@ export default define(class AdminShell extends ElementBase {
         </span>
         
         <span class="row selection" data-route="categories" menu-item="catalog">          
-          categories
+          <translated-string>categories</translated-string>
         </span>
         
-        <span class="row selection" data-route="offers"  menu-item="catalog">          
-          aanbiedingen
+        <span class="row selection" data-route="offers"  menu-item="catalog">
+          <translated-string>offers</translated-string>
         </span>
 
         <span class="row selection" data-route="products" menu-item="catalog">
-          producten
+          <translated-string>products</translated-string>
         </span>
 
         <!-- <span class="row selection" data-route="sheet" >

@@ -1,16 +1,12 @@
 import { ElementBase, define } from './../base.js';
+import ProductEditorMixin from './product-editor-mixin.js';
 import './../image-nails.js';
 import './../custom-container.js';
 import './../translated-string';
 import './../../node_modules/custom-input/custom-input.js';
 
-export default define(class TopProduct extends ElementBase {
-  get deleteButton() {
-    return this.shadowRoot.querySelector('[icon="delete"]');
-  }
-  get nails() {
-    return this.shadowRoot.querySelector('image-nails');
-  }
+
+export default define(class TopProduct extends ProductEditorMixin {
   set value(value) {
     this._value = value;
     if (this.rendered) this.stamp();
@@ -18,31 +14,12 @@ export default define(class TopProduct extends ElementBase {
 
   constructor() {
     super();
-    this._onNailSwipe = this._onNailSwipe.bind(this);
-    this._onDelete = this._onDelete.bind(this);
+    this.ref = 'products';
   }
 
   connectedCallback() {
     if (super.connectedCallback) super.connectedCallback();
     if (this._value) this.stamp();
-    this.nails.addEventListener('image-swiped', this._onNailSwipe);
-    this.deleteButton.addEventListener('click', this._onDelete);
-  }
-
-  async _onDelete() {
-    const answer = await confirm('are you sure you want to remove this product?');
-    if (answer) {
-      firebase.database().ref(`products/${this._value}`).set(null);
-      adminGo('products');
-    }
-  }
-
-  _onNailSwipe({ detail }) {
-    let key;
-    if (detail) key = detail.getAttribute('key');
-    if (key) {
-      firebase.database().ref(`products/${this._value}/image/${key}`).set(null);
-    }
   }
 
   stamp() {
@@ -59,7 +36,7 @@ export default define(class TopProduct extends ElementBase {
           if (!Array.isArray(val)) val = [val];
           val.forEach(([key, src]) => {
             console.log(key, src);
-            this.nails.add({ key, src });
+            this.nails.add({ key, src: `https://ipfs.io/ipfs/${src}` });
           });
         } else {
           if (item !== 'packageCount') {
@@ -82,6 +59,15 @@ export default define(class TopProduct extends ElementBase {
   :host {
     display: flex;
     flex-direction: column;
+    align-items: center;
+  }
+  custom-input {
+    color: #eee;
+    /* box-shadow: 0px 1px 3px 1px #eee; */
+    border: 1px solid #38464e;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+  }
+  custom-container {
     overflow-y: auto;
   }
   .column {
@@ -91,10 +77,6 @@ export default define(class TopProduct extends ElementBase {
   }
 </style>
 <custom-container>
-<header>
-  <span class="flex"></span>
-  <custom-svg-icon icon="delete"></custom-svg-icon>
-</header>
 
 <image-nails></image-nails>
 
@@ -121,6 +103,8 @@ export default define(class TopProduct extends ElementBase {
   <h4><translated-string>packageCount</translated-string></h4>
   <span name="packageCount">${'packageCount'}</span>
 </span>
-</custom-container>`;
+</custom-container>
+
+<shop-admin-action-bar></shop-admin-action-bar>`;
   }
 });

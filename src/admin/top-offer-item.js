@@ -3,7 +3,11 @@ export default define(class TopOfferItem extends ElementBase {
   get _publicIcon() {
     return this.shadowRoot.querySelector('custom-svg-icon[icon="public"]');
   }
-
+  
+  get _name() {
+    return this.shadowRoot.querySelector('.name');
+  }
+ 
   set value(value) {
     this._value = value;
     console.log(value);
@@ -18,14 +22,28 @@ export default define(class TopOfferItem extends ElementBase {
     this.name = this.name.slice(0, 31);
     if (this.name.length < title.length) {
       this.name += '...';
-      this.shadowRoot.querySelector('.name').setAttribute('title', title);
+      this._name.setAttribute('title', title);
     }
     // this.stamp();
-    this.render({ name: this.name });
+    this.render()
+    this._name.innerHTML = this.name
+  }
+  
+  get value() {
+    return this._value
   }
 
   set key(value) {
     this._key = value;
+  }
+  
+  get key() {
+    return this._key
+  }
+  
+  set public(value) {
+    if (value) this._publicIcon.setAttribute('public', '');
+    else this._publicIcon.removeAttribute('public');
   }
 
   constructor() {
@@ -45,7 +63,7 @@ export default define(class TopOfferItem extends ElementBase {
         return true;
     }
   }
-
+  
   get template() {
     return html`<style>
   :host {
@@ -87,7 +105,7 @@ export default define(class TopOfferItem extends ElementBase {
 </style>
 
 <span class="row center">
-  <h4 class="name center">${'name'}</h4>
+  <h4 class="name center"></h4>
   <span class="flex"></span>
   <custom-svg-icon icon="public"></custom-svg-icon>
 </span>

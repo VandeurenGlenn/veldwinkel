@@ -1,8 +1,31 @@
 export default (() => {
   class DeviceApi {
     constructor() {
-      window.deviceApi = this;
+      globalThis.deviceApi = this;
     }
+    
+    async hasFrontCam() {
+      try {
+        await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user' }
+        })
+        return true
+      } catch (e) {
+        return false
+      }
+    }
+    
+    async hasBackCam() {
+      try {
+        await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment' }
+        })
+        return true
+      } catch (e) {
+        return false
+      }
+    }
+    
     /**
      * @param {string} facingMode ['environment'|'user'] -
      * the desired camera to use

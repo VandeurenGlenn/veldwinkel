@@ -3,8 +3,10 @@ import './../../node_modules/custom-input/custom-input.js';
 import './../top-button.js';
 import './../custom-container.js';
 import './../device-api.js';
+import './../image-nails.js';
+import ImageMixin from './image-mixin.js'
 
-export default define(class AddOffer extends ElementBase {
+export default define(class AddOffer extends ImageMixin(ElementBase) {
   get _submitButton() {
     return this.shadowRoot.querySelector('custom-svg-icon[icon="done"]');
   }
@@ -24,9 +26,14 @@ export default define(class AddOffer extends ElementBase {
   get _previewEl() {
     return this.shadowRoot.querySelector('.preview');
   }
+  
 
   get _previewPhotoEl() {
     return this.shadowRoot.querySelector('.preview-photo');
+  }
+  
+  get nails() {
+    return this.shadowRoot.querySelector('image-nails');
   }
 
   constructor() {
@@ -38,19 +45,29 @@ export default define(class AddOffer extends ElementBase {
     this._switchCameraFront = this._switchCameraFront.bind(this);
     this._switchCameraRear = this._switchCameraRear.bind(this);
     this._closePreview = this._closePreview.bind(this);
+    this.nailUpload = this.nailUpload.bind(this)
   }
 
   connectedCallback() {
     if (super.connectedCallback) super.connectedCallback();
-
-    deviceApi.camera.preview(this._previewEl);
-
-    this._camButton.addEventListener('click', this.takePhoto);
-    this._frontCamButton.addEventListener('click', this._switchCameraFront);
-    this._rearCamButton.addEventListener('click', this._switchCameraRear);
-    this._previewPhotoEl.addEventListener('click', this._closePreview);
+    this._init()
+  }
+  
+  async _init() {
+    if (await deviceApi.hasFrontCam() || await deviceApi.hasBackCam()) {
+      deviceApi.camera.preview(this._previewEl)
+      this._camButton.addEventListener('click', this.takePhoto);
+      this._frontCamButton.addEventListener('click', this._switchCameraFront);
+      this._rearCamButton.addEventListener('click', this._switchCameraRear);
+      this._previewPhotoEl.addEventListener('click', this._closePreview);
+    } else {
+      // TODO: hide _previewEl
+    }
+    
     this._submitButton.addEventListener('click', this.submit);
     this._publishButton.addEventListener('click', this._publish);
+    
+    this.nails.addEventListener('nail-upload', this.nailUpload)
   }
 
   _publish() {
@@ -86,42 +103,66 @@ export default define(class AddOffer extends ElementBase {
     fd.append('image', blob);
 
     const base64 = await readAsDataURL(blob);
-    // const e = await fetch(`http://localhost:5000/topveldwinkel/us-central1/api/add/offer`, { method: 'post', body: JSON.stringify({ image: base64.split(',')[1], name: '', price: '', type: '', public: false }), mode: 'cors', headers: { 'Content-Type': 'application/json' } });
-    // console.log(e);
-    this._previewPhotoEl.src = base64;
-    const clone = this._previewPhotoEl.cloneNode(true);
-    clone.classList.remove('preview-photo');
-    clone.classList.add('image-previews-image');
-    clone.onclick = ({ path }) => {
-      this._previewPhotoEl.src = path[0].src;
-      this.classList.add('has-close');
-    };
-    this.shadowRoot.querySelector('.image-previews').appendChild(clone);
+    const key = Number(this.nails.children.length) > 0 ? Number(this.nails.children.length) - 1 : 0
+    this.nails.add( {key, src: base64});
+
     deviceApi.camera.preview(this._previewEl, this._facingMode);
-    this._previewPhotoEl.src = '';
+  }
+  
+  nailUpload({detail}) {
+    const key = Number(this.nails.children.length) > 0 ? Number(this.nails.children.length) - 1 : 0
+    this.nails.add({key, src: detail})
   }
 
   async submit() {
     const value  = {};
-    const inputs = Array.from(this.shadowRoot.querySelectorAll('custom-input'));
-    let image = Array.from(this.shadowRoot.querySelector('.image-previews').children);
-    image = image.map((img) => img.src.split(',')[1]);
+    const inputs = Array.from(this.shadowRoot.querySelectorAll('custom-input'));    
     inputs.forEach((input) => value[input.getAttribute('name')] = input.value);
-    const body = JSON.stringify({
-      image,
-      ...value,
-      public: false
-    });
-    const url = `${window.functionsRoot}/api/offer`;
-    const options = {
-      method: 'POST',
-      body,
-      mode: 'cors',
-      headers: { 'Content-Type': 'application/json' }
-    };
-    await fetch(url, options)
-
-    adminGo('offers');
+    
+    let image = Array.from(this.nails.children);    
+    image = image.map((img) => img.src)
+    
+    const { name, price } = value
+    
+    delete value.name
+    delete value.price
+    
+    
+    const snap = await firebase.database().ref(`offers`).push({...value});
+    
+    globalThis.pubsub.publish('event.offers', { type: 'add', key: snap.key, value: {name, price, public: this.public, ...value}})
+    globalThis.adminGo('offers')
+    
+    await firebase.database().ref(`offerDisplay/${snap.key}`).set({name, price, public: this.public});
+    
+    
+    let i = 0
+    for await (const img of image) {
+      await this.addImage(snap.key, i, img, 960, 95)
+      if (i === 0) {
+        await this.addImage(snap.key, 'thumbm', img, 320, 95)
+        await this.addImage(snap.key, 'thumb', img, 120, 85)
+        await this.addImage(snap.key, 'placeholder', img, 5, 25)
+      }
+    }
+    // TODO: after promise.all and not notification?
+    // adminGo('offers');
+    const answer = await Notification.requestPermission();
+    if (answer === 'granted') {
+      if (!navigator.serviceWorker.controller) new Notification('Guldentop Veldwinkel', {
+        body: `Offer ${name} saved as: ${snap.key}`,
+        link: 'https://guldentopveldwinkel.be',
+        data: snap.key
+      })
+      else navigator.serviceWorker.ready.then((registration) => {
+        registration.showNotification('Guldentop Veldwinkel', {
+          body: `Offer ${name} saved as: ${snap.key}`,
+          link: 'https://guldentopveldwinkel.be',
+          data: snap.key
+        })
+      });
+    }
+    
   }
 
   get template() {
@@ -230,6 +271,7 @@ apply(--css-flex)
       <custom-svg-icon icon="camera-rear" name="rear"></custom-svg-icon>
     </span>
   </span>
+  <image-nails></image-nails>
   <span class="image-previews"></span>
 
   <custom-input name="name" title="name" placeholder="name"></custom-input>

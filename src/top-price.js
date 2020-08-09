@@ -24,7 +24,7 @@ export default define(class TopPrice extends ElementBase {
     }
   </style>
 
-  <custom-svg-icon icon="euro"></custom-svg-icon>
+  <custom-svg-icon icon="euro" itemprop="priceCurrency" content="euro" class="text"></custom-svg-icon>
   <span class="container"><slot></slot></span>`;
   }
 });

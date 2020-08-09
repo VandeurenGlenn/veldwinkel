@@ -1,21 +1,23 @@
 import { define, ElementBase } from './../base.js';
+import './../../node_modules/@vandeurenglenn/custom-date/custom-date.js'
 
 export default define(class TopOrder extends ElementBase {
 
   get offerDisplay() {
-    return window.topstore.databases.get('offerDisplay');
+    return globalThis.topstore.databases.get('offerDisplay');
   }
 
   get offers() {
-    return window.topstore.databases.get('offers');
+    return globalThis.topstore.databases.get('offers');
   }
 
   set value({ user, uid }) {
+    console.log(user, uid);
     if (user && uid) {
       const order = [...orders[user][uid]];
       const info = order.shift();
       this.order = order;
-      this.orderLength = order.length;
+      this.orderLength = Number(order.length);
       this.user = user;
       this.uid = uid;
       const promises = [];
@@ -49,7 +51,7 @@ export default define(class TopOrder extends ElementBase {
         
         <span class="row center" slot="info">
           <h4 class="name"><translated-string>collection time</translated-string>:</h4>
-          <translated-string>${info.collectionTime}</translated-string>
+          <custom-date lang="nl" value="${info.collectionTime[1]}"></custom-date>
         </span>
 
         <custom-selector multi="true" selected="[]" attr-for-selected="name">
@@ -72,7 +74,7 @@ export default define(class TopOrder extends ElementBase {
     this.addEventListener('click', async ({path}) => {
       if (path[0].classList.contains('confirm')) {
         const selected = this.querySelector('custom-selector').selected;
-        console.log(selected);
+        console.log(selected.length, this.orderLength);
         if (selected.length !== this.orderLength) {
           const answer = await confirm(`are you sure?\n it seem's you haven't selected all products,\n\nIf everyting is in stock press cancel\n\npress confirm if item is out of stock (users will see this in their order list)`)
 
@@ -88,12 +90,17 @@ export default define(class TopOrder extends ElementBase {
             };
             firebase.database().ref(`orders/${this.user}/${this.uid}/0/missing`).set(missing);
             firebase.database().ref(`orders/${this.user}/${this.uid}/0/ready`).set('true');
+            firebase.database().ref(`orderKeys/${this.uid}`).remove();
+            firebase.database().ref(`collectionKeys/${this.uid}`).set(this.user);
             adminGo('orders')
           }
         } else {
           firebase.database().ref(`orders/${this.user}/${this.uid}/0/ready`).set('true');
+          firebase.database().ref(`orderKeys/${this.uid}`).remove();
+          firebase.database().ref(`collectionKeys/${this.uid}`).set(this.user);
           adminGo('orders')
         }
+        
       }
       if (path[0].classList.contains('cancel')) adminGo('orders');
     })

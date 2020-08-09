@@ -49,8 +49,9 @@ export default define(class TopProducts extends ElementBase {
 
   stamp() {
     let index = 0;
+    console.log(products);
     for (const product of Object.keys(products)) {
-      let item = this.querySelector('index[index]');
+      let item = this.querySelector(`[index="${index}"]`);
       if (!item) {
         item = document.createElement('top-product-item');
         this.appendChild(item);
@@ -107,7 +108,7 @@ export default define(class TopProducts extends ElementBase {
     padding: 12px;
   }
   ::slotted(:nth-of-type(odd)) {
-    background: #eee;
+    background: #38464e;
   }
 </style>
 <span class="fab">

@@ -1,11 +1,11 @@
 module.exports = {
   staticFileGlobs: [
-    'public/admin/**',
-    'public/admin/assets/icons/**',
-    '!public/admin/service-worker.js',
-    'public/admin/*.js',
-    'public/admin/*.html'
+    'www/admin/**',
+    'www/admin/assets/icons/**',
+    '!www/admin/service-worker.js',
+    'www/admin/*.js',
+    'www/admin/*.html'
   ],
-  root: 'public/admin',
-  stripPrefix: 'public/admin'
+  root: 'www/admin',
+  stripPrefix: 'www/admin'
 };

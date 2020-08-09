@@ -6,6 +6,7 @@ console.log(idb);
  */
 export default class OADBSync {
   constructor(ref) {
+    console.log(this.isOnline());
     this.sync = this.sync.bind(this);
     this.name = ref;
     window.addEventListener('online', function(e) {
@@ -32,6 +33,7 @@ export default class OADBSync {
   }
 
   async init() {
+    console.log(this.isOnline());
     this.store = await new Store(`odb-${this.name}`, this.name);
     this.ref = firebase.database().ref(this.name);
     
@@ -40,7 +42,7 @@ export default class OADBSync {
     this.ref.on('child_changed', this.sync);
   }
 
-  async sync(data) {    
+  async sync(data) { 
     if (this.ref && this.isOnline()) {
       data = await this.ref.once('value');
       data = data.val();
@@ -51,7 +53,7 @@ export default class OADBSync {
           await set(key, data[key], this.store)
         }
       }
-    }   
+    }
   }
     
     
@@ -61,12 +63,12 @@ export default class OADBSync {
 
   async set(child, value) {
     if (child) {
-      return await set(child, value, this.localStore);
+      return await set(child, value, this.store);
     }
     const promises = [];
     
     for (const key of Object.keys(value)) {
-      promises.push(set(key, value[key], this.localStore))
+      promises.push(set(key, value[key], this.store))
     }
     return Promise.all(promises);
   }
@@ -74,21 +76,22 @@ export default class OADBSync {
   get(child) {
     return new Promise(async (resolve, reject) => {
       const online = this.isOnline();
-      let data;
+      console.log({online});
+      let data = {};
       if (child) data = await get(child, this.store);
       else {
         const dataKeys = await keys(this.store);
         if (dataKeys && dataKeys.length > 0) for (const key of dataKeys) {
-          data[key] = get(key, this.store)
+          data[key] = await get(key, this.store)
         }
       }
-      if (data) resolve(data);
+      if (data && Object.keys(data).length > 0) resolve(data);
       if (online && this.ref) {
         let snap;
         if (child) snap = await firebase.database().ref(`${this.name}/${child}`).once('value');
         else snap = await this.ref.once('value');
         snap = snap.val();
-        if (!data && snap) {
+        if (!data && snap || data && Object.keys(data).length === 0 && snap) {
           resolve(snap);
           if (child) await set(child, snap, this.store);
           else {

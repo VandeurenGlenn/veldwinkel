@@ -59,6 +59,27 @@ export default define(class ShopCheckout extends ElementBase {
             'publicKey': 'BOdoXP1aiNp.....kh3JUhiSZKHYF2Y='
           }
         },
+        'type': 'BASIC-CARD',
+        'parameters': {
+          allowedAuthMethods: [
+            'PAN_ONLY',
+            'CRYPTOGRAM_3DS'
+          ],
+          allowedCardNetworks: [
+            'MASTERCARD',
+            'VISA',
+            "amex", "discover"
+          ],
+          allowedTypes: ['debit', 'credit', 'prepaid']
+        }
+      }, {
+        'tokenizationSpecification': {
+          'type': 'DIRECT',
+          'parameters': {
+            'protocolVersion': 'ECv2',
+            'publicKey': 'BOdoXP1aiNp.....kh3JUhiSZKHYF2Y='
+          }
+        },
         'type': 'CARD',
         'parameters': {
           allowedAuthMethods: [

@@ -133,17 +133,17 @@ const resizeImage = (key, value, size, quality = 70) => new Promise((resolve, re
 })
 
 const _resizeImage = (key, size, quality = 25, buffer) => {
-  const file = bucket.file(`images/${key}.webp`);
+  const file = bucket.file(`images/${key}.png`);
   const uploadStream = file.createWriteStream({gzip: true, public: true});
   uploadStream.on('finish', async () => {
-    // resolve(`${key}.webp`);
+    // resolve(`${key}.png`);
   });
   uploadStream.on('error', error => {
     // reject(error)
   });
   const pipeline = sharp();  
-  if (buffer) pipeline.resize(size, size).webp({ quality }).toBuffer();
-  else pipeline.resize(size, size).webp({ quality }).pipe(uploadStream);
+  if (buffer) pipeline.resize(size, size).png({ quality }).toBuffer();
+  else pipeline.resize(size, size).png({ quality }).pipe(uploadStream);
   return pipeline;
 }
 
@@ -157,12 +157,12 @@ const readableStream = value => {
 }
 
 
-const resizeImages = async (images, key, ignore = key => false) => {
+const resizeImages = async (images, key, ignore = key, false) => {
   const promises = []
   for (let img of Object.keys(images)) {
     let url;
     // console.log(img);
-    if (images[img].indexOf('.png') === -1 && images[img].indexOf('.webp') === -1) {
+    if (images[img].indexOf('.png') === -1 && images[img].indexOf('.png') === -1) {
       if (images[img].indexOf('https://') !== -1) {
         // TODO: support urls or not?
         const buffer = await download(images[img])
@@ -172,11 +172,11 @@ const resizeImages = async (images, key, ignore = key => false) => {
           if (Number(img) === 0) stream.pipe(_resizeImage(`${key}-${img}`, 480, 100)).pipe(_resizeImage(`${key}-thumbm`, 240, 100)).pipe(_resizeImage(`${key}-thumb`, 120, 85)).pipe(_resizeImage(`${key}-placeholder`, 5, 25));
           else stream.pipe(_resizeImage(`${key}-${img}`, 480, 100));
           if (Number(img) === 0) {
-            promises.push(admin.database().ref(`images/${key}/placeholder`).set(`${key}-placeholder.webp`),
-            admin.database().ref(`images/${key}/thumb`).set(`${key}-thumb.webp`),
-            admin.database().ref(`images/${key}/thumbm`).set(`${key}-thumbm.webp`))
+            promises.push(admin.database().ref(`images/${key}/placeholder`).set(`${key}-placeholder.png`),
+            admin.database().ref(`images/${key}/thumb`).set(`${key}-thumb.png`),
+            admin.database().ref(`images/${key}/thumbm`).set(`${key}-thumbm.png`))
           }          
-          promises.push(admin.database().ref(`images/${key}/${img}`).set(`${key}-${img}.webp`));
+          promises.push(admin.database().ref(`images/${key}/${img}`).set(`${key}-${img}.png`));
         }  
       } else {
         const buffer = Buffer.from(images[img], 'base64');
@@ -185,27 +185,27 @@ const resizeImages = async (images, key, ignore = key => false) => {
           if (Number(img) === 0) stream.pipe(_resizeImage(`${key}-${img}`, 480, 100)).pipe(_resizeImage(`${key}-thumbm`, 240, 100)).pipe(_resizeImage(`${key}-thumb`, 120, 85)).pipe(_resizeImage(`${key}-placeholder`, 5, 25));
           else stream.pipe(_resizeImage(`${key}-${img}`, 480, 100));
           if (Number(img) === 0) {
-            promises.push(admin.database().ref(`images/${key}/placeholder`).set(`${key}-placeholder.webp`),
-            admin.database().ref(`images/${key}/thumb`).set(`${key}-thumb.webp`),
-            admin.database().ref(`images/${key}/thumbm`).set(`${key}-thumbm.webp`))
+            promises.push(admin.database().ref(`images/${key}/placeholder`).set(`${key}-placeholder.png`),
+            admin.database().ref(`images/${key}/thumb`).set(`${key}-thumb.png`),
+            admin.database().ref(`images/${key}/thumbm`).set(`${key}-thumbm.png`))
           }          
-          promises.push(admin.database().ref(`images/${key}/${img}`).set(`${key}-${img}.webp`));
+          promises.push(admin.database().ref(`images/${key}/${img}`).set(`${key}-${img}.png`));
         }        
       }
     } else {
       if (img !== 'thumb' && img !== 'placeholder') {
         // await admin.database().ref(`images/${key}/${img}`).set(images[img]);
-        const file = bucket.file(`images/${key}-${img}.webp`);
+        const file = bucket.file(`images/${key}-${img}.png`);
         const stream = file.createReadStream();
         if (Number(img) === 0) stream.pipe(_resizeImage(`${key}-${img}`, 480, 100)).pipe(_resizeImage(`${key}-thumbm`, 240, 100)).pipe(_resizeImage(`${key}-thumb`, 120, 85)).pipe(_resizeImage(`${key}-placeholder`, 5, 25));
         else stream.pipe(_resizeImage(`${key}-${img}`, 480, 100));
         if (Number(img) === 0) {
-          await admin.database().ref(`images/${key}/placeholder`).set(`${key}-placeholder.webp`);  
-          await admin.database().ref(`images/${key}/thumb`).set(`${key}-thumb.webp`);
-          await admin.database().ref(`images/${key}/thumbm`).set(`${key}-thumbm.webp`);
+          await admin.database().ref(`images/${key}/placeholder`).set(`${key}-placeholder.png`);  
+          await admin.database().ref(`images/${key}/thumb`).set(`${key}-thumb.png`);
+          await admin.database().ref(`images/${key}/thumbm`).set(`${key}-thumbm.png`);
         }
         
-        await admin.database().ref(`images/${key}/${img}`).set(`${key}-${img}.webp`);
+        await admin.database().ref(`images/${key}/${img}`).set(`${key}-${img}.png`);
       }
     }
   }
@@ -343,17 +343,17 @@ exports.sendEmailConfirmation = functions.database.ref('/orders/{userUID}/{order
   };
 
   const ready = val[0].ready;
-  dateMan.value = new Date().getTime();
-  dateMan.lang = 'nl';
-  if (val[0].collectionTime === 'tuesday') dateMan.next('dinsdag')
-  else if (val[0].collectionTime === 'friday') dateMan.next('vrijdag')
+  // dateMan.value = new Date().getTime();
+  // dateMan.lang = 'nl';
+  // if (val[0].collectionTime === 'tuesday') dateMan.next('dinsdag')
+  // else if (val[0].collectionTime === 'friday') dateMan.next('vrijdag')
   // Building Email message.
   mailOptions.subject = `Bestelling ${snapshot.key} ${ready ? 'klaar' : 'ontvangen'}!`;
-  mailOptions.text = `Bestelling ${ready ? ` ${snapshot.key} is klaar voor afhaling` : 'ontvangen,\nwij maken deze klaar voor afhaling'} op ${dateMan.days[dateMan.day]} ${dateMan.date}/${dateMan.month}`
-
+  // mailOptions.text = `Bestelling ${ready ? ` ${snapshot.key} is klaar voor afhaling` : 'ontvangen,\nwij maken deze klaar voor afhaling'} op ${val[0].collectionTime[1]}`
+  mailOptions.html = `<span>Bestelling ${ready ? ` ${snapshot.key} is klaar voor afhaling` : 'ontvangen,\nwij maken deze klaar voor afhaling'} op <strong>${new Date(Number(val[0].collectionTime[1]))}</strong></span>`
   try {
     await mailTransport.sendMail(mailOptions);
-    console.log(`Bestelling ${ready ? 'klaar' : 'ontvangen'} email sent to:`, val.email);
+    console.log(`Bestelling ${ready ? 'klaar' : 'ontvangen'} email sent to:`, val[0].email);
   } catch(error) {
     console.error('There was an error while sending the email:', error);
   }

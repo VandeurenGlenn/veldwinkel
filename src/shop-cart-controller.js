@@ -17,9 +17,10 @@ export default class ShopCartController {
   
   add(item) {
     if (this.items[item.uid]) {
-      this.items[item.uid].pieces += item.pieces;
+      this.items[item.uid].count += item.count;
       this.cart.change(this.items[item.uid]);
     } else {
+      if (!item.count) item.count = 1;
       this.items[item.uid] = item;
       
       this.cart.add(item);
@@ -37,14 +38,14 @@ export default class ShopCartController {
   remove(uid) {
     if (this.items[uid]) {
       delete this.items[uid];
-      this.cart.remove(uid);
+      this.cart.remove(uid);      
       this.cartAction.remove(uid);
     }
   }
   
   async checkout(set) {
     const snap = await firebase.database().ref(`orders/${user.uid}`).push(set);
-    firebase.database().ref(`orderKeys/${user.uid}`).set(true);
+    await firebase.database().ref(`orderKeys/${snap.key}`).set(user.uid);
     console.log(snap.key);
     // document.dispatchEvent(new CustomEvent('order-placed', { detail: snap.key }));
     const answer = await Notification.requestPermission();
@@ -77,7 +78,14 @@ u kan deze afhalen met: ${snap.key}`,
     let prompt = document.createElement('checkout-prompt');
     document.body.appendChild(prompt)
     const prompted = await prompt.show();
-
+    if (prompted[1] === 'googlepay') {
+      await import('./shop/shop-checkout.js')
+      const sh = document.createElement('shop-checkout')
+      document.body.appendChild(sh)
+      sh.paymentRequest([], 50)
+    }
+    
+    
     const set = [{
       collectionTime: prompted[0],
       payment: prompted[1],
@@ -91,9 +99,10 @@ u kan deze afhalen met: ${snap.key}`,
     keys.forEach(key => {
       console.log(this.items[key]);
       console.log(key);
+      console.log(this.cart.querySelector(`[uid="${key}"]`).count);
       set.push({
         product: key,
-        aantal: Number(this.cart.querySelector(`[uid="${key}"]`).getAttribute('count'))
+        aantal: Number(this.items[key].count)
       });
     })
 

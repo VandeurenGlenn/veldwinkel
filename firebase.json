@@ -4,7 +4,7 @@
   },
   "hosting": [
     {
-      "target": "default",
+      "target": "topveldwinkel",
       "public": "public/www",
       "ignore": [
         "firebase.json",

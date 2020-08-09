@@ -1,14 +1,14 @@
 module.exports = {
   templateFilePath: './service-worker.tmpl',
   staticFileGlobs: [
-    'public/shop/assets/**',
-    '!public/shop/service-worker.js',
-    'public/shop/*.js',
-    'public/shop/*.html',
-    'public/shop/manifest.json'
+    'www/shop/assets/**',
+    '!www/shop/service-worker.js',
+    'www/shop/*.js',
+    'www/shop/*.html',
+    'www/shop/manifest.json'
   ],
-  root: 'public/shop',
-  stripPrefix: 'public/shop',
+  root: 'www/shop',
+  stripPrefix: 'www/shop',
   runtimeCaching: [{
     urlPattern: /(.*)/,
     handler: 'fastest'

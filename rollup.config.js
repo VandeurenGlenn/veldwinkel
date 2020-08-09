@@ -1,30 +1,17 @@
 import { terser } from 'rollup-plugin-terser';
 import json from 'rollup-plugin-json';
-import cjs from 'rollup-plugin-commonjs';
+import resolve from '@rollup/plugin-node-resolve';
+import cjs from '@rollup/plugin-commonjs';
 import { execSync } from 'child_process';
 import { mkdirSync, writeFileSync, readFileSync } from 'fs';
-
-
-
-try {
-  execSync('cp public/assets/icons public/admin/assets -r');
-} catch (e) {
-  mkdirSync('public/admin/assets');
-  execSync('cp public/assets/icons public/admin/assets -r');
-}
+import modify from 'rollup-plugin-modify'
 
 try {
-  execSync('cp public/assets/icons public/shop/assets -r');
-} catch (e) {
-  mkdirSync('public/shop/assets');
-  execSync('cp public/assets/icons public/shop/assets -r');
+  execSync('rm www/**.js')
+} catch {
+  
 }
 
-try {
-  execSync('cp public/assets public/www -r');
-} catch (e) {
-  console.log(e);
-}
 
 const sw = `
 try {
@@ -38,29 +25,25 @@ try {
 }`;
 
 const prepareAndCopy = async (target) => {
-  execSync(`rm public/${target}/* -r`);
-  execSync(`cp src/${target}/index.html public/${target}`);
-  let index = await readFileSync(`public/${target}/index.html`);
+  execSync(`rm www/${target}/* -r`);
+  let index = await readFileSync(`src/${target}/index.html`);
   index = index.toString();
   let isProduction = execSync('set production');
+  console.log(isProduction.toString());
   isProduction = Boolean(isProduction.toString().split('=')[1] === 'true \r\n');
   index = index.replace('@build:sw', isProduction ? sw : '');
-  index = index.replace('@build:functionsRoot', `window.functionsRoot = ${isProduction} ? 'https://us-central1-topveldwinkel.cloudfunctions.net' : 'http://localhost:5000/topveldwinkel/us-central1'`);
-  await writeFileSync(`public/${target}/index.html`, index);
-  execSync(`cp src/${target}/manifest.json public/${target}`);
-  mkdirSync(`public/${target}/assets`);
-  execSync(`cp public/assets/icons public/${target}/assets -r`);
+  await writeFileSync(`www/${target}/index.html`, index);
 };
 
 prepareAndCopy('admin');
 prepareAndCopy('shop');
-execSync('cp src/shop/notification-listener.js public/shop');
+execSync('cp src/shop/notification-listener.js www/shop');
 
 export default [{
   input: ['src/iconset.js', 'src/top-icon-button.js', 'src/top-button.js',
     'src/home-imports.js'],
   output: {
-    dir: 'public/www',
+    dir: 'www',
     format: 'es'
   },
   plugins: [
@@ -70,9 +53,8 @@ export default [{
 }, {
   input: ['src/iconset.js', 'src/shop/shell.js', 'src/shop/client-product.js', 'src/shop/client-order.js', 'src/shop/item-list.js', 'src/shop/order-list.js', 'src/shop/top-client-order.js'],
   output: {
-    dir: 'public/shop',
-    format: 'es',
-    sourcemap: true
+    dir: 'www/shop',
+    format: 'es'
   },
   plugins: [
     json(),
@@ -86,16 +68,30 @@ export default [{
     'src/admin/top-offers.js', 'src/admin/top-offer.js',
     'src/admin/top-order.js', 'src/admin/top-orders.js',
     'src/admin/top-collections.js', 'src/admin/top-collection.js',
-    'src/admin/top-collection-item.js'
+    'src/admin/top-collection-item.js',
+    'src/admin/webp-worker.js'
   ],
   output: {
-    dir: 'public/admin',
-    format: 'es',
-    sourcemap: true
+    dir: 'www/admin',
+    format: 'es'
   },
   plugins: [
     json(),
+    resolve(),
     cjs(),
     terser({ keep_classnames: true })
   ]
+}, {
+	input: ['src/service-worker.js'],
+	output: {
+		dir: './www',
+		format: 'es',
+		sourcemap: false
+	},
+	plugins: [
+		json(),
+    modify({
+			SW_HASH: new Date().getTime()
+    })
+	]
 }];
