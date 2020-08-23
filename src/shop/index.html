@@ -2,19 +2,20 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <meta name="Content-Security-Policy" content="default-src 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#23ac56">
     <meta name="description" content="Een jong kleinschalig en dynamisch landbouwbedrijf op het knooppunt van Baal, Werchter en Betekom, gespecialiseerd in het telen van seizoensgebonden groenten en fruit.">
-    <title>Veldwinkel</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
-    <link rel="mask-icon" href="assets/icons/safari-pinned-tab.svg" color="#009688">
-    <link rel="shortcut icon" href="assets/icons/favicon.ico">
+    <title>Guldentop Veldwinkel Shop</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="https://guldentopveldwinkel.be/assets/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://guldentopveldwinkel.be/assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://guldentopveldwinkel.be/assets/icons/favicon-16x16.png">
+    <link rel="mask-icon" href="https://guldentopveldwinkel.be/assets/icons/safari-pinned-tab.svg" color="#009688">
+    <link rel="shortcut icon" href="https://guldentopveldwinkel.be/assets/icons/favicon.ico">
     <meta name="msapplication-TileColor" content="#009688">
-    <meta name="msapplication-config" content="assets/icons/browserconfig.xml">
+    <meta name="msapplication-config" content="https://guldentopveldwinkel.be/assets/icons/browserconfig.xml">
     <link rel="manifest" href="manifest.json">
-
+    <script src="https://www.paypal.com/sdk/js?client-id=Aa0fZtqD0RblJFLrVqDFcGU9UVJ1AK80y2xMao7SenFG_efWbF69KmxOnuGIQFcgfMqTho5-rk10Ak6o&currency=EUR&commit=true&buyer-country=BE&locale=nl_BE"> </script>
     <script>
       (async () => {
         const notifyUpdate = () => {
@@ -135,7 +136,7 @@
         cursor: pointer;
       }
       translated-string {
-        text-transform: uppercase;
+        /* text-transform: uppercase; */
       }
       .firebaseui-auth-container {
         z-index: 100;
@@ -234,7 +235,12 @@
     <app-shell>
       <header class="row toolbar">
         <custom-svg-icon icon="menu"></custom-svg-icon>
-        <translated-string class="selected" value="order"></translated-string>
+        
+        <!-- <h3>Guldentop veldwinkel</h3>
+        <br>
+        <span> - </span>
+        <br>
+        <translated-string class="selected" value="order"></translated-string> -->
         <span class="flex"></span>
         <top-button class="login-button"></top-button>
       </header>

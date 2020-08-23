@@ -397,7 +397,7 @@
 
       <section class="pickup-moments">
         <h3>afhaalmomenten</h3>
-        <p>dinsdag 16.00 - 16.30</p>
+        <p>dinsdag 17.00 - 18.00</p>
         <p>vrijdag 17.00 - 18.00</p>
 
         <h3>zelfbediening</h3>
@@ -427,11 +427,16 @@
           </span>
           <span class="features column">
             <span class="flex"></span>
-            <span class="link"><a href="https://guldentopveldwinkel.be/shop/">Shop</a></span>
-            <span class="link"><a href="https://guldentopveldwinkel.be/shop/#stock">stock</a></span>
-            <span class="link"><a href="https://guldentopveldwinkel.be/shop/#info">locatie</a></span>
-            <span class="link"><a href="https://guldentopveldwinkel.be/shop/#directions">routebeschrijving</a></span>
+            <span class="link"><a href="https://shop.guldentopveldwinkel.be/">Shop</a></span>
+            <span class="link"><a href="https://shop.guldentopveldwinkel.be/#stock">stock</a></span>
+            <span class="link"><a href="https://shop.guldentopveldwinkel.be/#info">locatie</a></span>
+            <span class="link"><a href="https://shop.guldentopveldwinkel.be/#directions">routebeschrijving</a></span>
             <span class="flex"></span>
+          </span>
+          
+          <span class="features column">
+            <h4 style="color: #fff;">paymentOptions</h4>
+            <img src="https://www.paypalobjects.com/webstatic/en_US/i/buttons/cc-badges-ppppcmcvdam.png" alt="Pay with PayPal, PayPal Credit or any major credit card" />
           </span>
         </ul>
       </footer>
@@ -468,7 +473,7 @@
             await e.prompt();
             const { outcome } = await e.userChoice;
             if (outcome === 'accepted') {
-              go('./shop/#install');
+              go('https://shop.guldentopveldwinkel.be/#install');
             }
           });
         }
@@ -489,11 +494,11 @@
         import('./home-imports.js');
 
         goShop.addEventListener('click', () => {
-          go('./shop/');
+          go('https://shop.guldentopveldwinkel.be/');
         });
 
         checkStock.addEventListener('click', () => {
-          go('./shop/#stock');
+          go('https://shop.guldentopveldwinkel.be/#stock');
         });
         
         // info.add

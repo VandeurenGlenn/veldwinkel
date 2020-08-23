@@ -62,6 +62,7 @@ export default define(class CheckoutPrompt extends ElementBase {
       <custom-selector attr-for-selected="name" selected="cash">
         <custom-selectable-item name="cash">cash</custom-selectable-item>
         <custom-selectable-item name="googlepay">Google Pay</custom-selectable-item>
+        <custom-selectable-item name="paypal">PayPal</custom-selectable-item>
       </custom-selector>
 
       <span class="flex"></span>
@@ -103,7 +104,7 @@ export default define(class CheckoutPrompt extends ElementBase {
         const selected = [];
         for (const selector of this.selectors) {
           if (selector.selected !== 'null')
-           if (selector.selected !== 'cash' && selector.selected !== 'googlepay') selected.push([selector.selected, this.shadowRoot.querySelector(`[name="${selector.selected}"]`).value]);
+           if (selector.selected !== 'cash' && selector.selected !== 'googlepay' && selector.selected !== 'paypal') selected.push([selector.selected, this.shadowRoot.querySelector(`[name="${selector.selected}"]`).value]);
            else selected.push(selector.selected)
         }
         console.log(selected);

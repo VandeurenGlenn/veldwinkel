@@ -91,7 +91,7 @@ export default define(class AppShell extends ElementBase {
         this.selector.select('products');
         await this._selectorChange();
       }
-      this.translatedTitle.value = this.selector.selected;
+      // this.translatedTitle.value = this.selector.selected;
       const loginButton = this.querySelector('.login-button');
       
       this._onResize();
@@ -166,7 +166,7 @@ export default define(class AppShell extends ElementBase {
     console.log(selected);
     if (selected) {
         this.selector.select(selected)
-    this.translatedTitle.value = selected;
+    // this.translatedTitle.value = selected;
     this.pages.select(selected);
     const url = subselected ? `#${selected}?uid=${subselected}` : `#${selected}`;
     history.pushState({selected}, selected, url);
@@ -272,12 +272,15 @@ export default define(class AppShell extends ElementBase {
     flex-direction: row;
     align-items: center;
     box-sizing: border-box;
-    padding: 12px;
+    padding: 24px;
     text-transform: uppercase;
     cursor: pointer;
+    color: #fff;
+    --svg-icon-color: #fff;
+    opacity: 0.88;
   }
   custom-drawer .custom-selected {
-    background: #eee;
+    background: #6a913d;
   }
   custom-drawer custom-svg-icon {
     pointer-events: none;
@@ -285,6 +288,10 @@ export default define(class AppShell extends ElementBase {
   custom-drawer {
     position: fixed;
     z-index: 100;
+  }
+  
+  custom-drawer custom-selector {
+    background: #ffffff linear-gradient(167deg, #48480d, #423e21 40rem);
   }
   .flex {
     flex: 1;
@@ -350,9 +357,6 @@ export default define(class AppShell extends ElementBase {
 
 <slot></slot>
 <custom-drawer>
-  <header slot="header">
-    <h3>Guldentop veldwinkel</h3>
-  </header>
 
   <custom-selector slot="content" attr-for-selected="data-route" selected="order">
 

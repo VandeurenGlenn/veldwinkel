@@ -65,7 +65,7 @@ export default define(class TopOrders extends ElementBase {
     const target = e.path[0];
     if (target.localName === 'top-order-item') this.selected = target.getAttribute('data-route');
     if (this.selected !== this.previousSelected) {
-      if (this.previousSelected) this.querySelector(`[data-route="${this.previousSelected}"]`).classList.remove('custom-selected');
+      if (this.previousSelected && this.querySelector(`[data-route="${this.previousSelected}"]`)) this.querySelector(`[data-route="${this.previousSelected}"]`).classList.remove('custom-selected');
       target.classList.add('custom-selected');
       this.previousSelected = this.selected;
       window.adminGo('order', { uid: this.selected, user: target.user });

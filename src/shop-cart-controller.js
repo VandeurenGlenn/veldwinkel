@@ -83,6 +83,12 @@ u kan deze afhalen met: ${snap.key}`,
       const sh = document.createElement('shop-checkout')
       document.body.appendChild(sh)
       sh.paymentRequest([], 50)
+    } else if (prompted[1] === 'paypal') {
+      
+      await import('./shop/paypal-checkout.js')
+      const sh = document.createElement('paypal-checkout')
+      document.body.appendChild(sh)
+      await sh.show()
     }
     
     

@@ -145,7 +145,6 @@ export default class OADB {
   get(child) {
     return new Promise(async (resolve, reject) => {
       const online = this.isOnline();
-      console.log(child);
       let data = {};
       if (child) data = await get(child, this.store);
       else {
@@ -154,7 +153,6 @@ export default class OADB {
           data[key] = await get(key, this.store)
         }
       }
-      console.log({data});
       if (data && Object.keys(data).length > 0) resolve(data);
       if (online && this.ref) {
         let snap;

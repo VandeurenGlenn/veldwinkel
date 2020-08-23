@@ -49,25 +49,18 @@ export default define(class TopCollections extends ElementBase {
               if (orders[collectionKeys[key]][order][0].ready && !orders[collectionKeys[key]][order][0].shipped) {
                 orders[collectionKeys[key]][order][0].user = collectionKeys[key];
                 collections[order] = orders[collectionKeys[key]][order];
-                
-                let item = this.querySelector(`[key=${collection}]`);
-                if (!item) {
-                  item = document.createElement('top-collection-item');
-                  this.appendChild(item);
-                }
-                item.value = { key: key, order: collections[key] };
               }
             });
             
-            // if (collections) for (const collection of Object.keys(collections)) {
-            //   let item = this.querySelector(`[key=${collection}]`);
-            //   if (!item) {
-            //     item = document.createElement('top-collection-item');
-            //     this.appendChild(item);
-            //   }
-            //   console.log({collection});
-            //   item.value = { key: collection, order: collections[collection] };
-            // }
+            if (collections) for (const collection of Object.keys(collections)) {
+              let item = this.querySelector(`[key=${collection}]`);
+              if (!item) {
+                item = document.createElement('top-collection-item');
+                this.appendChild(item);
+              }
+              console.log({collection});
+              item.value = { key: collection, order: collections[collection] };
+            }
           })
           
           pubsub.subscribe('collectionKeys.remove', key => {

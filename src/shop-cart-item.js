@@ -13,9 +13,9 @@ export default customElements.define('shop-cart-item', class ShopCartItem extend
     this.count = value.count || 1;
     
     (async () => {
-      let images = await topstore.databases.get('images')
-      images = await images.get(value.uid)
-      this.image = `https://ipfs.io/ipfs/${images.thumbm}`
+      // let images = await topstore.databases.get('images')
+      // images = await images.get(value.uid)
+      // this.image = `https://ipfs.io/ipfs/${images.thumbm}`
       this.uid = value.uid;
       this.setAttribute('uid', this.uid);
       this._stamp()
@@ -37,9 +37,7 @@ export default customElements.define('shop-cart-item', class ShopCartItem extend
         :host {
           display: flex;
           flex-direction: column;
-          height: 130px;
           width: 100%;
-          padding: 8px 16px 16px 0;
           box-sizing: border-box;
           font-size: 18px;
           --svg-icon-size: 18px;
@@ -48,7 +46,9 @@ export default customElements.define('shop-cart-item', class ShopCartItem extend
         .flex {
           flex: 1;
         }
-        
+        .flex2 {
+          flex: 2;
+        }
         .column {
           display: flex;
           flex-direction: column;
@@ -62,6 +62,7 @@ export default customElements.define('shop-cart-item', class ShopCartItem extend
           align-items: center;
           min-height: 26px;
           height: 100%;
+          width: 100%;
         }
         
         input {
@@ -84,6 +85,12 @@ export default customElements.define('shop-cart-item', class ShopCartItem extend
         p, strong {
           text-transform: uppercase;
         }
+        .price {
+          max-width: 88px;
+          width: 100%;
+          align-items: center;
+          justify-content: flex-end;
+        }
         @media (max-width: 321px) {
           img {
             width: 82px;
@@ -92,31 +99,24 @@ export default customElements.define('shop-cart-item', class ShopCartItem extend
       </style>     
       
       <span class="row">
-        <img src="${this.image}"></img>        
+        <!-- <img src="${this.image}"></img> -->
         
+        <!-- <span class="flex"></span> -->
+        <!-- <span class="column">       -->
+        <p class="name">${this.name}</p>
         <span class="flex"></span>
-        <span class="column">      
-          <span class="row">
-            <strong>naam</strong>
-            <span class="flex"></span>
-            <p>${this.name}</p>     
-          </span>
-          <span class="flex"></span>
-          <span class="row">
-            <strong>prijs</strong>
-            <span class="flex"></span>
-            <custom-svg-icon icon="euro"></custom-svg-icon>
-            <p>${this.price}</p>
-          </span>
-          <span class="flex"></span>
-          <span class="row">
-            <strong>aantal</strong>
-            <span class="flex"></span>
-            <input type="number" value="${this.count}"></input>
-          </span>
-          
-          <span class="flex"></span>
+        
+        <input type="number" value="${this.count}"></input>
+        
+      
+      
+        <span class="price row">
+          <custom-svg-icon icon="euro"></custom-svg-icon>
+          <p>${this.price}</p>
         </span>
+          
+          
+        
       </span>
     `;
     
