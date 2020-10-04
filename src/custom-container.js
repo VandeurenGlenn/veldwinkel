@@ -22,9 +22,9 @@ export default define(class CustomContainer extends ElementBase {
   :host([row]) {
     flex-direction: column;
   }
-  @media (min-width: 640px) {
+  @media (min-width: 720px) {
     ::slotted(*) {
-      max-width: 640px;
+      max-width: 720px;
     }
   }
 </style>

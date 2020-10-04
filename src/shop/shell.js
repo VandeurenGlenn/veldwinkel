@@ -99,6 +99,7 @@ export default define(class AppShell extends ElementBase {
       firebase.auth().onAuthStateChanged(async user => {
         console.log(user);
         if (user) {
+        if (user.email === "admin@veldwinkel.be") return logout()
           window.ref = firebase.database().ref(`${user.uid}`);
           window.user = user;
           if (user.photoURL) {
@@ -127,7 +128,7 @@ export default define(class AppShell extends ElementBase {
   
   _onResize() {    
     const {height, width} = this.pages.getClientRects()[0];
-    if (width > 720 && !this.drawerOpened) this.drawerOpened = true;
+    if (width > 960 && !this.drawerOpened) this.drawerOpened = true;
     requestAnimationFrame(() => {
       if (this.drawerOpened) this.map.width = width - 256;
       else this.map.width = width;
@@ -168,20 +169,29 @@ export default define(class AppShell extends ElementBase {
         this.selector.select(selected)
     // this.translatedTitle.value = selected;
     this.pages.select(selected);
+    this.pages.setAttribute('selected', selected)
     const url = subselected ? `#${selected}?uid=${subselected}` : `#${selected}`;
     history.pushState({selected}, selected, url);
       // if (selected === 'quick-order') {
       //   this.hideShopCartAction();
       //   await import('./top-client-order');
       // }
+      if (selected === 'home') {
+        this.hideShopCartAction()
+        await import('./sections/home.js');
+      }
+      if (selected === 'contact') {
+        this.hideShopCartAction()
+        await import('./sections/contact.js');
+      }
       if (selected === 'orders') {
         this.hideShopCartAction()
         await import('./order-list');
       }
-      if (selected === 'stock') {
-        this.hideShopCartAction()
-        await import('./item-list');
-      }
+      // if (selected === 'stock') {
+      //   this.hideShopCartAction()
+      //   await import('./item-list');
+      // }
       if (selected === 'cart') {
         this.hideShopCartAction()
         if (!this.pages.querySelector('shop-cart')) await import('./../shop-cart');
@@ -203,11 +213,11 @@ export default define(class AppShell extends ElementBase {
         if (!this.pages.querySelector('client-product').shadowRoot) await import('./client-product');        
         this.pages.querySelector('client-product').key = subselected;
       }
-      if (selected === 'directions') {
-        this.selector.select(this.selector.previousSelected);
-        window.open('https://www.google.com/maps/dir//Guldentop+Veldwinkel+Veldlocatie,+Laakweg,+3118+Werchter.+Parkeren+langs+de+grote+serre+op+het+veld+of+Guldentop+23.+Dit+is+een+zijwegje+van+de+Varentstraat+tussen+Geetsvondelweg+en,+Preterstraat,+3118+Werchter/@50.9785324,4.7525245,17z/data=!4m8!4m7!1m0!1m5!1m1!1s0x47c15d4466cd3215:0xfe59ae34b619fab4!2m2!1d4.7488689!2d50.9798556')
-        return;
-      }
+      // if (selected === 'directions') {
+      //   this.selector.select(this.selector.previousSelected);
+      //   window.open('https://www.google.com/maps/dir//Guldentop+Veldwinkel+Veldlocatie,+Laakweg,+3118+Werchter.+Parkeren+langs+de+grote+serre+op+het+veld+of+Guldentop+23.+Dit+is+een+zijwegje+van+de+Varentstraat+tussen+Geetsvondelweg+en,+Preterstraat,+3118+Werchter/@50.9785324,4.7525245,17z/data=!4m8!4m7!1m0!1m5!1m1!1s0x47c15d4466cd3215:0xfe59ae34b619fab4!2m2!1d4.7488689!2d50.9798556')
+      //   return;
+      // }
       if (selected === 'info') {
         this.routeInfo.src = 'https://maps.google.com/maps?q=guldentopveldwinkel&t=&z=17&ie=UTF8&iwloc=&output=embed';
       }
@@ -296,7 +306,15 @@ export default define(class AppShell extends ElementBase {
   .flex {
     flex: 1;
   }
+  
+  .row {
+    display: flex;
+  }
 
+  .column {
+    display: flex;
+    flex-direction: column;
+  }
   custom-selector {
     height: 100%;
   }
@@ -335,7 +353,10 @@ export default define(class AppShell extends ElementBase {
     height: 14px;
     width: 14px;
   }
-  @media (min-device-width: 720px) {
+  translated-string {
+    text-transform: uppercase;
+  }
+  @media (min-width: 960px) {
     section {
       align-items: center;
       justify-content: center;
@@ -353,24 +374,32 @@ export default define(class AppShell extends ElementBase {
       width: calc(100% - 256px);
     }
   }
+  /* custom-pages[selected="home"] {
+    top: 0;
+  } */
 </style>
 
 <slot></slot>
 <custom-drawer>
 
   <custom-selector slot="content" attr-for-selected="data-route" selected="order">
-
+    <span class="row selection" data-route="home" >
+      <custom-svg-icon icon="home"></custom-svg-icon>
+      <span class="flex"></span>
+      home
+    </span>
+    
     <span class="row selection" data-route="products" >
       <custom-svg-icon icon="shopping-basket"></custom-svg-icon>
       <span class="flex"></span>
       producten
     </span>
 
-    <span class="row selection" data-route="stock" >
+    <!-- <span class="row selection" data-route="stock" >
       <custom-svg-icon icon="dashboard"></custom-svg-icon>
       <span class="flex"></span>
       veld overzicht
-    </span>
+    </span> -->
     
     <!-- <span class="row selection" data-route="quick-order" >
       <custom-svg-icon icon="shopping-cart"></custom-svg-icon>
@@ -384,10 +413,10 @@ export default define(class AppShell extends ElementBase {
       <translated-string>location information</translated-string>
     </span>
 
-    <span class="row selection" data-route="directions" >
-      <custom-svg-icon icon="directions"></custom-svg-icon>
+    <span class="row selection" data-route="contact" >
+      <custom-svg-icon icon="info"></custom-svg-icon>
       <span class="flex"></span>
-      <translated-string>directions</translated-string>
+      <translated-string>contact</translated-string>
     </span>
     
     <span class="flex" style="pointer-events: none;"></span>
@@ -414,15 +443,20 @@ export default define(class AppShell extends ElementBase {
   </custom-selector>
 </custom-drawer>
 <custom-pages attr-for-selected="route">
+  <home-section route="home"></home-section>
+  <contact-section route="contact"></contact-section>
   <shop-cart route="cart"></shop-cart>
   <top-client-order route="quick-order"></top-client-order>
   <client-products route="products"></client-products>
   <client-product route="product"></client-product>
-  <item-list route="stock" type="stock"></item-list>
+  <!-- <item-list route="stock" type="stock"></item-list> -->
   <order-list route="orders" type="orders"></order-list>
   <client-order route="order" type="order"></client-order>
   <section route="info">
     <iframe class="route-info" width="600" height="500" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+    <h4 style="padding: 12px 16px;
+    box-sizing: border-box;
+    text-align: center;">Opgelet: gelieve niet te parkeren bij nr 33, onze parking bevind zich verder door langs de zij/veld(weg), vlak naast het veld.</h4>
   </section>
 </custom-pages>
 <shop-cart-action>

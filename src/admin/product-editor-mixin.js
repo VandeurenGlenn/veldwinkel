@@ -154,6 +154,8 @@ export default class ProductEditorMixin extends ImageMixin(ElementBase) {
     await firebase.database().ref(`offerDisplay/${this._value}/public`).set(this.publicIcon.hasAttribute('public'))
     
     globalThis.pubsub.publish(`event.${this.ref}`, { type: 'public', key: this._value, value: this.publicIcon.hasAttribute('public')})
+    const timestamp = new Date().getTime()
+    await firebase.database().ref(`offerDisplay/${this._value}/timestamp`).set(timestamp)
     history.back()
   }
 

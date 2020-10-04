@@ -1,6 +1,7 @@
 {
   "nl": {
     "between": "tussen",
+    "content": "inhoud",
     "description": "omschrijving",
     "products": "producten",
     "name": "naam",
@@ -29,6 +30,10 @@
     "ago": "geleden",
     "catalog": "catalogus",
     "categories": "categorieën",
-    "offers": "aanbiedingen"
+    "offers": "aanbiedingen",
+    "payment method": "betalingswijze",
+    "selfservice": "zelfbediening",
+    "completed": "voltooid",
+    "transaction": "transactie"
   }
 }

@@ -64,8 +64,8 @@ export default define(class PaypalCheckout extends ElementBase {
     `;
   }
 
-  show() {
-    
+  show(items) {
+    console.log(items);
     return new Promise((resolve, reject) => {
     this.prompt.show();
       

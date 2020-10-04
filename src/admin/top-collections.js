@@ -28,8 +28,8 @@ export default define(class TopCollections extends ElementBase {
           if (collectionKeys) for (const uid of Object.keys(collectionKeys)) {
             console.log(uid, collectionKeys[uid]);
             Object.keys(orders[collectionKeys[uid]]).map(order => {
-              if (orders[collectionKeys[uid]][order][0].ready && !orders[collectionKeys[uid]][order][0].shipped) {
-                orders[collectionKeys[uid]][order][0].user = collectionKeys[uid];
+              if (orders[collectionKeys[uid]][order].ready && !orders[collectionKeys[uid]][order].shipped) {
+                orders[collectionKeys[uid]][order].user = collectionKeys[uid];
                 collections[order] = orders[collectionKeys[uid]][order];
               }
             });
@@ -46,8 +46,8 @@ export default define(class TopCollections extends ElementBase {
             globalThis.collectionKeys = await this.collectionKeys.get()
             globalThis.orders = await this.orders.get()
             Object.keys(orders[collectionKeys[key]]).map(order => {
-              if (orders[collectionKeys[key]][order][0].ready && !orders[collectionKeys[key]][order][0].shipped) {
-                orders[collectionKeys[key]][order][0].user = collectionKeys[key];
+              if (orders[collectionKeys[key]][order].ready && !orders[collectionKeys[key]][order].shipped) {
+                orders[collectionKeys[key]][order].user = collectionKeys[key];
                 collections[order] = orders[collectionKeys[key]][order];
               }
             });

@@ -20,7 +20,7 @@ export default define(class TopOffer extends ProductEditorMixin {
   connectedCallback() {
     if (super.connectedCallback) super.connectedCallback();
     this.addFieldIcon.addEventListener('click', this.addField);
-    
+    let timeout;
     pubsub.subscribe(`event.${this.ref}`, async ({value, name, key, type}) => {
       if (type === 'edit') {
         let ref
@@ -28,8 +28,11 @@ export default define(class TopOffer extends ProductEditorMixin {
         else ref = `offers/${key}/${name}`;  
         
         console.log(name, value);
+        const offer = {...window.offers[this._value], ...window.offerDisplay[this._value], image: { ...window.images[this._value] }};
         offer[name] = value
         await firebase.database().ref(ref).set(value)
+        const timestamp = new Date().getTime()
+        await firebase.database().ref(`offers/${key}/timestamp`).set(timestamp)
         
       if (timeout) clearTimeout(timeout)
       
@@ -59,18 +62,26 @@ export default define(class TopOffer extends ProductEditorMixin {
   async stamp() {
     this.innerHTML = '';
     this.nails.clear()
-    const offer = {...window.offers[this._value], ...window.offerDisplay[this._value], image: { ...window.images[this._value] }};
-    console.log({offer}, this._value);
     
-    offer.image = await firebase.database().ref(`images/${this._value}`).once('value');
-    
-    offer.image = offer.image.val() || [];  
-    console.log({offer}, this._value);
+    const offer = {...window.offers[this._value], ...window.offerDisplay[this._value], image: { ...window.images[this._value] }}    
+    offer.image = await firebase.database().ref(`images/${this._value}`).once('value')    
+    offer.image = offer.image.val() || []
     delete offer.image.timestamp;
-console.log(Object.keys(offer));
+    
     let timeout;
+    console.log(offer);
     for (const i of Object.keys(offer)) {
-      if (i === 'image' && offer[i]) {
+      if (i === 'key') {        
+        const span = document.createElement('span');
+        span.classList.add('key');
+        span.setAttribute('slot', i)
+        span.innerHTML = `
+        <h4><translated-string>SKU</translated-string></h4>
+        <span class="flex"></span>
+        ${offer[i]}
+        `;
+        this.appendChild(span);
+      } else if (i === 'image' && offer[i]) {
         let val = offer[i];
         if (val) for (const key of Object.keys(val)) {
           if (val[key] && key !== 'thumb' && key !== 'thumbm' && key !== 'placeholder') this.nails.add({ key, src: `https://guldentopveldwinkel.be/ipfs/${val[key]}` });
@@ -146,13 +157,19 @@ console.log(Object.keys(offer));
   [public] {
     --svg-icon-color: #4caf50;
   }
+  ::slotted(.key) {
+    width: 100%;
+    mixin(--css-row)
+    mixin(--css-center)
+  }
   apply(--css-row)
   apply(--css-center)
   apply(--css-flex)
 </style>
 
-<custom-container>
+<custom-container>  
   <slot name="timestamp"></slot>
+  <slot name="key"></slot>
   <image-nails></image-nails>
   <slot></slot>
   <span class="wrapper">

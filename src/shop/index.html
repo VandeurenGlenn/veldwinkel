@@ -15,7 +15,27 @@
     <meta name="msapplication-TileColor" content="#009688">
     <meta name="msapplication-config" content="https://guldentopveldwinkel.be/assets/icons/browserconfig.xml">
     <link rel="manifest" href="manifest.json">
-    <script src="https://www.paypal.com/sdk/js?client-id=Aa0fZtqD0RblJFLrVqDFcGU9UVJ1AK80y2xMao7SenFG_efWbF69KmxOnuGIQFcgfMqTho5-rk10Ak6o&currency=EUR&commit=true&buyer-country=BE&locale=nl_BE"> </script>
+    
+    <script src="https://www.paypal.com/sdk/js?client-id=Aa0fZtqD0RblJFLrVqDFcGU9UVJ1AK80y2xMao7SenFG_efWbF69KmxOnuGIQFcgfMqTho5-rk10Ak6o&currency=EUR&commit=true"> </script>
+        
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "logo": "https://guldentopveldwinkel.be/images/veldwinkel-top-dark.png",
+        "url": "https://guldentopveldwinkel.be/",
+        "contactPoint": [{
+          "@type": "ContactPoint",
+          "telephone": "+32-495124115",
+          "contactType": "customer service"
+        }],
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://guldentopveldwinkel.be/shop/products?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
     <script>
       (async () => {
         const notifyUpdate = () => {
@@ -79,6 +99,7 @@
       header {
         height: 56px;
         align-items: center;
+        background: #5a5a2d;
       }
       section {
         display: flex;
@@ -134,6 +155,7 @@
         margin-right: 8px;
         pointer-events: auto;
         cursor: pointer;
+        --svg-icon-color: #fff;
       }
       translated-string {
         /* text-transform: uppercase; */
@@ -263,7 +285,7 @@
         const shell = document.querySelector('app-shell');
         const pages = shell.shadowRoot.querySelector('custom-pages');
         document.addEventListener('mouseup', () => {
-          if (matchMedia('(max-width: 641px)').matches && shell.drawerOpened) shell.drawerOpened = false;
+          if (matchMedia('(max-width: 960px)').matches && shell.drawerOpened) shell.drawerOpened = false;
         });
       })();
     </script>

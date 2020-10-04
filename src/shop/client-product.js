@@ -29,9 +29,9 @@ export default define(class ClientProduct extends ElementBase {
       const result = await Promise.all(promises);      
       if (images) {
         if (this.clientWidth > 320) {
-          this.shadowRoot.querySelector('img').src = `https://ipfs.io/ipfs/${images[0]}`;
+          this.shadowRoot.querySelector('img').src = `https://guldentopveldwinkel.be/ipfs/${images[0]}`;
         } else {
-          this.shadowRoot.querySelector('img').src = `https://ipfs.io/ipfs/${images['thumbm']}`;
+          this.shadowRoot.querySelector('img').src = `https://guldentopveldwinkel.be/ipfs/${images['thumbm']}`;
         }
       }
       
@@ -63,6 +63,48 @@ export default define(class ClientProduct extends ElementBase {
   _cartButtonClick() {
     this.item.image = this.shadowRoot.querySelector('img').src;
     shoppingCart.add(this.item)
+    const prompt = document.createElement('custom-prompt')
+    document.body.appendChild(prompt)
+    
+    prompt.innerHTML = `
+    
+    <span class="row center" slot="head">
+      <h3 style="margin: 0;">Product added</h3>
+      <span class="flex"></span>
+      <custom-svg-icon icon="close"></custom-svg-icon>
+    </span>
+    
+    <span class="flex"></span>
+    
+    <shop-cart-item></shop-cart-item>
+    
+    <span style="flex: 2;"></span>
+    
+    <span class="row">
+      <span class="flex"></span>
+      <top-icon-button icon="payment">checkout</top-icon-button>
+      <span class="flex"></span>
+    </span>
+    `
+    
+    prompt.querySelector('shop-cart-item').value = this.item
+    prompt.querySelector('[icon="payment"]').addEventListener('click', () => {
+      go('cart')
+      document.body.removeChild(prompt)
+    })
+    
+    prompt.querySelector('[icon="close"]').addEventListener('click', () => {
+      document.body.removeChild(prompt)
+    })
+
+    prompt.style.right = '56px'
+    prompt.style.bottom = '56px'
+    prompt.style.left = 'auto'
+    prompt.style.top = 'auto'
+    prompt.style.transform = 'translate(0, 0)'
+    prompt.style.maxWidth = '320px'
+    prompt.style.maxHeight = '320px'
+    prompt.show()
   }
 
   get template() {
@@ -129,6 +171,11 @@ export default define(class ClientProduct extends ElementBase {
       --top-icon-button-border-radius-left: 0;
     }
   }
+  
+  img {
+    max-width: 480px !important;
+  }
+  
 </style>
 <custom-container>
   <img></img>

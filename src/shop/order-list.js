@@ -28,6 +28,7 @@ export default define(class OrderList extends ElementBase {
     };
   }
   async _stampOrders() {
+    console.log(orders);
     if (orders) {
       for (const order of Object.keys(orders)) {
         let el;

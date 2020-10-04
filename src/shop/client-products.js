@@ -40,9 +40,9 @@ define(class ClientProductItem extends ElementBase {
     justify-content: center; */
     flex-direction: column;
     flex: 1 1;
-    max-width: 25%;
-    flex-basis: 25%;
-    width: 25%;
+    max-width: 50%;
+    flex-basis: 50%;
+    width: 50%;
     padding: 0 12px;
     box-sizing: border-box;
     overflow: hidden;
@@ -58,12 +58,14 @@ define(class ClientProductItem extends ElementBase {
     padding: 24px 0;
     box-sizing: border-box;
     pointer-events: none;
-    border-radius: 30px;
+    border-radius: 30px;border: 1px solid #eee;
   }
   .img {
     border-radius: 30px;
     max-height: 250px;
-    max-width: 100%;
+    max-width: 250px;
+    /* max-height: 214px;
+max-width: 214px; */
     background: var(--product-photo);
     min-height: 146px;
   }
@@ -81,25 +83,32 @@ define(class ClientProductItem extends ElementBase {
   .name {
     font-weight: 700;
   }
-  @media (max-width: 960px) {
+  @media (min-width: 960px) {
     :host {
       max-width: 50%;
       flex-basis: 50%;
       width: 50%;
     }
   }
+  @media (min-width: 1200px) {
+    :host {
+      max-width: calc(100% / 3);
+      flex-basis: calc(100% / 3);
+      width: calc(100% / 3);
+    }
+  }
   @media (min-width: 1400px) {
     :host {
-      max-width: calc(100% / 5);
-      flex-basis: calc(100% / 5);
-      width: calc(100% / 5);
+      max-width: calc(100% / 4);
+      flex-basis: calc(100% / 4);
+      width: calc(100% / 4);
     }
   }
   @media (min-width: 1920px) {
     :host {
-      max-width: calc(100% / 6);
-      flex-basis: calc(100% / 6);
-      width: calc(100% / 6);
+      max-width: calc(100% / 5);
+      flex-basis: calc(100% / 5);
+      width: calc(100% / 5);
     }
   }
 </style>

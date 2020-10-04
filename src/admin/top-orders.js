@@ -18,34 +18,36 @@ export default define(class TopOrders extends ElementBase {
     // (async () => {
       firebase.auth().onAuthStateChanged(async (user) => {
         if (user) {
-          globalThis.orders = globalThis.orders || {}
+          globalThis.gvw = globalThis.gvw || {}
           globalThis.orderKeys = await this.orderKeys.get();
           if(orderKeys && Object.keys(orderKeys).length === 0) globalThis.orderKeys = await this.orderKeys.get()
           // await this._stampOrders();
           pubsub.subscribe('orderKeys.added', async (key) => {
             console.log({key}, 'added');
-            const user = await this.orderKeys.get(key);
-            console.log({user});
-            setTimeout(async () => {
-              let orders = await this.orders.get(user)
-              orders = await this.orders.get(user)
-              orders = await this.orders.get(user)
-              if (!globalThis.orders[user]) globalThis.orders[user] = {};
-
+            // console.log(await this.orders.get(key));
+            // const user = await this.orderKeys.get(key);
+            // console.log({user});
+            // setTimeout(async () => {
+              let orders = await this.orders.get(key)
+              if (!globalThis.orders[key]) globalThis.orders[key] = {};
+console.log({orders});
+              if (!orders) return
+              
               for (const order of Object.keys(orders)) {
-                if (!orders[order][0].ready) {
+                if (!orders[order].ready) {
                   let item = this.querySelector(`[data-route="${order}"]`)
                   if (!item) {
                     item = document.createElement('top-order-item');
                     this.appendChild(item);  
                   }                
-                  orders[order][0].user = user;
+                  orders[order].key = order;
+                  orders[order].user = key;
 
-                  globalThis.orders[user][order] = orders[order];
+                  globalThis.orders[key][order] = orders[order];
                   item.value = { key: order, order: orders[order] }
                 }
               }
-            }, 1000);
+            // }, 1000);
             
           })
           

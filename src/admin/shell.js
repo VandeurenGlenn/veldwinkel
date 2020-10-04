@@ -102,6 +102,10 @@ export default define(class AdminShell extends ElementBase {
       await import('./top-collection.js');
       const collection = document.querySelector('top-collection');
       collection.value = selection;
+    } else if (view === 'settings') {
+      await import('./sections/settings.js');
+      const settings = document.querySelector('settings-section');
+      // collection.value = selection;
     }
 
     history.pushState({selected: view}, view, `#${view}`);
@@ -375,10 +379,10 @@ export default define(class AdminShell extends ElementBase {
 
         <span class="flex" style="pointer-events: none;"></span>
 
-        <span class="row selection" data-route="info" >
-          <custom-svg-icon icon="info"></custom-svg-icon>
+        <span class="row selection" data-route="settings" >
+          <custom-svg-icon icon="settings"></custom-svg-icon>
           <span class="flex"></span>
-          info
+          settings
         </span>
 
       </custom-selector>

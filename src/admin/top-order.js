@@ -10,23 +10,29 @@ export default define(class TopOrder extends ElementBase {
   get offers() {
     return globalThis.topstore.databases.get('offers');
   }
+  
+  
+  get orders() {
+    return window.topstore.databases.get('orders');
+  }
 
   set value({ user, uid }) {
-    console.log(user, uid);
-    if (user && uid) {
-      const order = [...orders[user][uid]];
-      const info = order.shift();
+    (async () => {
+      console.log(uid, user);
+      let order = await this.orders.get(user);
+      console.log({order});
+      order = order[uid]
       this.order = order;
-      this.orderLength = Number(order.length);
+      this.orderLength = order.products.length;
       this.user = user;
       this.uid = uid;
       const promises = [];
       (async () => {
-        for (const item of order) {
+        for (const item of order.products) {
           promises.push((async () => {
-            const { product, aantal } = item;
-            const { name } = await this.offerDisplay.get(product);
-            return `<span class="row selection" name="${product}">${name}<span class="flex" style="pointer-events: none;"></span>${aantal}</span>`
+            const { key, count } = item;
+            const { name } = await this.offerDisplay.get(key);
+            return `<span class="row selection" name="${key}">${name}<span class="flex" style="pointer-events: none;"></span>${count}</span>`
           })());
         }
         const result = await Promise.all(promises);
@@ -39,27 +45,47 @@ export default define(class TopOrder extends ElementBase {
         <span class="row center" slot="info">        
           <h4 class="name"><translated-string>name</translated-string>:</h4>
           
-          <p class="name">${info.displayName}</p>           
+          <span class="flex"></span>
+          <p class="name">${order.payer.name.surname} ${order.payer.name.given_name}</p>
         </span>
         
         <span class="row center" slot="info">        
           <h4 class="name">email:&nbsp;</h4>
           
-          <p class="name">${info.email}</p>
+          <span class="flex"></span>
+          <a href="">${order.payer.email_address}</a>
+        </span>
+        <span class="row center" slot="info">
+          <h4 class="name"><translated-string>payment</translated-string>:</h4>
+          <span class="flex"></span>
+          <p href="">${order.status}</p>
         </span>
         
-        
         <span class="row center" slot="info">
+          <h4 class="name"><translated-string>transaction id</translated-string>:</h4>
+          <span class="flex"></span>
+          <p href="">${order.id}</p>
+        </span>
+        <span class="row center" slot="info">
+          
+          
+        
           <h4 class="name"><translated-string>collection time</translated-string>:</h4>
-          <custom-date lang="nl" value="${info.collectionTime[1]}"></custom-date>
+          <span class="flex"></span>
+          <custom-date lang="nl" value="${order.collectionTime[1]}"></custom-date>
         </span>
 
         <custom-selector multi="true" selected="[]" attr-for-selected="name">
           ${result.join(' ')}
         </custom-selector>
         `;
+        
+        this.querySelector('a').href = `mailto:${order.payer.email_address}`
       })()
-    }
+    // }
+    
+      
+  })();
   }
 
   constructor() {
@@ -88,14 +114,14 @@ export default define(class TopOrder extends ElementBase {
                 if (selected.indexOf(o.product) === -1) missing.push(o.product);
               })
             };
-            firebase.database().ref(`orders/${this.user}/${this.uid}/0/missing`).set(missing);
-            firebase.database().ref(`orders/${this.user}/${this.uid}/0/ready`).set('true');
+            firebase.database().ref(`orders/${this.user}/${this.uid}/missing`).set(missing);
+            firebase.database().ref(`orders/${this.user}/${this.uid}/ready`).set('true');
             firebase.database().ref(`orderKeys/${this.uid}`).remove();
             firebase.database().ref(`collectionKeys/${this.uid}`).set(this.user);
             adminGo('orders')
           }
         } else {
-          firebase.database().ref(`orders/${this.user}/${this.uid}/0/ready`).set('true');
+          firebase.database().ref(`orders/${this.user}/${this.uid}/ready`).set('true');
           firebase.database().ref(`orderKeys/${this.uid}`).remove();
           firebase.database().ref(`collectionKeys/${this.uid}`).set(this.user);
           adminGo('orders')

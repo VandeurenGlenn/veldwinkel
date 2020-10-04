@@ -36,22 +36,13 @@ const prepareAndCopy = async (target) => {
 };
 
 prepareAndCopy('admin');
-prepareAndCopy('shop');
+// prepareAndCopy('shop');
+execSync('cp src/shop/index.html www/index.html');
 execSync('cp src/shop/notification-listener.js www/shop');
+execSync('cp src/third-party www/admin/third-party -r');
 
 export default [{
-  input: ['src/iconset.js', 'src/top-icon-button.js', 'src/top-button.js',
-    'src/home-imports.js'],
-  output: {
-    dir: 'www',
-    format: 'es'
-  },
-  plugins: [
-    json(),
-    terser({ keep_classnames: true })
-  ]
-}, {
-  input: ['src/iconset.js', 'src/shop/shell.js', 'src/shop/client-product.js', 'src/shop/client-order.js', 'src/shop/item-list.js', 'src/shop/order-list.js', 'src/shop/top-client-order.js'],
+  input: ['src/iconset.js', 'src/top-icon-button.js', 'src/home-imports.js', 'src/top-button.js', 'src/shop/sections/home.js', 'src/shop/shell.js', 'src/shop/client-product.js', 'src/shop/client-order.js', 'src/shop/item-list.js', 'src/shop/order-list.js', 'src/shop/top-client-order.js'],
   output: {
     dir: 'www/shop',
     format: 'es'
@@ -62,6 +53,7 @@ export default [{
   ]
 }, {
   input: [
+    'src/ipfs-controller.js',
     'src/admin/shell.js', 'src/admin/add-product.js', 'src/admin/add-offer.js',
     'src/top-button.js', 'src/iconset.js', 'src/admin/top-product.js',
     'src/admin/top-products.js', 'src/admin/top-sheet.js',

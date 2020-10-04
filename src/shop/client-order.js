@@ -46,25 +46,26 @@ export default define(class ClientOrder extends ElementBase {
     }
     this.innerHTML = '';
     this.busy = false;
-    const { collectionTime, payment } = snap[0];
+    console.log({snap});
+    const { collectionTime, id, products, status } = snap;
     const el = document.createElement('span');
     el.classList.add('column', 'heading');
     
     this.innerHTML = '';
     el.innerHTML = `
-    <span class="row"><strong>order</strong>: ${this.value}</span><br>
-    <span class="row"><strong><translated-string>collection time</translated-string></strong>: <custom-date lang="nl" value="${collectionTime[1]}"></custom-date></span><br>
-    <span class="row"><strong><translated-string>payment</translated-string></strong>: ${payment}</span><br>
+    <span class="column"><strong><translated-string>order</translated-string></strong><span class="flex"></span>${this.value}</span><br>
+    <span class="column"><strong><translated-string>collection time</translated-string></strong><span class="flex"></span><custom-date lang="nl" value="${collectionTime[1]}"></custom-date></span><br>
+    <span class="column"><strong><translated-string>payment</translated-string></strong><span class="flex"></span><translated-string>${status}</translated-string></span><br>
+    <span class="column"><strong>PayPal <translated-string>transaction</translated-string></strong><span class="flex"></span><translated-string>${id}</translated-string></span><br>
     `;
     this.appendChild(el);
-    snap.shift();
-    for (const item of snap) {
-      const snap = await firebase.database().ref(`offerDisplay/${item.product}`).once('value');
+    for (const item of snap.products) {
+      const snap = await firebase.database().ref(`offerDisplay/${item.key}`).once('value');
       item.product = snap.val();
       const el = document.createElement('span');
       el.classList.add('row', 'list-item');
       el.innerHTML = `
-      <strong>${item.aantal}</strong>
+      <strong>${item.count}</strong>
       <strong>${item.product.name}</strong>
       <span class="flex"></span>
       <top-price>${item.product.price}</top-price>
@@ -80,13 +81,18 @@ export default define(class ClientOrder extends ElementBase {
     display: flex;
     flex-direction: column;
     align-items: baseline;
+    box-sizing: border-box;
+    background: #48480d linear-gradient(167deg, #62622c, #a5ae99 40rem);
   }
   ::slotted(.heading) {
     mixin(--css-column)
-    height: 128px;
+    height: 254px;
     width: 100%;
     padding: 12px;
     box-sizing: border-box;
+    padding: 8px;
+    background: #48480d linear-gradient(167deg, #5a5a2d, #9da48b 40rem);
+    color: #fff;
   }
   ::slotted(.list-item) {
     mixin(--css-row)
@@ -99,7 +105,9 @@ export default define(class ClientOrder extends ElementBase {
   ::slotted(* .flex) {
     mixin(--css-flex)
   }
-
+  ::slotted(.row) {
+    mixin(--css-row)
+  }
 </style>
 <custom-container>
 <slot></slot>

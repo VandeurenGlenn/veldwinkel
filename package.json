@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "compile": "rollup -c",
     "watch": "set production=false && rollup -c -w",
-    "precache": "sw-precache --config=sw-precache-config.js && sw-precache --config=sw-precache-config-admin.js && sw-precache --config=sw-precache-config-shop.js",
+    "precache": "sw-precache --config=sw-precache-config.js && sw-precache --config=sw-precache-config-admin.js",
     "build": "set production=true && npm run compile",
     "serve": "jsproject --serve www",
     "serve:shop": "jsproject --serve www/shop --port 3001",

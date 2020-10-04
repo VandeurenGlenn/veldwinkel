@@ -225,7 +225,8 @@ export default customElements.define('image-nails', class ImageNails extends HTM
   :host {
     display: flex;
     flex-direction: row;
-    height: 176px;
+    max-height: 176px;
+    height: 100%;
     width: 100%;
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
                 0 1px 5px 0 rgba(0, 0, 0, 0.12),
@@ -235,6 +236,7 @@ export default customElements.define('image-nails', class ImageNails extends HTM
     user-select: none;
     padding: 24px;
     box-sizing: border-box;
+    min-height: 176px;
     }
   ::slotted(.swiped) {
     display: none;

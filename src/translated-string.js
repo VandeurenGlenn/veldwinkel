@@ -23,6 +23,6 @@ export default define(class TranslatedString extends ElementBase {
     if (!this.value && this.innerHTML) this.value = this.innerHTML;
   }
   translate(string) {
-    return window.translate(string);
+    return window.translate(string.toLowerCase());
   }
 });

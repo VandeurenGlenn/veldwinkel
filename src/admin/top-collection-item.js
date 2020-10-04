@@ -2,13 +2,12 @@ export default define(class TopCollectionItem extends ElementBase {
   set value({ key, order }) {
     console.log({ key, order });
     this.setAttribute('data-route', key);
-    this.user = order[0].user;
-    this.reference = order[0];
-    if (this.reference.ready) {
+    this.user = order.user;
+    if (order.ready) {
       this.setAttribute('ready', '');
     }
-    this.name = this.reference.displayName;
-    const total = order.length - 1;
+    this.name = `${order.payer.name.surname} ${order.payer.name.given_name}`;
+    const total = order.products.length;
     // this.stamp();
     this.render({ name: this.name, total });
     this.setAttribute('key', key)

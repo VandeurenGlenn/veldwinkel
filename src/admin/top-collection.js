@@ -6,18 +6,25 @@ export default define(class TopCollection extends ElementBase {
     console.log(user, {uid});
     if (user && uid) {
       const order = collections[uid];
-      const info = order[0];
-      delete order[0];
+      console.log(order);
       this.order = order;
       this.orderLength = order.length;
       this.user = user;
       this.uid = uid;
       console.log({ info });
       this.innerHTML = `
-      <h4 class="name" slot="info">${info.displayName}</h4>
-      <h4 class="name" slot="info">${info.email}</h4>
-        ${order.map(item => {
-          return `<span class="row" name="${item.product}">${item.product}<span class="flex" style="pointer-events: none;"></span>${item.aantal}</span>`
+      <span class="row">
+        <h4 class="name">name</h4>
+        <span class="flex"></span>
+        <h4 class="name" slot="info">${order.payer.name.surname} ${order.payer.name.given_name}</h4>
+      </span>
+      <span class="row">
+        <h4 class="name">email</h4>
+        <span class="flex"></span>
+        <h4 class="name">${order.payer.email_address}</h4>
+      </span>
+        ${order.products.map(item => {
+          return `<span class="row" name="${item.key}">${item.key}<span class="flex" style="pointer-events: none;"></span>${item.count}</span>`
         }).join(' ')}
       `;
       // if ()
@@ -40,13 +47,13 @@ export default define(class TopCollection extends ElementBase {
 
   async _onClick({path}) {
     if (path[0].classList.contains('confirm')) {
-      await firebase.database().ref(`orders/${this.user}/${this.uid}/0/shipped`).set('true');
+      await firebase.database().ref(`orders/${this.user}/${this.uid}/shipped`).set('true');
       await firebase.database().ref(`collectionKeys/${this.uid}`).remove();
       let orders = await firebase.database().ref(`orders/${this.user}`).once('value');
       orders = orders.val();
       const notShipped = Object.keys(orders).reduce((p, order) => {
         console.log(order);
-        if (!orders[order][0].shipped) p+=1;
+        if (!orders[order].shipped) p+=1;
         return p;
       }, 0)
       if (notShipped === 0) await firebase.database().ref(`orderKeys/${this.user}`).set(null);

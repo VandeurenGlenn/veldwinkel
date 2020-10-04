@@ -1,4 +1,5 @@
 import './shop-cart-item.js';
+
 customElements.define('history-prompt', class HistoryPrompt extends HTMLElement {
   constructor() {
     super();
@@ -10,7 +11,6 @@ customElements.define('history-prompt', class HistoryPrompt extends HTMLElement 
           flex-direction: column;
           box-sizing: border-box;
           background: #00000063;
-          z-index: 100;
           position: absolute;
           top: 0;
           left: 0;
@@ -40,6 +40,7 @@ customElements.define('history-prompt', class HistoryPrompt extends HTMLElement 
         :host([shown]) {
           opacity: 1;
           pointer-events: auto;
+          z-index: 1000;
         }
         
         custom-prompt {
@@ -112,6 +113,24 @@ export default customElements.define('shop-cart', class ShopCart extends HTMLEle
           width: 88px;
           justify-content: flex-end;
         }
+        
+        h3 {
+          padding: 24px 0;
+          text-transform: capitalize;
+          margin: 0;
+        }
+        .collection-times {
+          max-width: 320px;
+          width: 100%;
+          padding: 64px 0 44px 0;
+        }
+        .total-amount {
+          padding: 64px 0 44px 0;
+          height: 100%;          
+        }
+        .paypal {
+          width: 320px;
+        }
         /* @media (min-width: 1440px) {
           :host {
             position: absolute;
@@ -122,22 +141,29 @@ export default customElements.define('shop-cart', class ShopCart extends HTMLEle
       </style>
       <history-prompt></history-prompt>
       <custom-container>
-        <span class="row toolbar">
-        <strong>product</strong>
-          <!-- <translated-string>products</translated-string> -->
-          <span class="flex"></span>
-          <strong>aantal</strong>
-          
-          <strong class="price">prijs</strong>
-        </span>
+        
         <slot></slot>
+        <span class="row" style="width: 100%; padding-top: 72px;">
+          <span class="column collection-times" style="height: 100%;">
+            <h3><translated-string>collection times</translated-string></h3>
+            <custom-selector attr-for-selected="name" selected="tuesday">
+              <custom-selectable-date name="tuesday"></custom-selectable-date>
+              <custom-selectable-date name="friday"></custom-selectable-date>
+            </custom-selector>
+          </span>
+          
+          <span class="flex"></span>
+          
+          <span class="column total-amount"><h3>Total</h3><custom-svg-icon icon="euro"></custom-svg-icon><span class="total"></span><span class="flex"></span></span>
+        </span>
+        <span class="column paypal">
+          <h3><translated-string>payment method</translated-string></h3>
+          <slot name="paypal"></slot>
+        </span>
       </custom-container>
       
-      <span class="row">
-        <span class="flex"></span>
-        <top-button>checkout</top-button>
-        <span class="flex"></span>
-      </span>
+      <!-- <span class="row"> -->
+      <!-- </span> -->
       <!-- <span class="flex"></span> -->
     `;
   }
@@ -154,6 +180,9 @@ export default customElements.define('shop-cart', class ShopCart extends HTMLEle
     (async () => {
       let result
       if (value) {
+        let items = localStorage.getItem('cart')
+        items = JSON.parse(items)
+        if (items && Object.keys(items).length === 0) return
         result = await this.historyPrompt.show()
         if (result) {
           let items = localStorage.getItem('cart')
@@ -173,12 +202,125 @@ export default customElements.define('shop-cart', class ShopCart extends HTMLEle
   
   connectedCallback() {
     
-    this.button.addEventListener('click', this._submit)
+    this.items = {}
+    this.dates = this.shadowRoot.querySelectorAll('custom-selectable-date');
+    this.selectors = this.shadowRoot.querySelectorAll('custom-selector');
+    
+    (async () => {
+      const snap = await firebase.database().ref('settings/hours').once('value')
+      const { pickup, selfservice } = snap.val()
+      
+      this.dates[0].setAttribute('lang', 'nl');
+      this.dates[1].setAttribute('lang', 'nl');
+      this.dates[0].setAttribute('day', 'dinsdag');
+      this.dates[1].setAttribute('day', 'vrijdag');
+      this.dates[0].setAttribute('open', `${pickup.tuesday.from} - ${pickup.tuesday.to}`);
+      this.dates[1].setAttribute('open', `${pickup.friday.from} - ${pickup.friday.to}`);
+      this.dates[0].setAttribute('value', new Date().getTime());
+      this.dates[1].setAttribute('value', new Date().getTime());
+      this.dates[0]._date.next('dinsdag')
+      this.dates[1]._date.next('vrijdag')
+    })()
     
     if (Array.from(this.querySelectorAll('shop-cart-item')).length === 0) this.showHistory = true
+    const div = document.createElement('div')
+    div.setAttribute('id', 'paypal-buttons')
+    div.setAttribute('slot', 'paypal')
+    
+    this.appendChild(div)
+    
+    this._updatePaypalButtons()
   }
+  
+  _updatePaypalButtons() {
+    paypal.Buttons({
+      commit: true,
+      application_context: {
+        shipping_preference: 'NO_SHIPPING',
+      },
+      createOrder: (data, actions) => {
+        return this._createOrder(actions)
+      },
+      onApprove: async (data, actions) => {
+        // This function captures the funds from the transaction.
+        return actions.order.capture().then(async details => {
+          // This function shows a transaction success message to your buyer.
+          // alert('Transaction completed by ' + details.payer.name.given_name);
+          const products = []
+          Object.keys(this.items).map(key => {
+            products.push({key, count: Number(this.items[key].count)})
+          })
+          
+          const selector = this.shadowRoot.querySelector('custom-selector')
+          console.log({selector});
+          console.log(this.items);
+          const order = {
+            collectionTime: [selector.selected, this.shadowRoot.querySelector(`[name="${selector.selected}"]`).value],
+            products,
+            id: details.id,
+            payer: details.payer,
+            status: details.status
+          }
+          const snap = await firebase.database().ref(`orders/${user.uid}`).push(order);
+          // await firebase.database().ref(`orderKeys/${snap.key}`).set(user.uid);
+          await firebase.database().ref(`orderKeys/${user.uid}`).push(snap.key);
+          console.log(snap.key);
+          // document.dispatchEvent(new CustomEvent('order-placed', { detail: snap.key }));
+          const answer = await Notification.requestPermission();
+          if (answer === 'granted') {
+            navigator.serviceWorker.ready.then((registration) => {
+              registration.showNotification('Guldentop Veldwinkel', {
+                body: `order geplaatst
+      u kan deze afhalen met: ${snap.key}`,
+                link: 'https://guldentopveldwinkel.be',
+                data: snap.key,
+                actions: [{
+                  action: 'location',
+                  title: 'afhaallocatie'
+                }, {
+                  action: 'checkOrder',
+                  title: 'bekijk bestelling'
+                }]
+              });
+            });
+          }
+          Object.keys(this.items).forEach(key => this.remove(key))
+          go('order', snap.key)
+        });
+      }
+    }).render(this.querySelector('#paypal-buttons'))    
+  }
+  
+  
   _submit() {
     shoppingCart.submit()
+  }
+  
+  _calculateTotal() {
+    const purchase_units = []
+    // let items = localStorage.getItem('cart')
+    // items = JSON.parse(items)
+    for (const item of Object.keys(this.items)) {
+      purchase_units.push(this.items[item].price.replace(',', '.'))
+    }
+    const total = purchase_units.reduce((p, c) => {return p + Number(c)}, 0)
+    
+    return total
+  }
+  
+  _createOrder(actions) {
+    const value = this._calculateTotal()
+    
+    this.shadowRoot.querySelector('.total').innerHTML = value
+    
+    
+    return actions.order.create({
+      intent: 'CAPTURE',
+      application_context: {
+        shipping_preference: 'NO_SHIPPING',
+      },
+      purchase_units: [{amount: { value }}]
+    }) 
   }
   
   add(item) {
@@ -196,6 +338,9 @@ export default customElements.define('shop-cart', class ShopCart extends HTMLEle
     value[item.uid] = item
     localStorage.setItem('cart', JSON.stringify(value))
     this.showHistory = false
+    
+    this.items[item.uid] = item
+    this.shadowRoot.querySelector('.total').innerHTML = this._calculateTotal()
   }
   
   change(item) {
@@ -208,6 +353,10 @@ export default customElements.define('shop-cart', class ShopCart extends HTMLEle
     }
     value[item.uid] = item
     localStorage.setItem('cart', JSON.stringify(value))
+    
+    this.items[item.uid] = item
+    
+    this.shadowRoot.querySelector('.total').innerHTML = this._calculateTotal()
   }
   
   remove(uid) {
@@ -215,9 +364,13 @@ export default customElements.define('shop-cart', class ShopCart extends HTMLEle
     let value = localStorage.getItem('cart')
     if (value) {
       value = JSON.parse(value)
-      delete value[item.uid]
+      delete value[uid]
     }
     localStorage.setItem('cart', JSON.stringify(value))
     if (Array.from(this.querySelectorAll('shop-cart-item')).length === 0) this.showHistory = true
+    
+    delete this.items[uid]
+    this.shadowRoot.querySelector('.total').innerHTML = this._calculateTotal()
   }
+  
 });

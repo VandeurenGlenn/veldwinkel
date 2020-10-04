@@ -3,6 +3,7 @@ import './shop/checkout-prompt.js';
 export default class ShopCartController {
   
   constructor(cart, cartAction, items) {
+    console.log(cart);
     this.cart = cart;
     this.cartAction = cartAction;
     
@@ -13,6 +14,7 @@ export default class ShopCartController {
     window.shoppingCart.change = window.shoppingCart.change || this.change.bind(this);
     window.shoppingCart.remove = window.shoppingCart.remove || this.remove.bind(this);
     window.shoppingCart.submit = window.shoppingCart.submit || this.submit.bind(this);
+    window.shoppingCart.items = window.shoppingCart.items || this.items;
   }
   
   add(item) {
@@ -36,9 +38,9 @@ export default class ShopCartController {
   }
   
   remove(uid) {
+  this.cart.remove(uid);
     if (this.items[uid]) {
-      delete this.items[uid];
-      this.cart.remove(uid);      
+      delete this.items[uid];  
       this.cartAction.remove(uid);
     }
   }
@@ -88,7 +90,7 @@ u kan deze afhalen met: ${snap.key}`,
       await import('./shop/paypal-checkout.js')
       const sh = document.createElement('paypal-checkout')
       document.body.appendChild(sh)
-      await sh.show()
+      await sh.show(this.items)
     }
     
     

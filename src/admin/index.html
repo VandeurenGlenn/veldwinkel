@@ -123,7 +123,7 @@
         <top-categories route="categories"></top-categories>
         <add-product route="add-product"></add-product>
         <add-offer route="add-offer"></add-offer>
-        <gvw-home-settings route="gvw-home-settings"><gvw-home-settings>
+        <settings-section route="settings"><settings-section>
       </custom-pages>
     </admin-shell>
     <script type="module">
@@ -220,14 +220,10 @@
         history.pushState({selected: view}, view, `#${view}`);
         pages.select(view);
         }
-        
-        await import('https://cdn.jsdelivr.net/npm/ipfs@0.48.1/dist/index.min.js')
         // globalThis.gvw = globalThis.gvw || {}
-        globalThis.ipfs = await Ipfs.create({
-          config: {
-            bootstrap: ['/dns4/star.leofcoin.org/tcp/4003/wss/p2p/QmbBM3idU5h5Gw73YoncGfjXJhzxveNvefpYwMbLAZWvk4']
-          }
-        })
+        const importee = await import('./ipfs-controller.js')
+        await importee.default()
+        
       })();
     </script>
   </body>

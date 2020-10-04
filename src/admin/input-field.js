@@ -11,6 +11,14 @@ export default customElements.define('input-field', class InputField extends HTM
     this.shadowRoot.innerHTML = this.template
   }
   
+  get event() {
+    return this.getAttribute('event') || 'event.offers'
+  }
+  
+  set event(value) {
+    this.setAttribute('event', value)
+  }
+  
   set name(value) {
     this.shadowRoot.querySelector('translated-string').innerHTML = value
     this.shadowRoot.querySelector('custom-input').name = value
@@ -59,7 +67,7 @@ export default customElements.define('input-field', class InputField extends HTM
     this.shadowRoot.querySelector('custom-input').shadowRoot.querySelector('input').addEventListener('input', () => {
       if (timeout) clearTimeout(timeout)
       timeout = setTimeout(() => {
-        pubsub.publish(`event.offers`, { type: 'edit', key: this.key, name: this.name, value: this.value})
+        pubsub.publish(this.event, { type: 'edit', key: this.key, name: this.name, value: this.value})
         timeout = false
       }, 2000);
       

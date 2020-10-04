@@ -133,7 +133,7 @@ export default define(class AddOffer extends ImageMixin(ElementBase) {
     globalThis.pubsub.publish('event.offers', { type: 'add', key: snap.key, value: {name, price, public: this.public, ...value}})
     globalThis.adminGo('offers')
     
-    await firebase.database().ref(`offerDisplay/${snap.key}`).set({name, price, public: this.public});
+    await firebase.database().ref(`offerDisplay/${snap.key}`).set({name, price, public: this.public, index: Object.keys(offers).length});
     
     
     let i = 0
