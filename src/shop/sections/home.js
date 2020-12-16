@@ -6,33 +6,27 @@ export default customElements.define('home-section', class HomeSection extends H
     this.attachShadow({mode: 'open'})
     this.shadowRoot.innerHTML = this.template
   }
-  
+
   connectedCallback() {
     this.stampSettings()
-    
-    const go = url => {
-      const a = document.createElement('a');
-      a.href = url;
-      a.click();
-    }
 
-    const goShop = this.shadowRoot.querySelector('top-icon-button[name="order"]');
-    
-    goShop.addEventListener('click', () => {
-      go('https://guldentopveldwinkel.be/#products');
-    });
+    // const go = url => {
+    //   const a = document.createElement('a');
+    //   a.href = url;
+    //   a.click();
+    // }
   }
-  
+
   async stampSettings() {
-    
+
       const snap = await firebase.database().ref('settings/hours').once('value')
       console.log(snap);
       const { pickup, selfservice } = snap.val()
-      
+
       const el = this.shadowRoot.querySelector('.pickup-moments')
       el.innerHTML = `
       <h3>afhaalmomenten</h3>
-      <p class="tuesday">${pickup.tuesday.from} - ${pickup.tuesday.to}</p>
+      <p class="tuesday">dinsdag ${pickup.tuesday.from} - ${pickup.tuesday.to}</p>
       <p>vrijdag ${pickup.friday.from} - ${pickup.friday.to}</p>
       <h3>zelfbediening</h3>
       <p>dinsdag ${selfservice.tuesday.from} - ${selfservice.tuesday.to}</p>
@@ -49,6 +43,7 @@ export default customElements.define('home-section', class HomeSection extends H
       overflow-y: auto;
       --toolbar-height: 54px;
       --welcome-image-height: 410px;
+      pointer-events: none;
     }
     h3 {
       font-size: 24px;
@@ -327,7 +322,7 @@ export default customElements.define('home-section', class HomeSection extends H
         padding: 0 0 48px 2px;
       }
     }
-    
+
     @media (max-width: 1020px) {
       .features.column {
         width: 100%;
@@ -344,10 +339,8 @@ export default customElements.define('home-section', class HomeSection extends H
       }
     }
     </style>
-    
-    
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/brands.css" integrity="sha384-i2PyM6FMpVnxjRPi0KW/xIS7hkeSznkllv+Hx/MtYDaHA5VcF0yL3KVlvzp8bWjQ" crossorigin="anonymous" defer>
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/fontawesome.css" integrity="sha384-sri+NftO+0hcisDKgr287Y/1LVnInHJ1l+XC7+FOabmTTIK0HnE2ID+xxvJ21c5J" crossorigin="anonymous" defer>
+
+
     <main>
       <section class="welcome">
         <span class="overlay"></span>
@@ -357,7 +350,7 @@ export default customElements.define('home-section', class HomeSection extends H
       <!-- <span> -->
         <!-- <h3 class="title">Wat we doen</h3> -->
 
-      
+
       <!-- </span> -->
 
 
@@ -386,21 +379,20 @@ export default customElements.define('home-section', class HomeSection extends H
       </section>
 
       <span class="row button-container">
-        
+
         <span class="flex"></span>
-        <top-icon-button name="order" title="go checkout our goods in the shop" icon="shopping-cart">ontdek onze producten</top-icon-button>
+        <top-icon-button name="order" onclick="go('products')" title="go checkout our goods in the shop" icon="shopping-cart">ontdek onze producten</top-icon-button>
         <span class="flex"></span>
-        <!-- <top-icon-button name="go-shop" title="klik hier voor meer informatie" icon="info">meer info</top-icon-button> -->
       </span>
       <footer>
         <span class="overlay"></span>
         <ul class="about">
-        
+
           <span class="features column">
             <a href="mailto:info@guldentopveldwinkel.be" class="info"><custom-svg-icon icon="email" class="fas"></custom-svg-icon>guldentopveldwinkel@gmail.com</a>
             <span class="info"><custom-svg-icon icon="home" class="fas"></custom-svg-icon>Guldentop 23, 3118 Werchter</span>
             <span class="info"><custom-svg-icon icon="phone" class="fas"></custom-svg-icon>0495124115</span>
-            
+
             <span class="features row">
               <span class="link"><a href="https://www.facebook.com/GuldentopVeldwinkel"><i class="fab fa-facebook-square"></i></a></span>
               <span class="link"><a href="https://www.instagram.com/p/Bu-0zwLl8rj"><i class="fab fa-instagram"></i></a></span>
@@ -408,7 +400,7 @@ export default customElements.define('home-section', class HomeSection extends H
             </span>
             <span class="flex"></span>
           </span>
-          
+
           <span class="features column" >
             <span class="flex"></span>
             <span class="link"><a href="https://guldentopveldwinkel.be/#products">Producten</a></span>
@@ -417,7 +409,7 @@ export default customElements.define('home-section', class HomeSection extends H
             <span class="link"><a href="https://guldentopveldwinkel.be/#info">locatie</a></span>
             <span class="link"><a href="https://guldentopveldwinkel.be/#directions">routebeschrijving</a></span>
             <span class="flex"></span>
-            
+
             <span class="features column" style="padding-top: 32px;padding-left: 14px;">
               <img src="https://www.paypalobjects.com/webstatic/en_US/i/buttons/cc-badges-ppppcmcvdam.png" alt="Pay with PayPal, PayPal Credit or any major credit card" />
             </span>

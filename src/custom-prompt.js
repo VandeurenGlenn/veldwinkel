@@ -141,6 +141,10 @@ export default define(class CustomPrompt extends ElementBase {
   show() {
     this.setAttribute('shown', '');
   }
+  
+  hide() {
+    this.removeAttribute('shown');
+  }
 
   get template() {
     return html`
@@ -154,6 +158,7 @@ export default define(class CustomPrompt extends ElementBase {
     z-index: 100;
     padding: 36px 24px 16px 24px;
     box-sizing: border-box;
+    pointer-events: none;
   }
   .selector-item {
     display: block;

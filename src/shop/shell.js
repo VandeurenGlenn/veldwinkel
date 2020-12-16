@@ -1,4 +1,5 @@
 import { define, ElementBase } from './../base.js';
+import './controller.js';
 import './../../node_modules/custom-pages/src/custom-pages.js';
 import './../../node_modules/custom-selector/src/index.js';
 import './../../node_modules/custom-svg-icon/src/custom-svg-icon.js';
@@ -12,8 +13,8 @@ import './../translated-string.js';
 import './../translator.js';
 import OADBManager from './../oadb-manager.js';
 import './../custom-fab.js';
-import ShopCartController from './../shop-cart-controller.js';
 import './../top-button.js';
+import './../../node_modules/@vandeurenglenn/flex-elements/src/flex-elements'
 
 export default define(class AppShell extends ElementBase {
   get badge() {
@@ -75,27 +76,26 @@ export default define(class AppShell extends ElementBase {
       if (window.location.hash) {
         let route = window.location.hash.split('#');
         route = route[1].split('?');
-        if (route[1])
-        this.selector.select(route[0]);
+        if (route[1]) this.selector.select(route[0]);
         console.log(route[1]);
         if (route[1]) {
           const parts = route[1].split('=');
-          
+
           this.pages.querySelector(`[route="${route[0]}"]`).value = parts[1]
           this.select(route[0], parts[1])
         } else {
           this.select(route[0])
         }
-        
+
       } else {
         this.selector.select('products');
         await this._selectorChange();
       }
       // this.translatedTitle.value = this.selector.selected;
       const loginButton = this.querySelector('.login-button');
-      
+
       this._onResize();
-      
+
       firebase.auth().onAuthStateChanged(async user => {
         console.log(user);
         if (user) {
@@ -118,21 +118,21 @@ export default define(class AppShell extends ElementBase {
       });
       await import('./../shop-cart-action.js');
       await import('./../shop-cart.js');
-      new ShopCartController(this.cart, this.cartAction)
+      // new ShopCartController(this.cart, this.cartAction)
     })();
     document.addEventListener('counter-change', this._onCounterChange)
-    
+
 
     window.go = this.select;
   }
-  
-  _onResize() {    
+
+  _onResize() {
     const {height, width} = this.pages.getClientRects()[0];
     if (width > 960 && !this.drawerOpened) this.drawerOpened = true;
     requestAnimationFrame(() => {
       if (this.drawerOpened) this.map.width = width - 256;
       else this.map.width = width;
-      
+
       this.map.height = height;
     })
   }
@@ -145,33 +145,28 @@ export default define(class AppShell extends ElementBase {
   _menuClick() {
     this.drawerOpened = !this.drawerOpened;
   }
-  
+
   hideShopCartAction() {
     this.shadowRoot.querySelector('shop-cart-action').classList.add('hide');
     this.pages.style.bottom = 0;
   }
-  
+
   showShopCartAction() {
     this.shadowRoot.querySelector('shop-cart-action').classList.remove('hide');
     this.pages.style.bottom = '56px';
   }
-  
+
   _onCounterChange({detail}) {
     if (detail === 0) this.badge.classList.remove('active')
     else {
       if (!this.badge.classList.contains('active')) this.badge.classList.add('active')
     }
   }
-  
+
   async select(selected, subselected) {
     console.log(selected);
     if (selected) {
-        this.selector.select(selected)
-    // this.translatedTitle.value = selected;
-    this.pages.select(selected);
-    this.pages.setAttribute('selected', selected)
-    const url = subselected ? `#${selected}?uid=${subselected}` : `#${selected}`;
-    history.pushState({selected}, selected, url);
+
       // if (selected === 'quick-order') {
       //   this.hideShopCartAction();
       //   await import('./top-client-order');
@@ -210,7 +205,7 @@ export default define(class AppShell extends ElementBase {
       }
       if (selected === 'product') {
         this.showShopCartAction();
-        if (!this.pages.querySelector('client-product').shadowRoot) await import('./client-product');        
+        if (!this.pages.querySelector('client-product').shadowRoot) await import('./client-product');
         this.pages.querySelector('client-product').key = subselected;
       }
       // if (selected === 'directions') {
@@ -221,6 +216,12 @@ export default define(class AppShell extends ElementBase {
       if (selected === 'info') {
         this.routeInfo.src = 'https://maps.google.com/maps?q=guldentopveldwinkel&t=&z=17&ie=UTF8&iwloc=&output=embed';
       }
+      this.selector.select(selected)
+  // this.translatedTitle.value = selected;
+  this.pages.select(selected);
+  this.pages.setAttribute('selected', selected)
+  const url = subselected ? `#${selected}?uid=${subselected}` : `#${selected}`;
+  history.pushState({selected}, selected, url);
     }
     return
   }
@@ -228,7 +229,7 @@ export default define(class AppShell extends ElementBase {
   _selectorChange() {
     return this.select(this.selector.selected);
   }
-  
+
   get template() {
     return html`
 <style>
@@ -238,7 +239,7 @@ export default define(class AppShell extends ElementBase {
     position: relative;
     width: 100%;
     height: 100%;
-    
+
     --svg-icon-color: #535353;
   }
   custom-drawer {
@@ -299,14 +300,14 @@ export default define(class AppShell extends ElementBase {
     position: fixed;
     z-index: 100;
   }
-  
+
   custom-drawer custom-selector {
     background: #ffffff linear-gradient(167deg, #48480d, #423e21 40rem);
   }
   .flex {
     flex: 1;
   }
-  
+
   .row {
     display: flex;
   }
@@ -333,14 +334,14 @@ export default define(class AppShell extends ElementBase {
     right: 0;
   }
   .hide {
-    
+
     height: 0;
     overflow: hidden;
     width: 0;
     opacity: 0;
     pointer-events: none;
   }
-  
+
   .badge {
     border-radius: 50%;
     display: flex;
@@ -388,7 +389,7 @@ export default define(class AppShell extends ElementBase {
       <span class="flex"></span>
       home
     </span>
-    
+
     <span class="row selection" data-route="products" >
       <custom-svg-icon icon="shopping-basket"></custom-svg-icon>
       <span class="flex"></span>
@@ -400,7 +401,7 @@ export default define(class AppShell extends ElementBase {
       <span class="flex"></span>
       veld overzicht
     </span> -->
-    
+
     <!-- <span class="row selection" data-route="quick-order" >
       <custom-svg-icon icon="shopping-cart"></custom-svg-icon>
       <span class="flex"></span>
@@ -409,7 +410,7 @@ export default define(class AppShell extends ElementBase {
 
     <span class="row selection" data-route="info" >
       <custom-svg-icon icon="map"></custom-svg-icon>
-      <span class="flex"></span>      
+      <span class="flex"></span>
       <translated-string>location information</translated-string>
     </span>
 
@@ -418,7 +419,7 @@ export default define(class AppShell extends ElementBase {
       <span class="flex"></span>
       <translated-string>contact</translated-string>
     </span>
-    
+
     <span class="flex" style="pointer-events: none;"></span>
 
     <!-- <span class="row selection" data-route="about" >
@@ -426,13 +427,13 @@ export default define(class AppShell extends ElementBase {
       <span class="flex"></span>
       about
     </span> -->
-    
+
     <span class="row selection" data-route="cart" >
       <custom-svg-icon icon="shopping-cart"></custom-svg-icon>
       <span class="badge"></span>
       <span class="flex"></span>
       <translated-string>shopping cart</translated-string>
-    </span>    
+    </span>
 
     <span class="row selection" data-route="orders" >
       <custom-svg-icon icon="orders"></custom-svg-icon>
@@ -456,7 +457,7 @@ export default define(class AppShell extends ElementBase {
     <iframe class="route-info" width="600" height="500" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
     <h4 style="padding: 12px 16px;
     box-sizing: border-box;
-    text-align: center;">Opgelet: gelieve niet te parkeren bij nr 33, onze parking bevind zich verder door langs de zij/veld(weg), vlak naast het veld.</h4>
+    text-align: center;">Opgelet: gelieve niet te parkeren bij nr 33, onze parking bevindt zich verder door langs de zij/veld(weg), vlak naast het veld.</h4>
   </section>
 </custom-pages>
 <shop-cart-action>

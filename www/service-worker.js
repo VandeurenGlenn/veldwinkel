@@ -1,6 +1,6 @@
 // import LeofcoinApi from './../node_modules/lfc-api/src/api.js';
 
-var CACHE_NAME = 1601833610690;
+var CACHE_NAME = 1608119055594;
 var urlsToCache = [
   '/',
   '/index.html'

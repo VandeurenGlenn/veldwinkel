@@ -7,7 +7,7 @@ import { mkdirSync, writeFileSync, readFileSync } from 'fs';
 import modify from 'rollup-plugin-modify'
 
 try {
-  execSync('rm www/**.js')
+  execSync('rm www/**/**.js')
 } catch {
   
 }
@@ -25,7 +25,7 @@ try {
 }`;
 
 const prepareAndCopy = async (target) => {
-  execSync(`rm www/${target}/* -r`);
+  // execSync(`rm www/${target}/*.js`);
   let index = await readFileSync(`src/${target}/index.html`);
   index = index.toString();
   let isProduction = execSync('set production');
@@ -36,10 +36,11 @@ const prepareAndCopy = async (target) => {
 };
 
 prepareAndCopy('admin');
+prepareAndCopy('shop');
 // prepareAndCopy('shop');
 execSync('cp src/shop/index.html www/index.html');
 execSync('cp src/shop/notification-listener.js www/shop');
-execSync('cp src/third-party www/admin/third-party -r');
+execSync('cp src/third-party www/admin -r');
 
 export default [{
   input: ['src/iconset.js', 'src/top-icon-button.js', 'src/home-imports.js', 'src/top-button.js', 'src/shop/sections/home.js', 'src/shop/shell.js', 'src/shop/client-product.js', 'src/shop/client-order.js', 'src/shop/item-list.js', 'src/shop/order-list.js', 'src/shop/top-client-order.js'],

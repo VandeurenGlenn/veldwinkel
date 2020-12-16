@@ -5,8 +5,8 @@
     <meta name="Content-Security-Policy" content="default-src 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#23ac56">
-    <meta name="description" content="Een jong kleinschalig en dynamisch landbouwbedrijf/webshop op het knooppunt van Baal, Werchter en Betekom, gespecialiseerd in het telen van seizoensgebonden groenten en fruit.">
-    <title>Guldentop Veldwinkel</title>
+    <meta name="description" content="Een jong kleinschalig en dynamisch landbouwbedrijf op het knooppunt van Baal, Werchter en Betekom, gespecialiseerd in het telen van seizoensgebonden groenten en fruit.">
+    <title>Guldentop Veldwinkel Shop</title>
     <link rel="apple-touch-icon" sizes="180x180" href="https://guldentopveldwinkel.be/assets/icons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="https://guldentopveldwinkel.be/assets/icons/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="https://guldentopveldwinkel.be/assets/icons/favicon-16x16.png">
@@ -73,7 +73,16 @@
             document.body.removeChild(notification);
           });
         };
-        @build:sw
+        
+try {
+  window.registration = await navigator.serviceWorker.register('/service-worker.js');
+  registration.onupdatefound = () => {
+    // notifyUpdate();
+  };
+  console.log('Registration successful, scope is:', registration.scope);
+} catch (error) {
+  console.log('Service worker registration failed, error:', error);
+}
       })();
       // comment
     </script>

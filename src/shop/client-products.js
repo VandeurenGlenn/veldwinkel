@@ -15,7 +15,7 @@ define(class ClientProductItem extends ElementBase {
     (async () => {
       const images = await this.images.get(this.getAttribute('key'))
       if (images) {
-        if (this.clientWidth > 320) {
+        if (this.clientWidth > 640) {
           this.img.src = `https://guldentopveldwinkel.be/ipfs/${images[0]}`;
         } else {
           this.img.src = `https://guldentopveldwinkel.be/ipfs/${images['thumbm']}`;
@@ -55,15 +55,15 @@ define(class ClientProductItem extends ElementBase {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 24px 0;
+    padding:0 0 24px 0;
     box-sizing: border-box;
     pointer-events: none;
     border-radius: 30px;border: 1px solid #eee;
   }
   .img {
     border-radius: 30px;
-    max-height: 250px;
-    max-width: 250px;
+    max-height: 224px;
+    max-width: 224px;
     /* max-height: 214px;
 max-width: 214px; */
     background: var(--product-photo);
@@ -88,6 +88,10 @@ max-width: 214px; */
       max-width: 50%;
       flex-basis: 50%;
       width: 50%;
+    }
+    .img {
+       max-width: 420px;
+       max-height: 420px;  
     }
   }
   @media (min-width: 1200px) {

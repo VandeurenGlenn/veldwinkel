@@ -16,9 +16,9 @@ export default customElements.define('shop-cart-item', class ShopCartItem extend
     this.count = value.count || 1;
     
     (async () => {
-      // let images = await topstore.databases.get('images')
-      // images = await images.get(value.uid)
-      // this.image = `https://ipfs.io/ipfs/${images.thumbm}`
+      let images = await topstore.databases.get('images')
+      images = await images.get(value.uid)
+      this.image = `https://guldentopveldwinkel.be/ipfs/${images.thumbm}`
       this.uid = value.uid;
       this.setAttribute('uid', this.uid);
       this._stamp()
@@ -33,8 +33,17 @@ export default customElements.define('shop-cart-item', class ShopCartItem extend
       
       this.shadowRoot.querySelector('custom-svg-icon[icon="delete"]').addEventListener('click', async () => {
         const answer = await confirm('are you sure you want to remove this product?')
-        console.log(shoppingCart);
+        // TODO: upgrade shoppingCartController
         if (answer) window.shoppingCart.remove(this.uid)
+      })
+      
+      
+      
+      this.shadowRoot.querySelector('custom-select').addEventListener('selected', ({detail}) => {
+        console.log({detail});
+        const value = this._value
+        value.count = detail
+        shoppingCart.change(value)
       })
     })()    
   }
@@ -57,7 +66,7 @@ export default customElements.define('shop-cart-item', class ShopCartItem extend
       <style>
         :host {
           display: flex;
-          flex-direction: column;
+          flex-direction: row;
           width: 100%;
           box-sizing: border-box;
           font-size: 18px;
@@ -65,6 +74,8 @@ export default customElements.define('shop-cart-item', class ShopCartItem extend
           font-size: 16px;
           color: #757575;
           border-bottom: 1px solid #757575;
+          padding-top: 12px;
+          min-height: 114px;
         }
         .flex {
           flex: 1;
@@ -82,12 +93,12 @@ export default customElements.define('shop-cart-item', class ShopCartItem extend
         .row {
           display: flex;
           flex-direction: row;
-          align-items: center;
-          min-height: 26px;
           height: 100%;
           width: 100%;
         }
-        
+        .center {
+          align-items: center;
+        }
         input {
           margin-right: -30px;
           padding: 12px 0px 12px 6px;
@@ -102,15 +113,19 @@ export default customElements.define('shop-cart-item', class ShopCartItem extend
         }
         
         img {
-          border-radius: 30px;
+          height: 100px;
+          width: 100px;
+          padding-right: 12px;
         }
         
         p, strong {
           text-transform: uppercase;
+          margin: 0;
         }
         .price {
           max-width: 88px;
           width: 100%;
+          height: 18px;
           align-items: center;
           justify-content: flex-end;
         }
@@ -124,28 +139,24 @@ export default customElements.define('shop-cart-item', class ShopCartItem extend
         }
       </style>     
       
-      <span class="row">
-        <img src="${this.image}"></img>
-        
-        <!-- <span class="flex"></span> -->
-        <span class="column">      
-          <span class="row">
-            <p class="name">${this.name}</p>
-            <span class="flex"></span>
-            <span class="price row">
-              <custom-svg-icon icon="euro"></custom-svg-icon>
-              <p>${this.price}</p>
-            </span>
-          </span>
-          
+      <img src="${this.image}"></img>
+      <span class="column">      
+        <span class="row top">
+          <p class="name">${this.name}</p>
           <span class="flex"></span>
-          
-          <span class="row">
-            <p>aantal</p>
-            <custom-select selected="${this.count}"></custom-select>
-            <span class="flex"></span>
-            <custom-svg-icon icon="delete"></custom-svg-icon>
+          <span class="price row">
+            <custom-svg-icon icon="euro"></custom-svg-icon>
+            <p>${this.price}</p>
           </span>
+        </span>
+        
+        <span class="flex"></span>
+        
+        <span class="row center">
+          <p>aantal</p>
+          <custom-select selected="${this.count}"></custom-select>
+          <span class="flex"></span>
+          <custom-svg-icon icon="delete"></custom-svg-icon>
         </span>
       </span>
     `;
