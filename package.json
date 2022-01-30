@@ -32,7 +32,7 @@
     "custom-drawer": "^1.0.0",
     "custom-input": "git+https://github.com/andrewvanardennen/custom-input.git",
     "custom-pages": "^0.12.0",
-    "custom-renderer-mixin": "^1.1.2",
+    "custom-renderer-mixin": "^1.1.4",
     "custom-select-mixins": "^0.12.2",
     "custom-selector": "^0.2.0",
     "custom-svg-icon": "^0.10.2",
