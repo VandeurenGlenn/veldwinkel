@@ -27,7 +27,7 @@
   "homepage": "https://github.com/vandeurenglenn/veldwinkel#readme",
   "dependencies": {
     "@tensorflow-models/mobilenet": "^1.0.1",
-    "@tensorflow/tfjs": "^1.1.2",
+    "@tensorflow/tfjs": "^1.7.4",
     "backed": "^0.13.0",
     "custom-drawer": "^1.0.0",
     "custom-input": "git+https://github.com/andrewvanardennen/custom-input.git",
