@@ -39,7 +39,7 @@
     "custom-svg-iconset": "^0.9.2",
     "custom-tabs": "^0.11.0",
     "custom-template-if": "^1.0.0",
-    "typed.js": "^2.0.10"
+    "typed.js": "^2.0.12"
   },
   "devDependencies": {
     "acorn-class-fields": "^0.3.1",
