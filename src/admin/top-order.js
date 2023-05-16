@@ -31,7 +31,11 @@ export default define(class TopOrder extends ElementBase {
         for (const item of order.products) {
           promises.push((async () => {
             const { key, count } = item;
-            const { name } = await this.offerDisplay.get(key);
+            try {
+              const { name } = await this.offerDisplay.get(key);
+            } catch (error) {
+              console.error(`product not found`)
+            }
             return `<span class="row selection" name="${key}">${name}<span class="flex" style="pointer-events: none;"></span>${count}</span>`
           })());
         }
@@ -97,8 +101,9 @@ export default define(class TopOrder extends ElementBase {
       await import('./../top-button.js')
     })();
 
-    this.addEventListener('click', async ({path}) => {
-      if (path[0].classList.contains('confirm')) {
+    this.addEventListener('click', async (event) => {
+      const target = event.composedPath()[0]
+      if (target.classList.contains('confirm')) {
         const selected = this.querySelector('custom-selector').selected;
         console.log(selected.length, this.orderLength);
         if (selected.length !== this.orderLength) {
@@ -128,7 +133,7 @@ export default define(class TopOrder extends ElementBase {
         }
         
       }
-      if (path[0].classList.contains('cancel')) adminGo('orders');
+      if (target.classList.contains('cancel')) adminGo('orders');
     })
   }
   get template() {

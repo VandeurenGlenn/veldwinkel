@@ -1,3 +1,3 @@
-import Pubsub from './../../node_modules/@vandeurenglenn/little-pubsub/src/index.js'
+import Pubsub from '@vandeurenglenn/little-pubsub'
 
 globalThis.pubsub = new Pubsub()

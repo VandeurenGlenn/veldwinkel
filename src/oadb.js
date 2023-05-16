@@ -176,8 +176,6 @@ export default class OADB {
                 await set(key, snap[key], this.store);
               }
             }
-            
-          
           
             document.dispatchEvent(new CustomEvent('storage-update', { detail: { child, snap } }));
           }

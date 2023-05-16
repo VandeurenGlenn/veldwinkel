@@ -1,7 +1,8 @@
-import { define, ElementBase } from './../base.js';
-import './../../node_modules/custom-input/custom-input.js';
+import { LitElement, html } from 'lit';
+import { customElement } from 'lit/decorators.js';
 
-export default define(class InputFields extends ElementBase {
+@customElement('input-field')
+export class InputFields extends LitElement {
   static get observedAttributes() {
     return ['fields'];
   }
@@ -51,4 +52,4 @@ export default define(class InputFields extends ElementBase {
   <custom-svg-icon icon="done"></custom-svg-icon>
 </span>`;
   }
-})
+}

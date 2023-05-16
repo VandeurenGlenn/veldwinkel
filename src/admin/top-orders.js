@@ -64,7 +64,8 @@ console.log({orders});
   }
   _onClick(e) {
     // this.selected =
-    const target = e.path[0];
+    
+    const target = e.composedPath()[0];
     if (target.localName === 'top-order-item') this.selected = target.getAttribute('data-route');
     if (this.selected !== this.previousSelected) {
       if (this.previousSelected && this.querySelector(`[data-route="${this.previousSelected}"]`)) this.querySelector(`[data-route="${this.previousSelected}"]`).classList.remove('custom-selected');

@@ -45,7 +45,8 @@ export default define(class TopCollection extends ElementBase {
     this.addEventListener('click', this._onClick)
   }
 
-  async _onClick({path}) {
+  async _onClick(event) {
+    const path = event.composedPath()
     if (path[0].classList.contains('confirm')) {
       await firebase.database().ref(`orders/${this.user}/${this.uid}/shipped`).set('true');
       await firebase.database().ref(`collectionKeys/${this.uid}`).remove();

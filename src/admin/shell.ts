@@ -1,20 +1,30 @@
-import { define, ElementBase } from './../base.js';
-import './../../node_modules/custom-svg-icon/src/custom-svg-icon.js';
-import './../../node_modules/custom-pages/src/custom-pages.js';
-import './../../node_modules/custom-tabs/src/custom-tabs.js';
-import './../../node_modules/custom-tabs/src/custom-tab.js';
-import './../../node_modules/custom-selector/src/index.js';
-import './../../node_modules/custom-drawer/custom-drawer.js';
-import './../translator.js';
-import './../translated-string.js';
-import OADBManager from './../oadb-manager.js';
-import PubSub from './../../node_modules/@vandeurenglenn/little-pubsub/src/index.js'
+import { define, ElementBase } from '../base.js';
+import 'custom-svg-icon/src/custom-svg-icon.js';
+import 'custom-pages/src/custom-pages.js';
+import 'custom-tabs/src/custom-tabs.js';
+import 'custom-tabs/src/custom-tab.js';
+import 'custom-selector/src/index.js';
+import 'custom-drawer';
+import '../translator.js';
+import '../translated-string.js';
+import OADBManager from '../oadb-manager.js';
+import PubSub from '@vandeurenglenn/little-pubsub'
+import '@vandeurenglenn/flex-elements'
 
 globalThis.pubsub = new PubSub()
 // import './top-products.js';
 // import './top-orders.js';
 // import './input-fields.js';
 
+globalThis.migrate = async () => {
+  let offers = await firebase.database().ref('offers').once('value')
+  const newOffers = {}
+  let i = 0
+  for  (const offer of offers) {
+    newOffers[i] = offer
+    i++
+  }
+}
 
 
 export default define(class AdminShell extends ElementBase {
@@ -84,12 +94,14 @@ export default define(class AdminShell extends ElementBase {
     
     
     globalThis.adminGo = async (view, selection) => {
+      console.log(selection, view);
+      
     if (selection && view === 'product') {
       await import('./top-product.js');
       const product = document.querySelector('top-product');
       product.value = selection;
     } else if (selection && view === 'offer') {
-      await import('./top-offer.js');
+      await import('./sections/top-offer.js');
       const offer = document.querySelector('top-offer');
       offer.value = selection;
     } else if (selection && view === 'order') {

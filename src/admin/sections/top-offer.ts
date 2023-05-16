@@ -1,11 +1,11 @@
-import { ElementBase, define } from './../base.js';
-import ProductEditorMixin from './product-editor-mixin.js';
-import './../image-nails.js';
-import './../custom-container.js';
-import './../../node_modules/custom-input/custom-input.js';
-import './../../node_modules/@vandeurenglenn/custom-date/custom-date.js';
+import { ElementBase, define } from '../../base.js';
+import ProductEditorMixin from '../product-editor-mixin.js';
+import '../../image-nails.js';
+import '../../custom-container.js';
+import 'custom-input/custom-input.js';
+import '@vandeurenglenn/custom-date/custom-date.js';
 
-import './input-field.js'
+import './../elements/input-fields/input-field.js'
 
 export default define(class TopOffer extends ProductEditorMixin {
   get addFieldIcon() {
@@ -63,10 +63,7 @@ export default define(class TopOffer extends ProductEditorMixin {
     this.innerHTML = '';
     this.nails.clear()
     
-    const offer = {...window.offers[this._value], ...window.offerDisplay[this._value], image: { ...window.images[this._value] }}    
-    offer.image = await firebase.database().ref(`images/${this._value}`).once('value')    
-    offer.image = offer.image.val() || []
-    delete offer.image.timestamp;
+    const offer = {...window.offers[this._value] }
     
     let timeout;
     console.log(offer);
