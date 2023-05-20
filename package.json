@@ -5,6 +5,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "esbuild": "esbuild src/admin/shell.ts --outdir=esbuild --splitting --bundle --format=esm --external:require --external:fs --external:path",
     "test": "echo \"Error: no test specified\" && exit 1",
     "compile": "rollup -c",
     "watch": "set production=false && rollup -c -w",
@@ -71,6 +72,9 @@
     "custom-svg-iconset": "^0.9.2",
     "custom-tabs": "^0.11.0",
     "custom-template-if": "^1.0.0",
+    "esbuild": "0.17.19",
+    "fs-extra": "^11.1.1",
+    "googlephotos": "^0.3.5",
     "idb-keyval": "^3.2.0",
     "lit": "^2.7.2",
     "nodemailer": "^6.3.0",
