@@ -6,6 +6,7 @@ import { execSync } from 'child_process';
 import { mkdirSync, writeFileSync, readFileSync } from 'fs';
 import modify from 'rollup-plugin-modify'
 import typescript from '@rollup/plugin-typescript';
+import { copy } from 'fs-extra';
 
 try {
   execSync('rm www/**/**.js')
@@ -39,8 +40,8 @@ const prepareAndCopy = async (target) => {
 prepareAndCopy('admin');
 prepareAndCopy('shop');
 // prepareAndCopy('shop');
-execSync('cp src/shop/notification-listener.js www/shop');
-execSync('cp -r src/third-party www/admin');
+await copy('src/shop/notification-listener.js', 'www/shop/notification-listener.js');
+await copy('src/third-party', 'www/admin');
 
 export default [{
   input: ['src/iconset.js', 'src/top-icon-button.js', 'src/home-imports.js', 'src/top-button.js', 'src/shop/sections/home.js', 'src/shop/shell.js', 'src/shop/client-product.js', 'src/shop/client-order.js', 'src/shop/item-list.js', 'src/shop/order-list.js', 'src/shop/top-client-order.js'],
