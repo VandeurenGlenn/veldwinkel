@@ -1,20 +1,17 @@
-import terser from '@rollup/plugin-terser';
 import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
 import cjs from '@rollup/plugin-commonjs';
 import { execSync } from 'child_process';
-import { mkdirSync, writeFileSync, readFileSync } from 'fs';
-import modify from 'rollup-plugin-modify'
+import { writeFileSync, readFileSync } from 'fs';
 import typescript from '@rollup/plugin-typescript';
 import { copy } from 'fs-extra';
 import builtins from 'rollup-plugin-node-builtins';
 
 try {
-  execSync('rm www/**/**.js')
+  execSync('rm www/admin/**.js')
 } catch {
   
 }
-
 
 const sw = `
 try {

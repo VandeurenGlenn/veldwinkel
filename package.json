@@ -7,11 +7,10 @@
   "scripts": {
     "esbuild": "esbuild src/admin/shell.ts --outdir=esbuild --splitting --bundle --format=esm --external:require --external:fs --external:path",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "compile": "rollup -c",
-    "watch": "set production=false && rollup -c -w",
     "watch:admin": "set production=false && rollup -c rollup.admin.config.js -w",
+    "watch:shop": "set production=false && rollup -c rollup.shop.config.js -w",
     "precache": "npx workbox-cli generateSW shop.workbox.config.js",
-    "build": "set production=true && npm run compile",
+    "build": "set production=true && rollup -c rollup.admin.config.js && rollup -c rollup.shop.config.js",
     "serve": "jsproject --serve www",
     "serve:shop": "jsproject --serve www/shop --port 3001",
     "serve:admin": "jsproject --serve www/admin --port 3002",
