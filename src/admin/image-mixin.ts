@@ -1,3 +1,4 @@
+import Photos from './google-photos/photos.js'
 import WebpEncoder from './webp-encoder.js'
 const webpEncoder = new WebpEncoder()
 
@@ -6,8 +7,8 @@ export default mixin => class ImageMixin extends mixin {
     super()
   }
   
-  connectedCallback() {
-    if (super.connectedCallback) super.connectedCallback();
+  async connectedCallback() {
+    if (super.connectedCallback) super.connectedCallback()
   }
   
   /**
@@ -22,7 +23,11 @@ export default mixin => class ImageMixin extends mixin {
    * add image to ipfs and save it's path to firebase
    */  
   async addImage(key, name, img, size, quality) {
+    
+    const photos = new Photos(user.getToken())
+    console.log({photos});
     img = await this.encodeAndResize(img, size, quality)
+
     const value = await ipfs.add(img)
     const hash = value.cid.toString()
     if (name === 0) await firebase.database().ref(`images/${key}/timestamp`).set(new Date().getTime());

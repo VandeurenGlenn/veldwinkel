@@ -1,12 +1,20 @@
 {
   "compilerOptions": {
-    "module": "ES2020",
-    "target": "ES2016",
+    "allowJs": true,
+    "module": "ESNext",
+    "target": "ESNext",
     "outDir": "./www",
     "moduleResolution":"nodenext",
     "allowSyntheticDefaultImports": true,    
     "resolveJsonModule": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "types": [
+      "@firebase/app",
+      "@firebase/database",
+      "lit"
+    ]
   },
   "include": [
     "./src/**/*"

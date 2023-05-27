@@ -46,25 +46,6 @@
         border: 1px solid #38464e;
         box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
       }
-      section {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        height: 100%;
-        align-items: center;
-        justify-content: center;
-      }
-      .column {
-        display: flex;
-        flex-direction: column;
-      }
-      .row {
-        display: flex;
-        flex-direction: row;
-      }
-      .flex {
-        flex: 1;
-      }
       .firebaseui-auth-container {
         position: absolute;
         top: 50%;
@@ -81,33 +62,21 @@
       }
       header {
         width: 100%;
-      }
-      custom-svg-icon[icon="menu"] {
-        pointer-events: auto;
-      }
-
-      .selection {
-        display: flex;
-        flex-direction: row;
-        padding: 24px;
-        box-sizing: border-box;
-        min-height: 82px;
-        height: fit-content;
-        cursor: pointer;
-        pointer-events: auto;
-      }
-
-      custom-selector .custom-selected {
-        background: #1b5e20a6;
-        color: #fff;
-        --svg-icon-color: #fff;
+        text-align: center;
+        position: absolute;
       }
     </style>
   </head>
   <script>
   </script>
   <body>
-    <span class="firebaseui-auth-container"></span>
+    <span class="login-container">
+      <header>
+        <h1>Shop Admin Panel</h1>
+      </header>
+      <span class="firebaseui-auth-container"></span>
+    </span>
+    
     <top-iconset></top-iconset>
 
     <admin-shell>
@@ -124,81 +93,23 @@
         <top-categories route="categories"></top-categories>
         <add-product route="add-product"></add-product>
         <add-offer route="add-offer"></add-offer>
-        <settings-section route="settings"><settings-section>
+        <images-section route="images"></images-section>
+        <videos-section route="videos"></videos-section>
+        <settings-section route="settings"></settings-section>
       </custom-pages>
     </admin-shell>
     <script type="module">
-      (async () => {
-        await import('./../iconset.js');
-          
-        const firebaseConfig = {
-          apiKey: "AIzaSyAgSXxNo6LSsBHxa4El3MWbPjqfDgcD0h0",
-          authDomain: "topveldwinkel.firebaseapp.com",
-          databaseURL: "https://topveldwinkel.firebaseio.com",
-          projectId: "topveldwinkel",
-          storageBucket: "topveldwinkel.appspot.com",
-          messagingSenderId: "467877680173",
-          appId: "1:467877680173:web:1781bc21aadaef72"
-        }
-        
-        firebase.initializeApp(firebaseConfig);
-        await import('./shell.js');
-          
-        const loginButton = document.querySelector('.login-button');
-        const login = async () => {
-          const link = document.createElement('link');
-          link.href = 'https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css';
-          link.rel = 'stylesheet';
-          document.head.appendChild(link);
-          const script = document.createElement('script');
-          script.onload = () => {
-            const ui = new firebaseui.auth.AuthUI(firebase.auth());
-            const uiconfig = {
-              callbacks: {
-                signInSuccessWithAuthResult: (authResult, redirectUrl) => {
-                  document.querySelector('.firebaseui-auth-container').classList.add('hidden');
-                  return false;
-                },
-                uiShown: () => {
-                  document.querySelector('.firebaseui-auth-container').classList.remove('hidden');
-                }
-              },
-              signInFlow: 'popup',
-              signInOptions: [
-                {
-                  provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-                  scopes: [
-                    'https://www.googleapis.com/auth/user.addresses.read',
-                    'https://www.googleapis.com/auth/user.phonenumbers.read',
-                    'https://www.googleapis.com/auth/userinfo.email',
-                    'https://www.googleapis.com/auth/userinfo.profile'
-                  ]
-                },
-                firebase.auth.EmailAuthProvider.PROVIDER_ID
-              ]
-            };
-            ui.start('.firebaseui-auth-container', uiconfig);
-          };
-          script.src = 'https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js';
-          document.head.appendChild(script);
-          // firebase.auth()
-        };
-        firebase.auth().onAuthStateChanged((user) => {
-          if (user) {
-            window.ref = firebase.database().ref(`${user.uid}`);
-            window.user = user;
-            // else localDevices = ['light'];
-          } else {
-            login();
-          }
-        });
-          
-        const pages = document.querySelector('custom-pages');
-        const shell = document.querySelector('admin-shell');
-
-        window.adminGo = async (view, selection) => {
-          console.log(view);
-          console.log(selection);
+      await import('./../iconset.js');
+      const pages = document.querySelector('custom-pages');
+      const shell = document.querySelector('admin-shell');
+      const setupApi = async () => {
+        const importee = await import('./api.js')
+        const Api =  importee.default
+        globalThis.api = new Api()
+      }
+      globalThis.adminGo = async (view, selection) => {
+        console.log(view);
+        console.log(selection);
         if (selection && view === 'product') {
           await import('./top-product.js');
           const product = document.querySelector('top-product');
@@ -217,16 +128,88 @@
           await import('./top-collection.js');
           const collection = document.querySelector('top-collection');
           collection.value = selection;
+        } else if (view === 'settings') {
+          await import('./settings.js');
+          const settings = document.querySelector('settings-section');
+          // collection.value = selection;
+        } else if (view === 'images') {
+          await import('./images.js');
+          const settings = document.querySelector('images-section');
+          // collection.value = selection;
+        } else if (view === 'images') {
+          await import('./videos.js');
+          const settings = document.querySelector('videos-section');
+          // collection.value = selection;
         }
 
         history.pushState({selected: view}, view, `#${view}`);
         pages.select(view);
-        }
-        // globalThis.gvw = globalThis.gvw || {}
-        const importee = await import('./ipfs-controller.js')
-        await importee.default()
+      }
+      const firebaseConfig = {
+        apiKey: "AIzaSyAgSXxNo6LSsBHxa4El3MWbPjqfDgcD0h0",
+        authDomain: "topveldwinkel.firebaseapp.com",
+        databaseURL: "https://topveldwinkel.firebaseio.com",
+        projectId: "topveldwinkel",
+        storageBucket: "topveldwinkel.appspot.com",
+        messagingSenderId: "467877680173",
+        appId: "1:467877680173:web:1781bc21aadaef72"
+      }
+      
+      globalThis.firebase.initializeApp(firebaseConfig);
         
-      })();
+      const loginButton = document.querySelector('.login-button');
+      const login = async () => {
+        const link = document.createElement('link');
+        link.href = 'https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css';
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+        const script = document.createElement('script');
+        script.onload = () => {
+          const ui = new firebaseui.auth.AuthUI(firebase.auth());
+          const uiconfig = {
+            callbacks: {
+              signInSuccessWithAuthResult: (authResult, redirectUrl) => {
+                document.querySelector('.firebaseui-auth-container').classList.add('hidden');
+                return false;
+              },
+              uiShown: () => {
+                document.querySelector('.firebaseui-auth-container').classList.remove('hidden');
+              }
+            },
+            signInFlow: 'popup',
+            signInOptions: [
+              {
+                provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+                scopes: [
+                  'https://www.googleapis.com/auth/user.addresses.read',
+                  'https://www.googleapis.com/auth/user.phonenumbers.read',
+                  'https://www.googleapis.com/auth/userinfo.email',
+                  'https://www.googleapis.com/auth/userinfo.profile'//,
+                  // 'https://www.googleapis.com/auth/photoslibrary'
+                ]
+              },
+              firebase.auth.EmailAuthProvider.PROVIDER_ID
+            ]
+          };
+          ui.start('.firebaseui-auth-container', uiconfig);
+        };
+        script.src = 'https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js';
+        document.head.appendChild(script);
+        // firebase.auth()
+      };
+      firebase.auth().onAuthStateChanged(async (user) => {
+        if (user) {
+          document.body.querySelector('.login-container').style.display = 'none'
+          window.ref = firebase.database().ref(`${user.uid}`);
+          window.user = user;
+
+          !globalThis.api && await setupApi()
+          !customElements.get('admin-shell') && import('./shell.js');
+          // else localDevices = ['light'];
+        } else {
+          login();
+        }
+      });
     </script>
   </body>
 </html>

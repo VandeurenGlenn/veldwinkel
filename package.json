@@ -9,6 +9,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "compile": "rollup -c",
     "watch": "set production=false && rollup -c -w",
+    "watch:admin": "set production=false && rollup -c rollup.admin.config.js -w",
     "precache": "npx workbox-cli generateSW shop.workbox.config.js",
     "build": "set production=true && npm run compile",
     "serve": "jsproject --serve www",
@@ -56,11 +57,11 @@
   },
   "dependencies": {
     "@andrewvanardennen/custom-input": "git+https://github.com/AndrewVanardennen/custom-input.git",
-    "@material/web": "^1.0.0-pre.6",
+    "@material/web": "^1.0.0-pre.8",
     "@tensorflow-models/mobilenet": "^2.1.0",
     "@tensorflow/tfjs": "^4.2.0",
     "@vandeurenglenn/custom-date": "^1.6.0",
-    "@vandeurenglenn/flex-elements": "^0.1.0",
+    "@vandeurenglenn/flex-elements": "^0.2.4",
     "backed": "^0.13.0",
     "custom-drawer": "^1.0.0",
     "custom-input": "git+https://github.com/AndrewVanardennen/custom-input.git",
@@ -70,7 +71,7 @@
     "custom-selector": "^0.2.0",
     "custom-svg-icon": "^0.10.2",
     "custom-svg-iconset": "^0.9.2",
-    "custom-tabs": "^0.11.0",
+    "custom-tabs": "^0.13.1",
     "custom-template-if": "^1.0.0",
     "esbuild": "0.17.19",
     "fs-extra": "^11.1.1",
@@ -96,6 +97,8 @@
     "npm-run-parallel": "^0.1.0",
     "rollup": "^3.20.7",
     "rollup-plugin-modify": "^3.0.0",
+    "rollup-plugin-node-builtins": "^2.1.2",
+    "rollup-plugin-node-globals": "^1.4.0",
     "tslib": "^2.5.0"
   }
 }

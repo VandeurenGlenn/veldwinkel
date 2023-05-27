@@ -3,7 +3,7 @@ import './controller.js';
 import './../../node_modules/custom-pages/src/custom-pages.js';
 import './../../node_modules/custom-selector/src/index.js';
 import './../../node_modules/custom-svg-icon/src/custom-svg-icon.js';
-import './../../node_modules/custom-tabs/src/custom-tabs.js';
+import 'custom-tabs/custom-tabs.js';
 import './../../node_modules/custom-drawer/custom-drawer.js';
 import './../custom-container.js';
 import './../top-icon-button.js';

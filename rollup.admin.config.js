@@ -39,26 +39,12 @@ const prepareAndCopy = async (target) => {
 };
 
 prepareAndCopy('admin');
-prepareAndCopy('shop');
-// prepareAndCopy('shop');
-await copy('src/shop/notification-listener.js', 'www/shop/notification-listener.js');
 await copy('src/third-party', 'www/admin');
 
 export default [{
-  input: ['src/iconset.js', 'src/top-icon-button.js', 'src/home-imports.js', 'src/top-button.js', 'src/shop/sections/home.js', 'src/shop/shell.js', 'src/shop/client-product.js', 'src/shop/client-order.js', 'src/shop/item-list.js', 'src/shop/order-list.js', 'src/shop/top-client-order.js'],
-  output: {
-    dir: 'www/shop',
-    format: 'es'
-  },
-  plugins: [
-    typescript({ compilerOptions: { outDir: 'www/shop' }}),
-    json(),
-    terser({ keep_classnames: true })
-  ]
-}, {
   input: [
     'src/admin/shell.ts',
-    'src/ipfs-controller.js',
+    'src/admin/api.ts',
     'src/admin/add-product.js', 'src/admin/add-offer.js',
     'src/top-button.js', 'src/iconset.js', 'src/admin/top-product.js',
     'src/admin/top-products.js', 'src/admin/top-sheet.js',
@@ -67,7 +53,6 @@ export default [{
     'src/admin/top-collections.js', 'src/admin/top-collection.js',
     'src/admin/sections/settings.ts', 'src/admin/sections/images/images.ts',
     'src/admin/top-collection-item.js',
-    'src/admin/webp-worker.js',
     'src/admin/sections/images/library.ts',
     'src/admin/sections/images/albums.ts'
   ],
@@ -87,4 +72,12 @@ export default [{
     typescript({ compilerOptions: { outDir: 'www/admin', "experimentalDecorators": true }})
     // terser({ keep_classnames: true })
   ]
+}, {
+  input: [
+    'src/admin/webp-worker.js'
+  ],
+  output: [{
+    format: 'es',
+    dir: './www/admin'
+  }]
 }];

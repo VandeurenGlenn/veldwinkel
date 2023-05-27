@@ -163,11 +163,6 @@ export class TopOffers extends LitElement {
 
   render() {
     return html`
-<span class="fab" @click=${() => this._onFabClick}>
-  <custom-svg-icon icon="add"></custom-svg-icon>
-  <span class="flex"></span>
-  add
-</span>
 
 <header>
   <custom-svg-icon icon="filter-list"></custom-svg-icon>
@@ -188,6 +183,14 @@ ${globalThis.offers ? map(Object.entries(globalThis.offers), ([key, offer]) => h
   
 `): ''}
   
-</flex-column>`;
+</flex-column>
+
+
+<span class="fab" @click=${this._onFabClick}>
+  <custom-svg-icon icon="add"></custom-svg-icon>
+  <span class="flex"></span>
+  add
+</span>
+`;
   }
 }

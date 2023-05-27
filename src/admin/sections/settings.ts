@@ -1,4 +1,4 @@
-import './../elements/input-fields/input-fields.js'
+import '../elements/input-fields/input-fields.js'
 
 export default customElements.define('settings-section', class SettingsSection extends HTMLElement {
   
