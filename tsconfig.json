@@ -5,6 +5,7 @@
     "target": "ESNext",
     "outDir": "./www",
     "moduleResolution":"nodenext",
+    "useDefineForClassFields": false,
     "allowSyntheticDefaultImports": true,    
     "resolveJsonModule": true,
     "experimentalDecorators": true,
