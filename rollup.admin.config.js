@@ -6,8 +6,9 @@ import { writeFileSync, readFileSync } from 'fs';
 import typescript from '@rollup/plugin-typescript';
 import { copy } from 'fs-extra';
 import builtins from 'rollup-plugin-node-builtins';
-
-try {
+import { readdir } from 'fs/promises';
+import { join } from 'path'
+try { 
   execSync('rm -rf www/admin/**.js')
 } catch {
   
@@ -38,17 +39,25 @@ const prepareAndCopy = async (target) => {
 prepareAndCopy('admin');
 await copy('src/third-party', 'www/admin');
 
+const dirs = (await readdir('./src/admin/sections'))
+  .map(dir => join('./src/admin/sections', dir))
+
+let input = []
+for (const dir of dirs) {
+
+  input = [...(await readdir(dir)).map(file => join(dir, file)), ...input]
+}
+
 export default [{
   input: [
+    ...input,
     'src/admin/shell.ts',
     'src/admin/api.ts',
     'src/admin/add-product.js', 'src/admin/add-offer.js',
     'src/top-button.js', 'src/iconset.js', 'src/admin/top-product.js',
     'src/admin/top-products.js', 'src/admin/top-sheet.js',
-    'src/admin/sections/top-offers.ts', 'src/admin/sections/top-offer.ts',
     'src/admin/top-order.js', 'src/admin/top-orders.js',
-    'src/admin/top-collections.js', 'src/admin/top-collection.js',
-    'src/admin/sections/settings.ts', 'src/admin/sections/images/images.ts',
+    'src/admin/top-collections.js', 'src/admin/top-collection.js', 'src/admin/sections/images/images.ts',
     'src/admin/top-collection-item.js',
     'src/admin/sections/images/library.ts',
     'src/admin/sections/images/albums.ts'
