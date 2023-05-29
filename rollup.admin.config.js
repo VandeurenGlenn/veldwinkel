@@ -8,7 +8,7 @@ import { copy } from 'fs-extra';
 import builtins from 'rollup-plugin-node-builtins';
 
 try {
-  execSync('rm www/admin/**.js')
+  execSync('rm -rf www/admin/**.js')
 } catch {
   
 }
