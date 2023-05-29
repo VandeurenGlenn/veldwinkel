@@ -57,3 +57,4 @@ node_modules/
 www/**.js
 www/shop/**.js
 www/admin/**.js
+.DS_Store
