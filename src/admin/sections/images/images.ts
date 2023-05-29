@@ -15,20 +15,12 @@ export default class ImagesSection extends LitElement {
     return this.renderRoot.querySelector('custom-pages')
   }
 
-  async connectedCallback(): Promise<void> {
-    super.connectedCallback()
-    await this.updateComplete
-    this.#tabs.addEventListener('selected', this.#onSelected.bind(this))
-    this.#onSelected({detail: 'albums'})
-  }
-
   static styles = [
     styles
   ]
 
-  async #onSelected({detail}) {
-    await !customElements.get(`images-${detail}`) && await import(`./${detail}.js`)
-    this.#pages.select(detail)
+  async select(route) {
+    this.#pages.select(route)
   }
 
   render() {

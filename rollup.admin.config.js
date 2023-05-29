@@ -58,9 +58,7 @@ export default [{
     'src/admin/top-products.js', 'src/admin/top-sheet.js',
     'src/admin/top-order.js', 'src/admin/top-orders.js',
     'src/admin/top-collections.js', 'src/admin/top-collection.js', 'src/admin/sections/images/images.ts',
-    'src/admin/top-collection-item.js',
-    'src/admin/sections/images/library.ts',
-    'src/admin/sections/images/albums.ts'
+    'src/admin/top-collection-item.js'
   ],
   external: [
     './sections/top-offer.js'

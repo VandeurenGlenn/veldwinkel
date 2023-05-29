@@ -3,13 +3,17 @@ import { html } from 'lit';
 export default html`
 <header>
   <custom-tabs attr-for-selected="data-route">
-    <custom-tab data-route="albums">
-      <translated-string>albums</translated-string>
-    </custom-tab>
+    <a href="#!/media/images/albums">
+      <custom-tab data-route="albums">
+        <translated-string>albums</translated-string>
+      </custom-tab>
+    </a>
     
-    <custom-tab data-route="library">
-      <translated-string>library</translated-string>
-    </custom-tab>
+    <a href="#!/media/images/library">
+      <custom-tab data-route="library">
+        <translated-string>library</translated-string>
+      </custom-tab>
+    </a>
   </custom-tabs>
 </header>
 

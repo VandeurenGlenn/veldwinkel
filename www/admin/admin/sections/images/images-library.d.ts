@@ -1,8 +1,6 @@
 import { LitElement } from 'lit';
-export default class ImagesSection extends LitElement {
-    #private;
+export default class ImagesLibrary extends LitElement {
     constructor();
     static styles: import("lit").CSSResult[];
-    select(route: any): Promise<void>;
     render(): import("lit-html").TemplateResult<1>;
 }
