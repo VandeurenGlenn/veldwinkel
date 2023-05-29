@@ -8,12 +8,17 @@ import '../translator.js';
 import '../translated-string.js';
 import '@vandeurenglenn/flex-elements';
 import { LitElement } from 'lit';
+import './menu/sub-menu.js';
+import './menu/menu.js';
+import './sections/catalog/catalog.js';
+import Router from './router.js';
 declare global {
     interface HTMLElementTagNameMap {
         'admin-shell': AdminShell;
     }
 }
 export default class AdminShell extends LitElement {
+    router: Router;
     get pages(): Element;
     get selector(): Element;
     get drawer(): Element;
@@ -26,7 +31,7 @@ export default class AdminShell extends LitElement {
     _preload(): Promise<void>;
     _onPopstate(): void;
     _menuClick(): void;
-    _selectorChange(): Promise<void>;
+    select(paths: any, selection: any): Promise<void>;
     static styles: import("lit").CSSResult[];
     render(): import("lit-html").TemplateResult<1>;
 }

@@ -7,13 +7,13 @@ import '@material/web/button/text-button.js';
 import '@material/web/textfield/filled-text-field.js';
 import '../../elements/items/album-list-item.js';
 import '@material/web/list/list.js';
-import '@material/web/list/list-item-link.js';
+import '@material/web/list/list-item.js';
 declare global {
     interface HTMLElementTagNameMap {
-        'images-albums': ImagesAlbums;
+        'images-album': ImagesAlbum;
     }
 }
-export default class ImagesAlbums extends LitElement {
+export default class ImagesAlbum extends LitElement {
     #private;
     albums: any[];
     constructor();

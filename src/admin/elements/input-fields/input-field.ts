@@ -1,9 +1,12 @@
 import { LitElement, html } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, query } from 'lit/decorators.js';
 import '@material/web/field/outlined-field.js'
 
 @customElement('input-field')
 export class InputField extends LitElement {
+  @query('input')
+  input
+
   @property({type: String})
   name
 
@@ -40,9 +43,9 @@ export class InputField extends LitElement {
     this.shadowRoot.querySelector('input').addEventListener('input', () => {
       if (timeout) clearTimeout(timeout)
       timeout = setTimeout(() => {
-        pubsub.publish(this.event, { type: 'edit', key: this.key, name: this.name, value: this.value})
+        pubsub.publish(this.event, { type: 'edit', key: this.key, name: this.name, value: this.input.value})
         timeout = false
-      }, 2000);
+      }, 1000);
       
     })
   }

@@ -2,10 +2,10 @@ import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { map } from 'lit/directives/map.js';
 import '@material/web/list/list.js'
-import './../elements/items/offer-item.js'
+import '../../elements/items/offer-item.js'
 
-@customElement('top-offers')
-export class TopOffers extends LitElement {
+@customElement('catalog-offers')
+export class CatalogOffers extends LitElement {
   @property({type: Array})
   get offers() {
     return window.topstore.databases.get('offers');
@@ -67,7 +67,7 @@ export class TopOffers extends LitElement {
       this.requestUpdate()
     
     globalThis.pubsub.subscribe('event.offers', async change => {
-      let item = this.querySelector(`[data-route=${change.key}]`);
+      let item = this.querySelector(`[data-route="${change.key}"]`);
       if (!item) {
         item = document.createElement('offer-item');
         this.appendChild(item);
@@ -79,7 +79,9 @@ export class TopOffers extends LitElement {
         item.dataset.route = change.key;
         // return this.stamp()
       } else if (change.type === 'change') {
-        item.value = change.value
+        item.key = change.key;
+        item.name = change.value.name
+        item.public = change.value.public
       } else if (change.type === 'public') {
         item.public = change.value
       } else if (change.type === 'delete') {
@@ -178,7 +180,7 @@ export class TopOffers extends LitElement {
   <h4>in pakket</h4>
 </header>
 <flex-column class="container">
-${globalThis.offers ? map(Object.entries(globalThis.offers), ([key, offer]) => html`
+${globalThis.offers ? map(Object.entries(globalThis.offers).sort((a, b) => a[1].index - b[1].index), ([key, offer]) => html`
   <offer-item name="${offer.name}" key="${key}" index="${offer.index}" public="${offer.public}" data-route="${key}"></offer-item>
   
 `): ''}

@@ -26,6 +26,10 @@
     <script defer src="https://www.gstatic.com/firebasejs/7.17.1/firebase-database.js"></script>
 
     <style media="screen">
+
+      :root {
+        --surface-color: #1f1f1f;
+      }
       body {
         top: 0;
         left: 0;
@@ -38,6 +42,8 @@
         --custom-drawer-width: 256px;
         
         font-family: 'roboto', sans-serif;
+        background: var(--surface-color);
+        
       }
       
       top-offer .column custom-input {
@@ -81,6 +87,7 @@
 
     <admin-shell>
       <custom-pages attr-for-selected="route">
+        <catalog-section route="catalog"></catalog-section>
         <top-products route="products"></top-products>
         <top-product route="product"></top-product>
         <top-orders route="orders"></top-orders>
@@ -94,6 +101,8 @@
         <add-product route="add-product"></add-product>
         <add-offer route="add-offer"></add-offer>
         <images-section route="images"></images-section>
+        <images-albums route="albums"></images-albums>
+        <images-album route="album"></images-album>
         <videos-section route="videos"></videos-section>
         <settings-section route="settings"></settings-section>
       </custom-pages>
@@ -107,43 +116,81 @@
         const Api =  importee.default
         globalThis.api = new Api()
       }
-      globalThis.adminGo = async (view, selection) => {
+
+      const routes = {
+        'media/images/albums': {
+          tag: 'images-albums'
+        }
+      }
+
+      const views = {
+        product: {
+          tag: 'top-product'
+        },
+        offer: {
+          tag: 'top-offer'
+        },
+        order: {
+          tag: 'top-order'
+        },
+        collection: {
+          tag: 'top-collection'
+        },
+        'add-product': {
+          tag: 'add-product'
+        },
+        'add-offer': {
+          tag: 'add-offer'
+        },
+        settings: {
+          tag: 'settings-section',
+          import: 'settings'
+        },
+        images: {
+          tag: 'images-section',
+          import: 'images',
+          subroutes: {
+            albums: {
+              tag: 'images-albums',
+              import: 'albums'
+            }
+          }
+        }
+      }
+
+      const importIfNeeded = async (tag, url) => 
+        !customElements.get(tag) && await import(`./${url}.js`)
+
+      globalThis.adminGo = async (view, selection, subroute) => {
         console.log(view);
         console.log(selection);
-        if (selection && view === 'product') {
-          await import('./top-product.js');
-          const product = document.querySelector('top-product');
-          product.value = selection;
-        } else if (selection && view === 'offer') {
-          await import('./top-offer.js');
-          const offer = document.querySelector('top-offer');
-          offer.value = selection;
-        } else if (selection && view === 'order') {
-          await import('./top-order.js');
-          const order = document.querySelector('top-order');
-          order.value = selection;
-        } else if (view === 'add-product' || view === 'add-offer') {
-          await import(`./${view}.js`);
-        } else if (view === 'collection') {
-          await import('./top-collection.js');
-          const collection = document.querySelector('top-collection');
-          collection.value = selection;
-        } else if (view === 'settings') {
-          await import('./settings.js');
-          const settings = document.querySelector('settings-section');
-          // collection.value = selection;
-        } else if (view === 'images') {
-          await import('./images.js');
-          const settings = document.querySelector('images-section');
-          // collection.value = selection;
-        } else if (view === 'images') {
-          await import('./videos.js');
-          const settings = document.querySelector('videos-section');
-          // collection.value = selection;
+        const routeInfo = views[view] 
+        await importIfNeeded(routeInfo.tag, routeInfo.import || routeInfo.tag)
+
+        if (selection && !subroute) {
+          const target = document.querySelector(routeInfo.tag);
+          target.value = selection;
         }
 
         history.pushState({selected: view}, view, `#${view}`);
         pages.select(view);
+
+        if (!subroute) return 
+        const subrouteInfo = views[view].subroutes[subroute]
+
+        if (subrouteInfo) {
+          await importIfNeeded(subrouteInfo.tag, subrouteInfo.import || subrouteInfo.tag)
+          
+          const host = document.querySelector(routeInfo.tag);
+          host.select(subroute)
+          
+          if (selection) {
+            const target = document.querySelector(subrouteInfo.tag);
+            target.value = selection
+          }
+
+          history.pushState({selected: subroute}, subroute, `#${subroute}`);
+        }
       }
       const firebaseConfig = {
         apiKey: "AIzaSyAgSXxNo6LSsBHxa4El3MWbPjqfDgcD0h0",

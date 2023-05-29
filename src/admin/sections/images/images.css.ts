@@ -8,7 +8,6 @@ export default css`
   width: 100%;
   height: 100%;
   color: #eee;
-  background: #445c68;
   --svg-icon-color: #eee;
 }
 

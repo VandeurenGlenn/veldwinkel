@@ -281,7 +281,7 @@
         
         firebase.initializeApp(firebaseConfig);
         await import('./../iconset.js');
-        await import('./shell.js');
+        await import('./src/shell.js');
         const shell = document.querySelector('app-shell');
         const pages = shell.shadowRoot.querySelector('custom-pages');
         document.addEventListener('mouseup', () => {

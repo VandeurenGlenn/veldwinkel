@@ -1,6 +1,7 @@
 import { LitElement } from 'lit';
 import '@material/web/field/outlined-field.js';
 export declare class InputField extends LitElement {
+    input: any;
     name: any;
     value: any;
     get event(): string;

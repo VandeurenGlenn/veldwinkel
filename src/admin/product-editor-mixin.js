@@ -1,6 +1,6 @@
 import './../shop-admin-action-bar.js'
 import ImageMixin from './image-mixin.js'
-export default class ProductEditorMixin extends ImageMixin(ElementBase) {
+export default (ElementBase) => class ProductEditorMixin extends ImageMixin(ElementBase) {
   get actionBar() {
     return this.shadowRoot.querySelector('shop-admin-action-bar')
   }

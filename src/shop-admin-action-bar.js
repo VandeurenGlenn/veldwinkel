@@ -20,6 +20,10 @@ export default customElements.define('shop-admin-action-bar', class ShopAdminAct
       .flex {
         flex: 1;
       }
+
+      [public] {
+        --svg-icon-color: #4caf50;
+      }
     </style>
     
     <custom-svg-icon icon="delete"></custom-svg-icon>

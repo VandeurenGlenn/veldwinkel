@@ -2,7 +2,7 @@ import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js'
 import '@material/web/list/list-item.js'
 import '@material/web/icon/icon.js'
-
+import '@material/web/iconbutton/filled-icon-button.js'
 @customElement('offer-item')
 export class OfferItem extends LitElement {
 
@@ -29,6 +29,8 @@ export class OfferItem extends LitElement {
 
   #publicClicked(event) {
     console.log('click');
+    event.stopImmediatePropagation()
+    event.stopPropagation()
     const bool = this.public === 'true'
     this.public = String(!bool)
     console.log(this.public);
@@ -51,20 +53,16 @@ export class OfferItem extends LitElement {
       md-icon {
         pointer-events: auto;
       }
-
-      md-list-item {
-        pointer-events: none;
-      }
     `
   ];
 
   render() {
     return html`
     
-    <md-list-item headline="${this.name?.length > 31 ? `${this.name.slice(0, 31)}...` : this.name}">
+    <md-list-item-link href="#!/catalog/offer?selected=${this.key}" headline="${this.name?.length > 31 ? `${this.name.slice(0, 31)}...` : this.name}">
       <flex-one></flex-one>
-      <md-icon data-variant="icon" slot="end" ?public="${this.public === 'true'}" @click="${(event) => this.#publicClicked(event)}">public</md-icon>
-    </md-list-item>
+      <md-icon data-variant="icon" slot="end" ?public=${this.public === 'true'} @click=${this.#publicClicked}>public</md-icon>
+    </md-list-item-link>
     `;
   }
 }

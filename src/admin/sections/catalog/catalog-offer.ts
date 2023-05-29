@@ -1,16 +1,39 @@
-import { ElementBase, define } from '../../base.js';
-import ProductEditorMixin from '../product-editor-mixin.js';
-import '../../image-nails.js';
-import '../../custom-container.js';
+import ProductEditorMixin from '../../product-editor-mixin.js';
+import '../../../image-nails.js';
+import '../../../custom-container.js';
 import 'custom-input/custom-input.js';
 import '@vandeurenglenn/custom-date/custom-date.js';
 
-import './../elements/input-fields/input-field.js'
+import '../../elements/input-fields/input-field.js'
+import { LitElement, html } from 'lit';
+import { customElement, property, query } from 'lit/decorators.js';
+import './../../../shop-admin-action-bar'
 
-export default define(class TopOffer extends ProductEditorMixin {
+@customElement('catalog-offer')
+
+export default class CatalogOffer extends LitElement {
+  #key: string
+
+  @query('image-nails')
+  nails
+
+  @query('shop-admin-action-bar')
+  actionBar
+
+  get publicIcon() {
+    return this.actionBar.shadowRoot.querySelector('[icon="public"]')
+  }
+
+  @property({ type: String })
+  set selection(value) {
+    this.#key = value
+    this.stamp(value)
+  }
+
   get addFieldIcon() {
     return this.shadowRoot.querySelector('[icon="add"]');
   }
+
   constructor() {
     super();
     this.ref = 'offers';
@@ -19,16 +42,15 @@ export default define(class TopOffer extends ProductEditorMixin {
 
   connectedCallback() {
     if (super.connectedCallback) super.connectedCallback();
-    this.addFieldIcon.addEventListener('click', this.addField);
     let timeout;
     pubsub.subscribe(`event.${this.ref}`, async ({value, name, key, type}) => {
+      console.log({value, name, key, type});
+      
       if (type === 'edit') {
-        let ref
-        if (name === 'name' || name === 'price') ref = `offerDisplay/${key}/${name}`
-        else ref = `offers/${key}/${name}`;  
+        let ref = `offers/${key}/${name}`;  
         
         console.log(name, value);
-        const offer = {...window.offers[this._value], ...window.offerDisplay[this._value], image: { ...window.images[this._value] }};
+        const offer = {...window.offers[this.#key]};
         offer[name] = value
         await firebase.database().ref(ref).set(value)
         const timestamp = new Date().getTime()
@@ -54,16 +76,16 @@ export default define(class TopOffer extends ProductEditorMixin {
       field.name = name
       field.value = ''
       field.ref = 'offers'
-      field.key = this._value
+      field.key = this.#key
       this.appendChild(field)
     }
   }
 
-  async stamp() {
+  async stamp(key) {
     this.innerHTML = '';
     this.nails.clear()
     
-    const offer = {...window.offers[this._value] }
+    const offer = {...window.offers[this.#key] }
     
     let timeout;
     console.log(offer);
@@ -100,13 +122,13 @@ export default define(class TopOffer extends ProductEditorMixin {
         field.name = i
         field.value = offer[i]
         field.ref = 'offers'
-        field.key = this._value
+        field.key = this.#key
         this.appendChild(field)
       }
     }
   }
 
-  get template() {
+  render() {
     return html`
 <style>
   :host {
@@ -151,9 +173,6 @@ export default define(class TopOffer extends ProductEditorMixin {
   custom-svg-icon {
     cursor: pointer;
   }
-  [public] {
-    --svg-icon-color: #4caf50;
-  }
   ::slotted(.key) {
     width: 100%;
     mixin(--css-row)
@@ -171,11 +190,11 @@ export default define(class TopOffer extends ProductEditorMixin {
   <slot></slot>
   <span class="wrapper">
     <span class="flex"></span>
-    <custom-svg-icon icon="add" title="add info field"></custom-svg-icon>
+    <custom-svg-icon icon="add" title="add info field" @click=${this.addField}></custom-svg-icon>
     <span class="flex"></span>
   </span>
 </custom-container>
 
 <shop-admin-action-bar></shop-admin-action-bar>`;
   }
-});
+}

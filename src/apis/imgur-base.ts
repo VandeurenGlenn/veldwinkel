@@ -6,6 +6,7 @@ const clientId: string = await (await firebase.database().ref('apiKeys/imgur').o
 
 export declare type firebaseImgurAlbum = {
   id: string,
+  firebaseKey: string,
   deletehash: string
 }
 
@@ -52,9 +53,10 @@ export default class ImgurBase extends Imgur {
 
   async createAlbum({ ids, title, description, cover }: albumParams): Promise<firebaseImgurAlbum> {
     const result = await super.createAlbum({ ids, title, description, cover })
-    this.#ref.push(result)
+    const pushResult = await this.#ref.push(result)
+    console.log(pushResult.key);
     
-    return result
+    return {...result, firebaseKey: pushResult.key}
   }
 
   async getAlbums(): Promise<imgurBaseAlbum[]> {
@@ -67,12 +69,13 @@ export default class ImgurBase extends Imgur {
     }))
   }
 
-  async removeAlbum({deleteHash, firebaseKey}) {
+  async removeAlbum({deletehash, firebaseKey}) {
     try {
-      await super.removeAlbum(deleteHash)
+      await super.removeAlbum(deletehash)
       firebase.database().ref(`albums/${firebaseKey}`).remove()
       return 'succes'
     } catch (error) {
+      console.log(error);
       
     }
     // .remove()

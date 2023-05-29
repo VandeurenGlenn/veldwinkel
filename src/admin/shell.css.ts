@@ -8,7 +8,7 @@ export default css`
   width: 100%;
   height: 100%;
   color: #eee;
-  background: #445c68;
+  background: var(--surface-color);
   --svg-icon-color: #eee;
 }
 custom-drawer {
@@ -17,7 +17,9 @@ custom-drawer {
   left: 0;
   bottom: 0;
   transform: translateX(-105%);
-  background: #1a1f229e;
+  background: #2d2f31;
+  border-bottom-right-radius: 24px;
+  border-top-right-radius: 24px;
 }
 ::slotted(custom-pages) {
   position: absolute;
@@ -26,7 +28,6 @@ custom-drawer {
   top: 0;
   top: 56px;
   left: 0;
-  background: #1a1f229e;
 }
 translated-string[name="title"] {
   padding-left: 12px;
@@ -37,7 +38,7 @@ header {
   align-items: center;
   height: 56px;
   min-height: 56px;
-  background: #38464e;
+  background: var(--surface-color);
   position: absolute;
   box-sizing: border-box;
   right: 0;
@@ -80,43 +81,12 @@ custom-drawer {
   position: fixed;
   z-index: 100;
 }
-.flex {
-  flex: 1;
-}
 
-custom-selector {
+md-list {
   height: 100%;
 }
-section {
-  display: flex;
-  flex-direction: column;
-}
-.container {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-[menu-item] {
-  transform: scale(0);
-  height: 0px !important;
-  padding: 0 !important;
-}
-[menu-item][shown] {
-  height: auto !important;
-  padding: 12px 12px 12px 36px !important;
-  transform: scale(1);
-}
-[data-route="catalog"][shown] custom-svg-icon {
-  transform: rotate(90deg)
-}
+
 @media (min-width: 720px) {
-  section {
-    align-items: center;
-    justify-content: center;
-  }
-  .container {
-    max-width: 640px;
-  }
   custom-drawer {
     position: absolute;
   }

@@ -10,16 +10,16 @@ import { property } from 'lit/decorators.js';
 import { map } from 'lit/directives/map.js';
 import '../../elements/items/album-list-item.js'
 import '@material/web/list/list.js'
-import '@material/web/list/list-item-link.js'
+import '@material/web/list/list-item.js'
 import { firebaseImgurAlbum, imgurBaseAlbum } from '../../../apis/imgur-base.js';
 
 declare global {
   interface HTMLElementTagNameMap {
-    'images-albums': ImagesAlbums
+    'images-album': ImagesAlbum
   }
 }
 
-export default class ImagesAlbums extends LitElement {
+export default class ImagesAlbum extends LitElement {
 
   @property({type: Array})
   albums = []
@@ -175,10 +175,10 @@ export default class ImagesAlbums extends LitElement {
       <md-list>
         ${
           map(this.albums, (album: imgurBaseAlbum) => html`
-            <md-list-item-link headline="${album.title?.length > 31 ? `${album.title.slice(0, 31)}...` : album.title}" href="/#!/images/albums?selected=${album.firebaseKey}">
+            <md-list-item headline="${album.title?.length > 31 ? `${album.title.slice(0, 31)}...` : album.title}">
               <flex-one></flex-one>
               <md-standard-icon-button data-variant="icon" slot="end" @click=${(event) => this.removeAlbum(album.deletehash, album.firebaseKey)}>delete</md-standard-icon-button>
-            </md-list-item-link> 
+            </md-list-item> 
           `)
         }
       </md-list>
@@ -190,4 +190,4 @@ export default class ImagesAlbums extends LitElement {
   }
 }
 
-customElements.define('images-albums', ImagesAlbums);
+customElements.define('images-album', ImagesAlbum);

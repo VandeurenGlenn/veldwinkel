@@ -7,67 +7,38 @@ export default html`
 </header>
 
 <custom-drawer>
-  <header slot="header">
-    <h3>Guldentop veldwinkel</h3>
-  </header>
-  <custom-selector slot="content" attr-for-selected="data-route" selected="">
+  <top-menu slot="content" attr-for-selected="data-route" selected="">
 
-    <span class="row selection" data-route="orders" >
-      bestellingen
-    </span>
-    
-    <span class="row selection" data-route="collections" >
+    <menu-item headline="orders"></menu-item>
+
+    <menu-item headline="collections"></menu-item>
+
+    <sub-menu headline="catalog">
+      <menu-item headline="categories" route="catalog/categories"></menu-item>
+
+      <menu-item headline="offers" route="catalog/offers"></menu-item>
+
+      <menu-item headline="products" route="catalog/products"></menu-item>
+    </sub-menu>
+
+    <sub-menu headline="media">
+
+      <sub-menu headline="images">
+        <menu-item headline="albums" route="media/images/albums"></menu-item>
+        <menu-item headline="library" route="media/images/library"></menu-item>
+      </sub-menu>
       
-      
-      <translated-string>collections</translated-string>
-    </span>
-            
-    <span class="row selection" data-route="catalog" subber>
-      <custom-svg-icon icon="chevron-right"></custom-svg-icon>
-      
-      <translated-string>catalog</translated-string>
-    </span>
-    
-    <span class="row selection" data-route="categories" menu-item="catalog">          
-      <translated-string>categories</translated-string>
-    </span>
-    
-    <span class="row selection" data-route="offers"  menu-item="catalog">
-      <translated-string>offers</translated-string>
-    </span>
 
-    <span class="row selection" data-route="products" menu-item="catalog">
-      <translated-string>products</translated-string>
-    </span>
+      <sub-menu headline="videos">
+        <menu-item headline="albums" route="media/videos/albums"></menu-item>
+        <menu-item headline="library" route="media/videos/library"></menu-item>
+      </sub-menu>
+    </sub-menu>
 
-    <span class="row selection" data-route="media" subber>
-      <custom-svg-icon icon="chevron-right"></custom-svg-icon>
-      
-      <translated-string>media</translated-string>
-    </span>
-    
-    <span class="row selection" data-route="images" menu-item="media">          
-      <translated-string>images</translated-string>
-    </span>
-    
-    <span class="row selection" data-route="videos"  menu-item="media">
-      <translated-string>videos</translated-string>
-    </span>
-    <!-- <span class="row selection" data-route="sheet" >
-      <custom-svg-icon icon="info"></custom-svg-icon>
-      <span class="flex"></span>
-      sheet
-    </span> -->
+    <flex-it flex="1"></flex-it>
 
-    <span class="flex" style="pointer-events: none;"></span>
-
-    <span class="row selection" data-route="settings" >
-      <custom-svg-icon icon="settings"></custom-svg-icon>
-      <span class="flex"></span>
-      settings
-    </span>
-
-  </custom-selector>
+    <menu-item headline="settings" route="settings"></menu-item>
+  </top-menu>
 </custom-drawer>
 <slot></slot>
 `

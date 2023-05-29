@@ -1,6 +1,7 @@
 import { LitElement } from 'lit';
 import '@material/web/list/list-item.js';
 import '@material/web/icon/icon.js';
+import '@material/web/iconbutton/filled-icon-button.js';
 export declare class OfferItem extends LitElement {
     #private;
     draggable: boolean;

@@ -1,6 +1,7 @@
 import Imgur, { albumParams } from './imgur/imgur.js';
 export declare type firebaseImgurAlbum = {
     id: string;
+    firebaseKey: string;
     deletehash: string;
 };
 export declare type imgurBaseAlbum = {
@@ -37,8 +38,8 @@ export default class ImgurBase extends Imgur {
     constructor();
     createAlbum({ ids, title, description, cover }: albumParams): Promise<firebaseImgurAlbum>;
     getAlbums(): Promise<imgurBaseAlbum[]>;
-    removeAlbum({ deleteHash, firebaseKey }: {
-        deleteHash: any;
+    removeAlbum({ deletehash, firebaseKey }: {
+        deletehash: any;
         firebaseKey: any;
     }): Promise<string>;
 }
