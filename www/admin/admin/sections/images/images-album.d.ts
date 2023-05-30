@@ -15,10 +15,10 @@ declare global {
 }
 export default class ImagesAlbum extends LitElement {
     #private;
-    albums: any[];
+    selection: string;
+    images: string[];
+    willUpdate(changedProperties: any): Promise<void>;
     constructor();
-    connectedCallback(): Promise<void>;
-    createAlbum(): Promise<void>;
     removeAlbum(deletehash: any, firebaseKey: any): Promise<void>;
     static styles: import("lit").CSSResult[];
     render(): import("lit-html").TemplateResult<1>;

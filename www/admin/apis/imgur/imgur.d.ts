@@ -24,4 +24,9 @@ export default class Imgur {
     removeAlbum(deleteHash: any): Promise<string>;
     getAlbum(id: any): Promise<any>;
     getAlbumImages(id: any): Promise<any>;
+    addImage({ image, title, description }: {
+        image: any;
+        title: any;
+        description: any;
+    }): Promise<any>;
 }

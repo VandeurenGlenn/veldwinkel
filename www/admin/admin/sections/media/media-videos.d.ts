@@ -1,7 +1,8 @@
 import { LitElement } from 'lit';
-export default class ImagesLibrary extends LitElement {
+export default class mediaVideos extends LitElement {
+    #private;
     constructor();
-    upload(): void;
     static styles: import("lit").CSSResult[];
+    select(route: any): Promise<void>;
     render(): import("lit-html").TemplateResult<1>;
 }

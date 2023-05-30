@@ -42,4 +42,5 @@ export default class ImgurBase extends Imgur {
         deletehash: any;
         firebaseKey: any;
     }): Promise<string>;
+    getAlbumImages(firebaseKey: string): Promise<any>;
 }

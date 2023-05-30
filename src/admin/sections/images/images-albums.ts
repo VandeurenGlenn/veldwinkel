@@ -43,6 +43,18 @@ export default class ImagesAlbums extends LitElement {
     console.log(this.albums);
     
     this.requestUpdate('albums')
+
+    pubsub.subscribe('event.albums', ({ type, key }) => {
+      if (type === 'delete') {
+        const index = this.albums.indexOf(this.albums.filter(item => item.firebaseKey === key)[0])
+        console.log(index);
+        
+        this.albums.splice(index)
+        console.log(this.albums);
+        
+        this.requestUpdate('albums')
+      }
+    })
     // api.getAlbum()
   }
 
@@ -175,7 +187,7 @@ export default class ImagesAlbums extends LitElement {
       <md-list>
         ${
           map(this.albums, (album: imgurBaseAlbum) => html`
-            <md-list-item-link headline="${album.title?.length > 31 ? `${album.title.slice(0, 31)}...` : album.title}" href="/#!/images/albums?selected=${album.firebaseKey}">
+            <md-list-item-link headline="${album.title?.length > 31 ? `${album.title.slice(0, 31)}...` : album.title}" href="/#!/media/images/album?selected=${album.firebaseKey}">
               <flex-one></flex-one>
               <md-standard-icon-button data-variant="icon" slot="end" @click=${(event) => this.removeAlbum(album.deletehash, album.firebaseKey)}>delete</md-standard-icon-button>
             </md-list-item-link> 

@@ -6,12 +6,22 @@ export default class ImagesLibrary extends LitElement {
     super()
   }
 
+  upload() {
+    
+  }
+
   static styles = [
     css``
   ]
 
   render() {
-    return html``
+    return html`
+    
+    
+    <md-fab label=${globalThis.translate('create')} @click=${this.upload}>
+      <md-icon slot="icon">upload</md-icon>
+    </md-fab>
+    `
   }
 }
 

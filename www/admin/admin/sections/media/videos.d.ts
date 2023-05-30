@@ -2,7 +2,7 @@ import { LitElement } from 'lit';
 export default class mediaVideos extends LitElement {
     #private;
     constructor();
-    static styles: import("lit").CSSResult[];
+    static styles: any[];
     select(route: any): Promise<void>;
-    render(): import("lit-html").TemplateResult<1>;
+    render(): any;
 }

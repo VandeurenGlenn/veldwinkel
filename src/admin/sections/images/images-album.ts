@@ -21,11 +21,24 @@ declare global {
 
 export default class ImagesAlbum extends LitElement {
 
+  @property({type: String})
+  selection: string
+
   @property({type: Array})
-  albums = []
+  images: string[]
 
   #dialogTask: 'create' | 'remove'
   #currentlyRemoving
+
+  async willUpdate(changedProperties) {
+    if (changedProperties.has('selection')) {
+      this.images = await api.getAlbumImages(this.selection)
+      console.log(this.images);
+      
+      this.requestUpdate('images')
+    }
+  }
+
   constructor() {
     super()
     
@@ -36,52 +49,18 @@ export default class ImagesAlbum extends LitElement {
     return this.renderRoot.querySelector('md-dialog')
   }
 
-  async connectedCallback(): Promise<void> {
-    super.connectedCallback()
-    await this.updateComplete
-    this.albums = await api.getAlbums()
-    console.log(this.albums);
-    
-    this.requestUpdate('albums')
-    // api.getAlbum()
-  }
-
   #onAction = async ({detail}) => {
-    
-    if (detail.action === 'submit' && this.#dialogTask === 'create') {
-      const title = this.#dialog.querySelector('[label="title"]').value
-      const description = this.#dialog.querySelector('[label="description"]').value
-      const result = await api.createAlbum({title, description})
-      const album = await api.getAlbum(result.id)
-      this.albums.push({...result, ...album})
-      this.requestUpdate('albums')
-    }
 
     if (detail.action === 'submit' && this.#dialogTask === 'remove') {
       const deletehash = this.#dialog.querySelector('.deletehash').getAttribute('deletehash')
       const firebaseKey = this.#currentlyRemoving
       await api.removeAlbum({deletehash, firebaseKey})
-      
-      const index = this.albums.indexOf(this.albums.filter(item => item.deletehash === deletehash)[0])
-      console.log(index);
-      
-      this.albums.splice(index)
-      console.log(this.albums);
-      
-      this.requestUpdate('albums')
+      pubsub.publish('event.albums', { type: 'delete', key: firebaseKey})
     }
     
     
     // @ts-ignore
     this.#dialog.removeEventListener('closed', this.#onAction)
-  }
-
-  async createAlbum()  {
-    this.#dialogTask = 'create'
-    render(this.#createAlbumDialogTemplate(), this.#dialog)
-    this.#dialog.open = true
-    // @ts-ignore
-    this.#dialog.addEventListener('closed', this.#onAction)
   }
 
   async removeAlbum(deletehash, firebaseKey) {

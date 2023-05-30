@@ -1,5 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js'
+import './media-images.js'
+import './media-videos.js'
 
 @customElement('media-section')
 export class MediaSection extends LitElement {
@@ -12,8 +14,6 @@ export class MediaSection extends LitElement {
   ];
 
   select(route) {
-    console.log({route});
-    
     this.renderRoot.querySelector('custom-pages').select(route)
   }
 

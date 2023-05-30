@@ -69,11 +69,6 @@ custom-drawer .selection {
   cursor: pointer;
   color: #eee;
 }
-custom-drawer .custom-selected {
-  background: #eee;
-  color: #616161;
-  --svg-icon-color: #616161;
-}
 custom-drawer custom-svg-icon {
   pointer-events: none;
 }

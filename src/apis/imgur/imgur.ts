@@ -102,6 +102,28 @@ export default class Imgur {
       throw new Error(error)
     }
   }
+
+  async addImage({image, title, description}) {
+    const headers = this.headers
+    const formdata = new FormData();
+    formdata.append('image', image);
+    formdata.append('type', 'base64')
+    formdata.append('description', description)
+    formdata.append('title', title)
+
+    const requestOptions = {
+      method: 'POST',
+      headers: headers,
+      body: formdata
+    };
+
+    try {
+      const response = await fetch("https://api.imgur.com/3/upload", requestOptions)  
+      return (await response.json()).data
+    } catch (error) {
+      throw new Error(error)
+    }
+  }
 }
   
 

@@ -80,4 +80,12 @@ export default class ImgurBase extends Imgur {
     }
     // .remove()
   }
+
+  async getAlbumImages(firebaseKey: string): Promise<any> {
+
+    const albums = await (await this.#ref.once('value')).val()
+    const id = Object.entries(albums).filter(([key]) => key === firebaseKey)[0].id
+    return super.getAlbumImages(id)
+  }
+  
 }
