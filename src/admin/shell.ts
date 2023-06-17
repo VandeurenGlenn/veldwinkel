@@ -118,16 +118,24 @@ export default class AdminShell extends LitElement {
     this.shadowRoot.querySelector('top-menu').select(route)
     this.pages.select(paths[0])
     let previous = this.pages.querySelector(`[route="${paths[0]}"]`)
-
+    console.log({paths});
     paths.shift()
+    console.log({paths});
+    
     // console.log(paths && i === paths.length - 1 );
     
     for (let i = 0; i < paths.length; i++) {
-      previous.select(paths[i])
       const el = previous.shadowRoot.querySelector(`[route="${paths[i]}"]`)
       console.log(el);
+
       if (selection && i === paths.length - 1 ) el.selection = selection
-      else if (i !== paths.length - 1) el.select(paths[i + 1])
+      
+      if (i !== paths.length - 1 && selection) {
+        previous.select(paths[i + 1])
+      } else {
+        previous.select(paths[i])
+      }
+
       previous = el
     }
   }

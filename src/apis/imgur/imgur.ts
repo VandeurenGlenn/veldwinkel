@@ -1,10 +1,4 @@
-/**
- * imgur image hash
- */
-export declare type imageHash = string
-                  
-export declare type albumParams = { ids?:  imageHash[], title: string, description: string, cover?: imageHash }
-export declare type imgurCreateAlbumResponse = { id: string, deletehash: string}
+import { imgurAlbumParams, imgurCreateAlbumResponse, imgurImageParams, imgurImageResponse } from "./types.js"
 
 export default class Imgur {
   #authorizationHeader: string
@@ -23,8 +17,7 @@ export default class Imgur {
     return headers
   }
 
-
-  async createAlbum({ ids, title, description, cover }: albumParams): Promise<imgurCreateAlbumResponse> {
+  async createAlbum({ ids, title, description, cover }: imgurAlbumParams): Promise<imgurCreateAlbumResponse> {
     const headers = this.headers
     const formdata = new FormData();
     if (ids) {
@@ -56,9 +49,7 @@ export default class Imgur {
     const requestOptions = {
       method: 'DELETE',
       headers: headers
-    };
-
-    
+    }
     try {
       const response = await fetch(`https://api.imgur.com/3/album/${deleteHash}`, requestOptions)  
       return response.text()
@@ -83,7 +74,7 @@ export default class Imgur {
     }
   }
 
-  async getAlbumImages(id) {
+  async getAlbumImages(id): Promise<imgurImageResponse[]> {
     const headers = this.headers    
 
     const requestOptions = {
@@ -92,22 +83,25 @@ export default class Imgur {
     };
 
     try {
-      const response = await fetch(`https://api.imgur.com/3/album/${id}/images`, requestOptions)  
-      console.log(response);
-      console.log(await response.text());
-      
-      
+      const response = await fetch(`https://api.imgur.com/3/album/${id}/images`, requestOptions)
       return (await response.json()).data
     } catch (error) {
       throw new Error(error)
     }
   }
 
-  async addImage({image, title, description}) {
+  /**
+   * Upload image to Imgur (pass deletahash if album is anonymous)
+   * @param imgurImageParams 
+   * @param album 
+   * @returns 
+   */
+  async addImage({image, title, description, album, type}: imgurImageParams): Promise<imgurImageResponse> {
     const headers = this.headers
     const formdata = new FormData();
+    if (album) formdata.append('album', album);
     formdata.append('image', image);
-    formdata.append('type', 'base64')
+    formdata.append('type', type)
     formdata.append('description', description)
     formdata.append('title', title)
 
@@ -118,11 +112,42 @@ export default class Imgur {
     };
 
     try {
-      const response = await fetch("https://api.imgur.com/3/upload", requestOptions)  
+      const response = await fetch("https://api.imgur.com/3/image", requestOptions)  
       return (await response.json()).data
     } catch (error) {
       throw new Error(error)
     }
+  }
+
+  async getImage(id) {
+    const headers = this.headers
+
+    const requestOptions = {
+      method: 'GET',
+      headers: headers
+    }
+
+    try {
+      const response = await fetch(`https://api.imgur.com/3/image/${id}`, requestOptions)
+      return (await response.json()).data
+    } catch (error) {
+      throw new Error(error)
+    }
+  }
+
+  async removeImage(deleteHash) {
+    const headers = this.headers    
+
+    const requestOptions = {
+      method: 'DELETE',
+      headers: headers
+    }
+    try {
+      const response = await fetch(`https://api.imgur.com/3/image/${deleteHash}`, requestOptions)  
+      return response.text()
+    } catch (error) {
+      throw new Error(error)
+    }    
   }
 }
   

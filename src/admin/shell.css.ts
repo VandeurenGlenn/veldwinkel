@@ -8,8 +8,9 @@ export default css`
   width: 100%;
   height: 100%;
   color: #eee;
-  background: var(--surface-color);
+  background: var(--md-sys-color-background);
   --svg-icon-color: #eee;
+  --md-dialog-container-color: var(--md-sys-color-surface)
 }
 custom-drawer {
   position: absolute;
@@ -17,7 +18,7 @@ custom-drawer {
   left: 0;
   bottom: 0;
   transform: translateX(-105%);
-  background: #2d2f31;
+  background: var(--md-sys-color-surface);
   border-bottom-right-radius: 24px;
   border-top-right-radius: 24px;
 }

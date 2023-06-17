@@ -4,7 +4,7 @@
   "terminals": [{
     "name": "watch",
     "commands": [
-      "npm run watch"
+      "npm run watch:admin"
     ]
   }, {
     "name": "serve:shop",

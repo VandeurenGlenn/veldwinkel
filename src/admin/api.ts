@@ -1,5 +1,5 @@
-import ImgurBase from '../apis/imgur-base.js'
-import { albumParams, imgurCreateAlbumResponse } from './../apis/imgur/imgur.js'
+import ImgurBase, { imgurBaseAlbum, imgurBaseImage } from '../apis/imgur-base.js'
+import { imgurAlbumParams, imgurCreateAlbumResponse, imgurImageParams } from '../apis/imgur/types.js'
 
 class Api {
   imgurBase: ImgurBase
@@ -7,7 +7,7 @@ class Api {
     this.imgurBase = new ImgurBase()
   }
 
-  async createAlbum({ ids, title, description, cover }: albumParams): Promise<imgurCreateAlbumResponse> {
+  async createAlbum({ ids, title, description, cover }: imgurAlbumParams): Promise<imgurCreateAlbumResponse> {
     return this.imgurBase.createAlbum({ ids, title, description, cover })
   }
 
@@ -25,6 +25,18 @@ class Api {
 
   removeAlbum(id) {
     return this.imgurBase.removeAlbum(id)
+  }
+
+  addImage(image: imgurImageParams): Promise<imgurBaseImage> {
+    return this.imgurBase.addImage(image)
+  }
+
+  getImages() {
+    return this.imgurBase.getImages()
+  }
+
+  removeImage(id) {
+    return this.imgurBase.removeImage(id)
   }
 }
 

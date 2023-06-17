@@ -1,8 +1,4 @@
-export default (() => {
-  class DeviceApi {
-    constructor() {
-      globalThis.deviceApi = this;
-    }
+export class DeviceApi {
     
     async hasFrontCam() {
       try {
@@ -50,9 +46,23 @@ export default (() => {
      * the desired camera to use
      */
     async _previewCamera(el, facingMode) {
+      if (el.srcObject) el.srcObject = null
       if (!el) throw Error('No target HTMLElement defined');
       if (!this._cameraStream) await this._createCameraStream(facingMode);
       el.srcObject = this._cameraStream;
+    }
+
+    _close() {
+      if (!this._cameraStream) return
+      const tracks = this._cameraStream.getTracks()
+      
+      for (const track of tracks) {
+        track.stop()
+        this._cameraStream.removeTrack(track)
+      }
+      
+      this._cameraStream = undefined
+      this._imageCapture = undefined
     }
 
     /**
@@ -64,12 +74,12 @@ export default (() => {
         preview: (el, facingMode) => this._previewCamera(el, facingMode),
         takePhoto: async facingMode => {
           if (!this._cameraStream) await this._createCameraStream(facingMode);
-          const blob = await this._imageCapture.takePhoto();
-          this._cameraStream = null;
-          return blob;
-        }
+          return this._imageCapture.takePhoto();
+        },
+        close: this._close.bind(this)
       };
     }
   }
-  new DeviceApi();
-})();
+  
+
+export default new DeviceApi();

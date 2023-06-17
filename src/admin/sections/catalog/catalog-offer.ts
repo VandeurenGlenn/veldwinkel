@@ -6,11 +6,11 @@ import '@vandeurenglenn/custom-date/custom-date.js';
 
 import '../../elements/input-fields/input-field.js'
 import { LitElement, html } from 'lit';
-import { customElement, property, query } from 'lit/decorators.js';
+import { property, query } from 'lit/decorators.js';
 import './../../../shop-admin-action-bar'
+import { customElement } from 'define-custom-element-decorator'
 
-@customElement('catalog-offer')
-
+@customElement()
 export default class CatalogOffer extends LitElement {
   #key: string
 

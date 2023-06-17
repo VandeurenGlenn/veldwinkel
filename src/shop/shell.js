@@ -13,8 +13,7 @@ import './../translated-string.js';
 import './../translator.js';
 import OADBManager from './../oadb-manager.js';
 import './../custom-fab.js';
-import './../top-button.js';
-import './../../node_modules/@vandeurenglenn/flex-elements/src/flex-elements'
+import '@vandeurenglenn/flex-elements'
 
 export default define(class AppShell extends ElementBase {
   get badge() {

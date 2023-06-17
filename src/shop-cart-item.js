@@ -16,9 +16,7 @@ export default customElements.define('shop-cart-item', class ShopCartItem extend
     this.count = value.count || 1;
     
     (async () => {
-      let images = await topstore.databases.get('images')
-      images = await images.get(value.uid)
-      this.image = `https://guldentopveldwinkel.be/ipfs/${images.thumbm}`
+      this.image = this.value.image
       this.uid = value.uid;
       this.setAttribute('uid', this.uid);
       this._stamp()

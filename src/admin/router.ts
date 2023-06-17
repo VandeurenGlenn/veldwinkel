@@ -52,6 +52,8 @@ export default class Router {
   constructor(host) {
     this.host = host
     globalThis.onhashchange = () => {
+      console.log('hashChange');
+      
       const hash = location.hash
       const url = new URL(hash.split('#!/')[1], location.origin)
       console.log(url.search);
@@ -66,7 +68,7 @@ export default class Router {
 
       console.log({selection});
       const selected = paths.join('/')
-      history.pushState({selected}, selected, `#!/${selection ? `${selected}?selected=${selection}` : selected}`);
+      // if (history.state !== selected) history.pushState({selected}, selected, `#!/${selection ? `${selected}?selected=${selection}` : selected}`);
       this.host.select(paths, selection)
     }
     if (!location.hash) location.hash = '#!/catalog/offers'

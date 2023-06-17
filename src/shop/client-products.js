@@ -140,8 +140,8 @@ export default define(class ClientProducts extends Renderer(SelectorMixin(HTMLEl
     });
   }
   
-  get offerDisplay() {
-    return window.topstore.databases.get('offerDisplay');
+  get offers() {
+    return window.topstore.databases.get('offers');
   }
 
   get offers() {
@@ -150,21 +150,21 @@ export default define(class ClientProducts extends Renderer(SelectorMixin(HTMLEl
 
 
   async _stamp() {
-    window.offerDisplay = await this.offerDisplay.get();
-    if(offerDisplay && Object.keys(offerDisplay).length === 0) window.offerDisplay = await this.offerDisplay.get()
-    const _offerDisplay = []
-    for (const offer of Object.keys(offerDisplay)) {
-      const index = offerDisplay[offer].index
-      _offerDisplay[index] = offerDisplay[offer]
-      _offerDisplay[index].key = offer
+    window.offers = await this.offers.get();
+    if(offers && Object.keys(offers).length === 0) window.offers = await this.offers.get()
+    const _offers = []
+    for (const offer of Object.keys(offers)) {
+      const index = offers[offer].index
+      _offers[index] = offers[offer]
+      _offers[index].key = offer
     }
-    _offerDisplay
-    for (let {key} of _offerDisplay) {
-      if (offerDisplay[key].public) {
+    _offers
+    for (let {key} of _offers) {
+      if (offers[key].public) {
         const el = document.createElement('client-product-item');
         el.setAttribute('key', key);
         this.appendChild(el);
-        el.value = offerDisplay[key];
+        el.value = offers[key];
       }
     }
   }

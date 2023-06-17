@@ -2,16 +2,8 @@ import './../custom-container.js';
 import './../top-price.js';
 
 export default define(class ClientProduct extends ElementBase {
-  get offerDisplay() {
-    return window.topstore.databases.get('offerDisplay');
-  }
-
   get offers() {
     return window.topstore.databases.get('offers');
-  }
-  
-  get images() {
-    return window.topstore.databases.get('images');
   }
   
   set value(value) {
@@ -21,21 +13,15 @@ export default define(class ClientProduct extends ElementBase {
   }
   set key(value) {
     ( async () => {
-      const promises = [];
       
-      const images = await this.images.get(value)
-      const offer = await this.offers.get(value)
-      const offerDisplay = await this.offerDisplay.get(value)
-      const result = await Promise.all(promises);      
-      if (images) {
+      const offer = await this.offers.get(value)    
+      if (offer.image) {
         if (this.clientWidth > 320) {
-          this.shadowRoot.querySelector('img').src = `https://guldentopveldwinkel.be/ipfs/${images[0]}`;
-        } else {
-          this.shadowRoot.querySelector('img').src = `https://guldentopveldwinkel.be/ipfs/${images['thumbm']}`;
+          this.shadowRoot.querySelector('img').src = `https://guldentopveldwinkel.be/ipfs/${offer.image}`;
         }
       }
       
-      this.item = {...offer, ...offerDisplay};
+      this.item = {...offer};
       this.item.uid = value;
       const { name, description, price, photo, type, portion, pieces } = this.item;
 

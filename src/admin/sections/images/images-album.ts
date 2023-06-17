@@ -1,5 +1,5 @@
 
-import { LitElement, css, html, render } from 'lit';
+import { LitElement, css, html, nothing, render } from 'lit';
 import '@material/web/fab/fab.js'
 import '@material/web/icon/icon.js'
 import '@material/web/iconbutton/standard-icon-button.js'
@@ -11,7 +11,8 @@ import { map } from 'lit/directives/map.js';
 import '../../elements/items/album-list-item.js'
 import '@material/web/list/list.js'
 import '@material/web/list/list-item.js'
-import { firebaseImgurAlbum, imgurBaseAlbum } from '../../../apis/imgur-base.js';
+import { firebaseImgurAlbum, imgurBaseAlbum, imgurBaseImage } from '../../../apis/imgur-base.js';
+import { customElement } from 'define-custom-element-decorator'
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -19,23 +20,30 @@ declare global {
   }
 }
 
+@customElement()
 export default class ImagesAlbum extends LitElement {
 
   @property({type: String})
   selection: string
 
   @property({type: Array})
-  images: string[]
+  album: imgurBaseAlbum
 
   #dialogTask: 'create' | 'remove'
   #currentlyRemoving
 
+  addImage() {
+
+  }
+
   async willUpdate(changedProperties) {
-    if (changedProperties.has('selection')) {
-      this.images = await api.getAlbumImages(this.selection)
-      console.log(this.images);
+    if (changedProperties.has('selection') && this.selection) {
+      console.log(this.selection);
       
-      this.requestUpdate('images')
+      this.album = await api.getAlbum(this.selection)
+      console.log(this.album);
+      
+      this.requestUpdate('album')
     }
   }
 
@@ -78,6 +86,11 @@ export default class ImagesAlbum extends LitElement {
       display: flex;
       flex-direction: column;
       align-items: center;
+    }
+
+    header {
+      display: flex;
+      align-items: center; 
     }
 
     md-fab {
@@ -147,26 +160,29 @@ export default class ImagesAlbum extends LitElement {
   }
 
   render() {
-    return html`
+    return this.album ? html`
     <md-dialog></md-dialog>
 
     <flex-container>
+      <header>
+        <h4>${this.album.title}</h4>
+        <flex-it flex="1"></flex-it>
+        <strong>${this.album.id}</strong>
+      </header>
       <md-list>
-        ${
-          map(this.albums, (album: imgurBaseAlbum) => html`
-            <md-list-item headline="${album.title?.length > 31 ? `${album.title.slice(0, 31)}...` : album.title}">
+        ${this.album ?
+          map(this.album.images, (image: imgurBaseImage) => html`
+            <md-list-item headline="${image.title?.length > 31 ? `${image.title.slice(0, 31)}...` : image.title}">
               <flex-one></flex-one>
-              <md-standard-icon-button data-variant="icon" slot="end" @click=${(event) => this.removeAlbum(album.deletehash, album.firebaseKey)}>delete</md-standard-icon-button>
+              <md-standard-icon-button data-variant="icon" slot="end" @click=${(event) => this.removeAlbum(image.deletehash, image.firebaseKey)}>delete</md-standard-icon-button>
             </md-list-item> 
           `)
-        }
+        : nothing}
       </md-list>
     </flex-container>
-    <md-fab label=${globalThis.translate('create')} @click=${this.createAlbum}>
-      <md-icon slot="icon">add</md-icon>
+    <md-fab label=${globalThis.translate('add image')} @click=${this.addImage}>
+      <md-icon slot="icon">add_photo</md-icon>
     </md-fab>
-    `
+    ` : nothing
   }
 }
-
-customElements.define('images-album', ImagesAlbum);

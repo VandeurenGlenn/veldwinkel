@@ -4,6 +4,7 @@ import { execSync } from 'child_process';
 import { writeFileSync, readFileSync } from 'fs';
 import typescript from '@rollup/plugin-typescript';
 import { copy } from 'fs-extra';
+import nodeResolve from '@rollup/plugin-node-resolve';
 
 try {
   execSync('rm www/shop/**.js')
@@ -47,6 +48,7 @@ export default [{
   plugins: [
     typescript({ compilerOptions: { outDir: 'www/shop' }}),
     json(),
+    nodeResolve(),
     terser({ keep_classnames: true })
   ]
 }];

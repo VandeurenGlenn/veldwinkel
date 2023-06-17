@@ -1,17 +1,4 @@
-/**
- * imgur image hash
- */
-export declare type imageHash = string;
-export declare type albumParams = {
-    ids?: imageHash[];
-    title: string;
-    description: string;
-    cover?: imageHash;
-};
-export declare type imgurCreateAlbumResponse = {
-    id: string;
-    deletehash: string;
-};
+import { imgurAlbumParams, imgurCreateAlbumResponse, imgurImageParams, imgurImageResponse } from "./types.js";
 export default class Imgur {
     #private;
     constructor({ clientId, accessToken, anonymous }: {
@@ -20,13 +7,17 @@ export default class Imgur {
         anonymous?: boolean;
     });
     get headers(): Headers;
-    createAlbum({ ids, title, description, cover }: albumParams): Promise<imgurCreateAlbumResponse>;
+    createAlbum({ ids, title, description, cover }: imgurAlbumParams): Promise<imgurCreateAlbumResponse>;
     removeAlbum(deleteHash: any): Promise<string>;
     getAlbum(id: any): Promise<any>;
-    getAlbumImages(id: any): Promise<any>;
-    addImage({ image, title, description }: {
-        image: any;
-        title: any;
-        description: any;
-    }): Promise<any>;
+    getAlbumImages(id: any): Promise<imgurImageResponse[]>;
+    /**
+     * Upload image to Imgur (pass deletahash if album is anonymous)
+     * @param imgurImageParams
+     * @param album
+     * @returns
+     */
+    addImage({ image, title, description, album, type }: imgurImageParams): Promise<imgurImageResponse>;
+    getImage(id: any): Promise<any>;
+    removeImage(deleteHash: any): Promise<string>;
 }
